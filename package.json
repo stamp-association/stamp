@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "build": "node build.js",
+    "fmt": "prettier --write ."
+  },
+  "devDependencies": {
+    "esbuild": "^0.8.31",
+    "prettier": "^2.2.1"
+  },
+  "dependencies": {
+    "@verto/component": "^0.0.7",
+    "arlocal": "^1.1.16",
+    "arweave": "^1.11.4",
+    "replace-in-file": "^6.3.5",
+    "smartweave": "^0.4.49"
+  }
+}
