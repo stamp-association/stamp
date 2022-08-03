@@ -16,3 +16,11 @@ Any `vouch-for` wallet can create a stamp for any arweave transaction. This feat
 * reward
 
 This is the mechanism that distributes rewards to all of the creators that have the most stamped assets in the community. The reward system will run until 10% of the coin supply has been distributed. The reward function can only be run by the coin creator.
+
+## Deploy
+
+```
+yarn build
+yarn deploy [wallet.json]
+```
+
