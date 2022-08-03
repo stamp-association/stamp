@@ -11,7 +11,7 @@ const initalState = JSON.stringify({
   ticker: 'STAMP-TEST',
   creator,
   balances: {
-    [creator]: 66_000_000
+    [creator]: 10_000_000_000_000
   },
   invocations: [],
   emergencyHaltWallet: creator,
