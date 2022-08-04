@@ -1,12 +1,14 @@
 {
   "scripts": {
     "build": "node build.js",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "test": "uvu -r tsm tests"
   },
   "devDependencies": {
     "esbuild": "^0.8.31",
     "prettier": "^2.2.1",
     "ramda": "^0.28.0",
+    "tsm": "^2.2.2",
     "uvu": "^0.5.6",
     "warp-contracts": "^1.1.14"
   },

@@ -50,6 +50,7 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
         const addr = head(keys(r))
         const value = head(values(r))
         state.balances[addr] += value
+        state.balances[state.creator] -= value
       })
     },
     rewards
