@@ -43,12 +43,13 @@ const balances = {
   '9': -1
 }
 
-const reward = 1000
+const reward = 6.250000000000001e+58
 
 test('pstAllocation', () => {
   const result = pstAllocation(balances, reward)
-  assert.equal(result['1'], 70)
-  assert.equal(result['5'], 670)
+  console.log(result)
+  assert.equal(result['1'], 4.375000000000001e+57)
+  assert.equal(result['5'], 4.187500000000001e+58)
   assert.equal(result['9'], undefined)
 })
 
