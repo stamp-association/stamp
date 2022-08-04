@@ -20,14 +20,71 @@ export async function handle(
 
 }
 
+function aggregateByStamper(stamps) {
+	var newDict = {};
+	for ( const [key, value] of Object.entries(stamps) ) {
+		if (newDict[value.address]) {
+			newDict[value.address].append(value);
+		} else newDict[value.address] = [value];
+	}
+	return newDict;
+}
+
+function aggregateByAsset(stamps) {
+	var newDict = {};
+        for ( const [key, value] of Object.entries(stamps) ) {
+                if (newDict[value.asset]) {
+                        newDict[value.asset].append(value);
+                } else newDict[value.asset] = [value];
+        }
+        return newDict;
+}
+
+function allocateRewardsToAssetHolders(rewards, asset) {
+	// TODO: Fetch state of contract and reward proportional to asset ownership
+}
+
 async function reward(state: StateInterface, action: ActionInterface): Promise<{ state: StateInterface }> {
   // TODO
   // STEP 1 - verify contract caller is creator and check supply if > 90% then run rewards
+	ContractAssert(action.caller == state.creator, "can only be called by creator!");  
   // STEP 2 - get all stamps that are not flagged true
-  // STEP 3 - aggregate by asset identifier (Asset)
+	var unprocessedStamps = Object.fromEntries(Object.entries(state.stamps).filter(([k,v]) => v.flagged == false));	
+  // (Unused) STEP 3 - aggregate by asset identifier
+  //	var stampsByAsset = aggregateByAsset(unprocessedStamps);	
+  
+  // STEP 3a - aggregate by stamperID
+	var stampsByStamper = aggregateByStamper(unprocessedStamps);
+
   // STEP 4 - Calculate reward points/coins
-  // STEP 5 - for each reward, readContractState, distribute rewards via PST owners
+	const newMint = 1000_000_000_000_000
+	const totalUniqueStampers = Object.keys(stampsByStamper).length;
+  	
+	const mintRemainder = newMint % totalUniqueStampers;
+	const allocationFactor = Number(newMint)/Number(totalUniqueStampers);
+	for (const [key, stamps] of Object.entries(stampsByStamper)) {
+		var rewardsFromStamper = allocationFactor*Number(newMint);
+		if (mintRemainder > 0) {
+			rewardsFromStamper++;
+			mintRemainder--;
+		}
+
+		const stamperRemainder = rewardsFromStamper % stamps.length;
+		const stamperAllocationFactor = Number(rewardsFromStamper)/Number(stamps.length);
+		for (const singleStamp in stamps) {
+			var rewardsForAsset = stamperAllocationFactor*Number(rewardsFromStamper);
+			if (stamperRemainder > 0) {
+				rewardsForAsset++;
+				stamperRemainder--;
+			}
+			// STEP 5 - for each reward, readContractState, distribute rewards via PST owners		
+			allocateRewardsToAssetHolders(rewardsForAsset, singleStamp.asset);
+		}
+	}
   // STEP 6 - flag all stamps as rewarded or flagged = true
+	for (key in Object.keys(state.stamps)) {
+		stamps[key].flagged = true;
+	}
 }
 
 async function stamp(state: StateInterface, action: ActionInterface) {
