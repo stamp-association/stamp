@@ -33,7 +33,7 @@ export function mintRewards(stamps: Array<StampInterface>, reward: number) {
       mintRemainder--;
     }
     var stamperRemainder = rewardsFromStamper % value.length
-    const stamperAllocationFactor = Number(rewardsFromStamper) / Number(stamps.length)
+    const stamperAllocationFactor = Number(rewardsFromStamper) / Number(value.length)
     return flatten(map(asset => {
       var rewardsForAsset = stamperAllocationFactor * Number(rewardsFromStamper)
       if (stamperRemainder > 0) {
