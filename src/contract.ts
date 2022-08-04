@@ -10,10 +10,10 @@ import {
   ForeignCallInterface,
 } from "./faces";
 
-import { rewardAllocation, pstAllocation } from './utils'
+import { mintRewards, pstAllocation } from './utils'
 
 const functions = { stamp, reward, transfer, readOutbox, balance, addPair: AddPair, createOrder: CreateOrder, cancelOrder: CancelOrder, halt: Halt }
-const REWARD = 1000
+const REWARD = 1000_000_000_000_000
 
 export async function handle(
   state: StateInterface,
@@ -37,7 +37,7 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   const newStampValues = Object.values(state.stamps).filter(stamp => stamp.flagged === false);
   // STEP 3 - aggregate by asset identifier (Asset)
   // STEP 4 - Calculate reward points/coins
-  const rewards = rewardAllocation(newStampValues, REWARD)
+  const rewards = mintRewards(newStampValues, REWARD)
   // STEP 5 - for each reward, readContractState, distribute rewards via PST owners
   map(
     (reward) => {
