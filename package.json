@@ -9,7 +9,7 @@
     "warp-contracts": "^1.1.14"
   },
   "dependencies": {
-    "@verto/component": "^0.0.7",
+    "@verto/component": "^0.1.1",
     "arlocal": "^1.1.16",
     "arweave": "^1.11.4",
     "replace-in-file": "^6.3.5",
