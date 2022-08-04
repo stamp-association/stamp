@@ -6,6 +6,7 @@
   "devDependencies": {
     "esbuild": "^0.8.31",
     "prettier": "^2.2.1",
+    "ramda": "^0.28.0",
     "warp-contracts": "^1.1.14"
   },
   "dependencies": {

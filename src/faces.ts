@@ -1,6 +1,14 @@
+export interface StampInterface {
+  asset: string;
+  address: string;
+  timestamp: number;
+  flagged: boolean;
+}
+
 export interface StateInterface {
   ticker: string;
   creator: string;
+  supply: number;
   balances: {
     [addr: string]: number;
   };
@@ -11,12 +19,7 @@ export interface StateInterface {
   usedTransfers: Array<any>;
   foreignCalls: Array<any>;
   stamps: {
-    [address_asset: string]: {
-      asset: string;
-      address: string;
-      timestamp: number;
-      flagged: boolean;
-    }
+    [address_asset: string]: StampInterface
   }
 }
 

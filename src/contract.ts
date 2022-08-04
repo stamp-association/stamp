@@ -1,12 +1,19 @@
 import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/component";
+import map from 'ramda/src/map'
+import assoc from 'ramda/src/assoc'
+
 import {
+  StampInterface,
   StateInterface,
   ActionInterface,
   BalanceInterface,
   ForeignCallInterface,
 } from "./faces";
 
+import { rewardAllocation } from './utils'
+
 const functions = { stamp, reward, transfer, readOutbox, balance, addPair: AddPair, createOrder: CreateOrder, cancelOrder: CancelOrder, halt: Halt }
+const REWARD = 1000
 
 export async function handle(
   state: StateInterface,
@@ -21,13 +28,22 @@ export async function handle(
 }
 
 async function reward(state: StateInterface, action: ActionInterface): Promise<{ state: StateInterface }> {
-  // TODO
-  // STEP 1 - verify contract caller is creator and check supply if > 90% then run rewards
+  const caller = action.caller;
+  // STEP 1a - verify contract caller is creator
+  ContractAssert(caller === state.creator, 'Only coin creator can run reward function!')
+  // STEP 1b - check supply if > 90% then run rewards
+  ContractAssert(calcPCT(state.balances[caller], state.supply) > 90, 'rewards are complete')
   // STEP 2 - get all stamps that are not flagged true
+  const newStampValues = Object.values(state.stamps).filter(stamp => stamp.flagged === false);
   // STEP 3 - aggregate by asset identifier (Asset)
   // STEP 4 - Calculate reward points/coins
+  const rewards = rewardAllocation(newStampValues, REWARD)
   // STEP 5 - for each reward, readContractState, distribute rewards via PST owners
+
   // STEP 6 - flag all stamps as rewarded or flagged = true
+  state.stamps = map(assoc('flagged', true), state.stamps)
+
+  return { state }
 }
 
 async function stamp(state: StateInterface, action: ActionInterface) {
@@ -175,4 +191,17 @@ function balance(state: StateInterface, action: ActionInterface) {
       balance: balances[target],
     },
   };
+}
+
+/**
+ * @param {number} bal
+ * @param {number} total
+ * @returns {number}
+ */
+function calcPCT(bal, total) {
+  ContractAssert(typeof bal === 'number', 'Calculate method requires number')
+  ContractAssert(typeof total === 'number', 'Calculate method requires number')
+  const pct = Math.round(bal / total * 100)
+  ContractAssert(typeof pct === 'number', 'Calculate method requires number')
+  return pct
 }
