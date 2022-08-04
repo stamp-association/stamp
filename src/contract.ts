@@ -10,7 +10,7 @@ import {
   ForeignCallInterface,
 } from "./faces";
 
-import { rewardAllocation } from './utils'
+import { rewardAllocation, pstAllocation } from './utils'
 
 const functions = { stamp, reward, transfer, readOutbox, balance, addPair: AddPair, createOrder: CreateOrder, cancelOrder: CancelOrder, halt: Halt }
 const REWARD = 1000
@@ -39,7 +39,21 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   // STEP 4 - Calculate reward points/coins
   const rewards = rewardAllocation(newStampValues, REWARD)
   // STEP 5 - for each reward, readContractState, distribute rewards via PST owners
-
+  map(
+    (reward) => {
+      const asset = head(keys(reward))
+      const coins = head(values(reward))
+      const { balances } = await SmartWeave.contracts.readContractState(asset)
+      const pstRewards = pstAllocation(balances, coins)
+      // apply balances
+      map(r => {
+        const addr = head(keys(r))
+        const value = head(values(r))
+        state.balances[addr] += value
+      })
+    },
+    rewards
+  )
   // STEP 6 - flag all stamps as rewarded or flagged = true
   state.stamps = map(assoc('flagged', true), state.stamps)
 
