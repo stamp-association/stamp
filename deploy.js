@@ -21,7 +21,8 @@ const initalState = JSON.stringify({
   pairs: [],
   usedTransfers: [],
   foreignCalls: [],
-  stamps: {}
+  stamps: {},
+  canEvolve: true
 })
 
 const arweave = Arweave.init({

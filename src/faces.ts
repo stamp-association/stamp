@@ -20,7 +20,8 @@ export interface StateInterface {
   foreignCalls: Array<any>;
   stamps: {
     [address_asset: string]: StampInterface
-  }
+  };
+  canEvolve: boolean;
 }
 
 export interface BalanceInterface {

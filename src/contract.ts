@@ -12,7 +12,15 @@ import {
 
 import { mintRewards, pstAllocation } from './utils'
 
-const functions = { stamp, reward, transfer, readOutbox, balance, addPair: AddPair, createOrder: CreateOrder, cancelOrder: CancelOrder, halt: Halt }
+const handleComponent = (f) => async (s, a) => ({ state: await f(s, a) })
+
+const functions = {
+  evolve, stamp, reward, transfer, readOutbox, balance,
+  addPair: handleComponent(AddPair),
+  createOrder: handleComponent(CreateOrder),
+  cancelOrder: handleComponent(CancelOrder),
+  halt: handleComponent(Halt)
+}
 const REWARD = 1000_000_000_000_000
 
 export async function handle(
@@ -40,7 +48,7 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   const rewards = mintRewards(newStampValues, REWARD)
   // STEP 5 - for each reward, readContractState, distribute rewards via PST owners
   map(
-    (reward) => {
+    async (reward) => {
       const asset = head(keys(reward))
       const coins = head(values(reward))
       const { balances } = await SmartWeave.contracts.readContractState(asset)
@@ -177,6 +185,15 @@ async function readOutbox(state: StateInterface, action: ActionInterface): Promi
   }
 
   return { state: res };
+}
+
+function evolve(state: StateInterface, action: ActionInterface) {
+  if (state.canEvolve) {
+    if (state.creator !== action.caller) {
+      state.evolve = input.value
+    }
+  }
+  return { state }
 }
 
 function balance(state: StateInterface, action: ActionInterface) {

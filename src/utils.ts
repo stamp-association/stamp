@@ -51,9 +51,6 @@ export function mintRewards(stamps, reward) {
 
 export function pstAllocation(balances: Record<string, number>, reward: number) {
   var total = reduce(add, 0, values(balances).filter(v => v > 0))
-  // if (total === 1) {
-  //   total = 100
-  // }
 
   const allocation = mergeAll(reduce((a: Array<any>, s: Array<any>) => {
     const asset = s[0]
@@ -67,12 +64,14 @@ export function pstAllocation(balances: Record<string, number>, reward: number) 
 
     return [...a, { [asset]: Number(coins) }]
   }, [], Object.entries(balances)))
-  // off by one errors :)
+
+  // handle off by one errors :)
   var remainder = reward - sum(values(allocation))
   var iterator = keys(allocation).entries()
   while (remainder > 0) {
     allocation[iterator.next().value[1]]++
     remainder--
   }
+
   return allocation
 }
