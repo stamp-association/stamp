@@ -23,8 +23,7 @@ export function mintRewards(stamps: Array<StampInterface>, reward: number) {
   //const assets = groupBy(byAsset, stamps)
   const totalUniqueStampers = length(keys(stampers))
   var mintRemainder = reward % Number(totalUniqueStampers)
-  // if totalUniqueStampers === 0 ? do what ??
-  const allocationFactor = Number(reward) / Number(totalUniqueStampers)
+  const allocationFactor = Number(totalUniqueStampers) / Number(reward)
 
   return map(([_, value]) => {
     var rewardsFromStamper = allocationFactor * Number(reward)
