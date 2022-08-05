@@ -16,7 +16,7 @@ const stamps = [{
 }
   , {
   asset: 'B',
-  address: '3',
+  address: '2',
   timestamp: new Date(),
   flagged: false
 }

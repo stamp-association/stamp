@@ -18,37 +18,35 @@ import {
   StampInterface,
 } from "./faces";
 
-export function mintRewards(stamps: Array<StampInterface>, reward: number) {
+export function mintRewards(stamps, reward) {
   const stampers = groupBy(prop('address'), stamps)
-  //const assets = groupBy(byAsset, stamps)
   const totalUniqueStampers = length(keys(stampers))
-  var mintRemainder = reward % Number(totalUniqueStampers)
-  const allocationFactor = Number(totalUniqueStampers) / Number(reward)
+  var mintRemainder = reward % totalUniqueStampers
+  const allocation = parseInt(reward / totalUniqueStampers)
 
-  return map(([_, value]) => {
-    var rewardsFromStamper = allocationFactor * Number(reward)
+  return flatten(map(([_, value]) => {
+    var rewardsFromStamper = allocation
     if (mintRemainder > 0) {
       rewardsFromStamper++;
       mintRemainder--;
     }
     var stamperRemainder = rewardsFromStamper % value.length
-    const stamperAllocationFactor = Number(rewardsFromStamper) / Number(value.length)
-    return flatten(map(asset => {
-      var rewardsForAsset = stamperAllocationFactor * Number(rewardsFromStamper)
+    const stamperAllocation = parseInt(rewardsFromStamper / value.length)
+    return map(asset => {
+      var rewardsForAsset = stamperAllocation
       if (stamperRemainder > 0) {
         rewardsForAsset++
         stamperRemainder--
       }
-      return [asset, rewardsForAsset]
+      return { asset, rewardsForAsset }
     },
       pluck('asset', value)
-    ))
-
+    )
   },
-
     toPairs(stampers)
-  ).reduce((a, [asset, reward]) => a[asset] ? assoc(asset, a[asset] + reward, a) : assoc(asset, reward, a), {})
+  )).reduce((a, { asset, rewardsForAsset }) => a[asset] ? assoc(asset, a[asset] + rewardsForAsset, a) : assoc(asset, rewardsForAsset, a), {})
 }
+
 
 export function rewardAllocation(stamps: Array<StampInterface>, reward: number) {
   return reduce((a: Array<Record<string, number>>, s: StampInterface) => {
