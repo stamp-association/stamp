@@ -71,8 +71,7 @@ const stamps = [{
 ]
 
 test('run rewards', () => {
-  const result = mintRewards(stamps, 1000_000_000_000_000)
-  console.log(result)
-  assert.equal(result.A, 178571428571430)
-  assert.equal(result.C, 464285714285715)
+  const mint = 1000_000_000_000_000
+  const result = mintRewards(stamps, mint)
+  assert.equal(Object.values(result).reduce((a, b) => a + b, 0), mint)
 })
