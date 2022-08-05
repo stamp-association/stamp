@@ -3,18 +3,14 @@ import Arweave from 'arweave'
 import { WarpNodeFactory, LoggerFactory } from 'warp-contracts'
 import fs from 'fs'
 
-const COINS = 10_000_000_000_000
 const walletFile = process.argv.slice(2)[0]
 const wallet = JSON.parse(fs.readFileSync(walletFile, 'utf-8'))
 const src = fs.readFileSync('./dist/contract.js', 'utf-8')
 const creator = '4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c'
-const initalState = JSON.stringify({
-  ticker: 'STAMP-TEST',
+const initState = JSON.stringify({
+  ticker: 'STAMPCOIN-TEST-v0.8',
   creator,
-  supply: COINS,
-  balances: {
-    [creator]: COINS
-  },
+  balances: {},
   invocations: [],
   emergencyHaltWallet: creator,
   halted: false,
@@ -31,10 +27,13 @@ const arweave = Arweave.init({
   protocol: 'https'
 })
 
+LoggerFactory.INST.logLevel('error')
 const warp = WarpNodeFactory.memCached(arweave)
 
-await warp.createContract.deploy({
-  initState: initialState,
+const result = await warp.createContract.deploy({
+  initState,
   src,
   wallet
-})
+}, true)
+
+console.log(result)

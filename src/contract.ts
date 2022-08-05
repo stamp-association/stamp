@@ -28,6 +28,15 @@ export async function handle(
   action: ActionInterface
 ): Promise<{ state: StateInterface } | { result: BalanceInterface }> {
 
+  if (action.input.function === 'addPair') {
+    const s = await AddPair(state, action)
+    return { state: s }
+  }
+  if (action.input.function === 'createOrder') {
+    const resultObj = await CreateOrder(state, action)
+    return { state: resultObj.state }
+  }
+
   if (Object.keys(functions).includes(action.input.function)) {
     return functions[action.input.function](state, action)
   }
@@ -39,8 +48,6 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   const caller = action.caller;
   // STEP 1a - verify contract caller is creator
   ContractAssert(caller === state.creator, 'Only coin creator can run reward function!')
-  // STEP 1b - check supply if > 90% then run rewards
-  ContractAssert(calcPCT(state.balances[caller], state.supply) > 90, 'rewards are complete')
   // STEP 2 - get all stamps that are not flagged true
   const newStampValues = Object.values(state.stamps).filter(stamp => stamp.flagged === false);
   // STEP 3 - aggregate by asset identifier (Asset)
@@ -52,14 +59,13 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
       const asset = head(keys(reward))
       const coins = head(values(reward))
       const { balances } = await SmartWeave.contracts.readContractState(asset)
-      const pstRewards = pstAllocation(balances, coins)
       // apply balances
       map(r => {
         const addr = head(keys(r))
         const value = head(values(r))
         state.balances[addr] += value
         state.balances[state.creator] -= value
-      })
+      }, pstAllocation(balances, coins))
     },
     rewards
   )
@@ -79,12 +85,12 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   if (stamps[`${caller}:${transactionId}`]) {
     throw new ContractError("Already Stamped Asset!")
   }
-
+  const vouch = "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8"
   // verify user
   const result = await SmartWeave.unsafeClient.api.post('graphql', {
     query: `
 query {
-  transactions(first: 1, tags: { name: "Vouch-For", values: ["${caller}"]}) {
+  transactions(first: 1, owners: ["${vouch}"], tags: { name: "Vouch-For", values: ["${caller}"]}) {
     edges {
       node {
         id
@@ -98,10 +104,11 @@ query {
 }
   `})
 
-  const node = result?.data?.data?.transactions?.edges[0]
+  const { node } = result?.data?.data?.transactions?.edges[0]
+  const vouchFor = node.tags.find(t => t.name === 'Vouch-For')?.value
   // vouched
-  if (node.id) {
-    stamps[`${caller}:${transactionId}`] = {
+  if (vouchFor === caller) {
+    state.stamps[`${caller}:${transactionId}`] = {
       timestamp: new Date(),
       asset: transactionId,
       address: caller,
