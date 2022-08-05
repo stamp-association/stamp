@@ -13,6 +13,7 @@ import prop from 'ramda/src/prop'
 import groupBy from 'ramda/src/groupBy'
 import toPairs from 'ramda/src/toPairs'
 import flatten from 'ramda/src/flatten'
+import sum from 'ramda/src/sum'
 
 import {
   StampInterface,
@@ -48,30 +49,30 @@ export function mintRewards(stamps, reward) {
 }
 
 
-export function rewardAllocation(stamps: Array<StampInterface>, reward: number) {
-  return reduce((a: Array<Record<string, number>>, s: StampInterface) => {
-    const total = length(stamps)
-    const balance = length(filter(propEq('asset', s.asset)), stamps)
-    const pct = Math.round(balance / total * 100)
-    const coins = Math.round(reward * (pct / 100))
-    return a[s.asset] ? assoc(s.asset, a[s.asset] + coins, a) : assoc(s.asset, coins, a)
-  }, {}, stamps)
-}
-
 export function pstAllocation(balances: Record<string, number>, reward: number) {
-  const total = reduce(add, 0, values(balances))
-  return mergeAll(reduce((a: Array<any>, s: Array<any>) => {
+  var total = reduce(add, 0, values(balances).filter(v => v > 0))
+  // if (total === 1) {
+  //   total = 100
+  // }
+
+  const allocation = mergeAll(reduce((a: Array<any>, s: Array<any>) => {
     const asset = s[0]
     const balance = s[1]
 
     // handle zero balance
     if (balance < 1) { return a }
 
-    // what is best practice for safety here with floating points? 
-    // I think they should round up to an integer.
-    const pct = Math.round(balance / total * 100)
+    var pct = balance / total * 100
     const coins = Math.round(reward * (pct / 100))
 
     return [...a, { [asset]: Number(coins) }]
   }, [], Object.entries(balances)))
+  // off by one errors :)
+  var remainder = reward - sum(values(allocation))
+  var iterator = keys(allocation).entries()
+  while (remainder > 0) {
+    allocation[iterator.next().value[1]]++
+    remainder--
+  }
+  return allocation
 }

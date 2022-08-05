@@ -2,23 +2,44 @@ import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import { pstAllocation } from '../src/utils'
 
-const balances = {
-  '1': 1,
-  '2': 1,
-  '3': 4,
-  '5': 10,
-  '8': 0,
-  '9': -1
-}
+//const reward = 1000
 
-const reward = 249999999999999
+test('pstAllocation 1/3', () => {
+  const reward = 1000
+  const balances = {
+    '1': 1,
+    '2': 1,
+    '3': 1
+  }
 
-test('pstAllocation', () => {
   const result = pstAllocation(balances, reward)
   console.log(result)
-  assert.equal(result['1'], 17500000000000)
-  assert.equal(result['5'], 167499999999999)
-  assert.equal(result['9'], undefined)
+  assert.equal(Object.values(result).reduce((a, b) => a + b, 0), reward)
 })
+
+test('pstAllocation 1', () => {
+  const reward = 1000
+  const balances = {
+    '1': 1
+  }
+
+  const result = pstAllocation(balances, reward)
+  console.log(result)
+  assert.equal(Object.values(result).reduce((a, b) => a + b, 0), reward)
+})
+
+/*
+test('pstAllocation fractional', () => {
+  const reward = 1000
+  const balances = {
+    '1': .6,
+    '2': .4
+  }
+
+  const result = pstAllocation(balances, reward)
+  console.log(result)
+  assert.equal(Object.values(result).reduce((a, b) => a + b, 0), reward)
+})
+*/
 
 test.run()
