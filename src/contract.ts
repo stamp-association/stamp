@@ -86,11 +86,12 @@ async function stamp(state: StateInterface, action: ActionInterface) {
     throw new ContractError("Already Stamped Asset!")
   }
   const vouch = "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8"
+  const vouchjs = "UZ1YsJa8yJrw8yynYzhaAikqD1uuMu9gi9u7Ia_Eja8"
   // verify user
   const result = await SmartWeave.unsafeClient.api.post('graphql', {
     query: `
 query {
-  transactions(first: 1, owners: ["${vouch}"], tags: { name: "Vouch-For", values: ["${caller}"]}) {
+  transactions(first: 1, owners: ["${vouch}", "${vouchjs}"], tags: { name: "Vouch-For", values: ["${caller}"]}) {
     edges {
       node {
         id
