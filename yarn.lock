@@ -840,10 +840,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
-"@verto/component@^0.1.1":
+"@verto/flex@^0.1.1":
   version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@verto/component/-/component-0.1.1.tgz#12f81b795d2d2aaacfda025dc10d2c4666a2fc9d"
-  integrity sha512-VTPb1XS3L38q7dPrDc+VfqW8Ihkvuml2NZXBJ4PK7ziqDgAl5PvRkCMWyXbsnzg95J7aYSB5rScbYM8RAN+UCA==
+  resolved "https://registry.yarnpkg.com/@verto/flex/-/flex-0.1.1.tgz#cfc2ee70a1881d9c51d1c615f7e6b1597cae8bc7"
+  integrity sha512-mgNGeJg4GwiM0dcQ2hyvJK7TbcoJETaFhiJpClLMuzmFkHzPmc/aEVxGrLqlzSSu0i8VDS2enPRk+d72qq4umg==
   dependencies:
     arweave "^1.11.4"
     smartweave "^0.4.49"
@@ -4500,6 +4500,11 @@ vm2@3.9.9:
   dependencies:
     acorn "^8.7.0"
     acorn-walk "^8.2.0"
+
+vouch-verified@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/vouch-verified/-/vouch-verified-1.0.4.tgz#bd4b9072b5c26f3f220c92b55aad51fd046384bf"
+  integrity sha512-8Lg4ss2haXs9Ti/kw4kZ2NT99JZQvxg+m7EbBPN/vfFdeCcDhrhsu0adNP906etv0pANIS+I9A8dxakWUSKelA==
 
 warp-contracts@^1.1.14:
   version "1.1.14"

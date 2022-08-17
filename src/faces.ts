@@ -47,6 +47,7 @@ export interface InputInterface {
   target?: string;
   qty?: number;
   contract?: string;
+  timestamp: number;
 }
 
 export interface ForeignCallInterface {

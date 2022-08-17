@@ -6,9 +6,10 @@ import fs from 'fs'
 const walletFile = process.argv.slice(2)[0]
 const wallet = JSON.parse(fs.readFileSync(walletFile, 'utf-8'))
 const src = fs.readFileSync('./dist/contract.js', 'utf-8')
-const creator = '4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c'
+const creator = 'gpjgoaeJ_GhAZXeyGYY2hKhsoIay4elLJt1EOjSA1kY'
+//const creator = '4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c'
 const initState = JSON.stringify({
-  ticker: 'STAMPCOIN-TEST-v0.8',
+  ticker: 'STAMPCOIN-TEST-v0.9-rc-3',
   creator,
   balances: {},
   invocations: [],

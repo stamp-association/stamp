@@ -12,9 +12,10 @@ const arweave = Arweave.init({
 
 const addr = await arweave.wallets.jwkToAddress(wallet)
 console.log('addr', addr)
-LoggerFactory.INST.logLevel('debug')
+LoggerFactory.INST.logLevel('info')
 const warp = WarpNodeFactory.memCached(arweave)
-const contractId = 'WVurVaTcK0oVXr1o-iv-2LvFBjObFVsO9SeHxSx8KrA'
+//const contractId = 'WVurVaTcK0oVXr1o-iv-2LvFBjObFVsO9SeHxSx8KrA'
+const contractId = 'LW62FOZVJGBM2arG-anyLoYib3k_CTL69tjRm_Wsyxo'
 
 // const result = await warp.pst(contractId)
 //   .setEvaluationOptions({
@@ -25,14 +26,15 @@ const contractId = 'WVurVaTcK0oVXr1o-iv-2LvFBjObFVsO9SeHxSx8KrA'
 // console.log(result)
 
 // STAMP Contract!
-// const id = await warp.pst(contractId)
-//   .connect(wallet)
-//   .bundleInteraction({
-//     function: 'stamp',
-//     transactionId: contractId
-//   })
+const id = await warp.pst(contractId)
+  .connect(wallet)
+  .bundleInteraction({
+    function: 'stamp',
+    transactionId: contractId,
+    timestamp: new Date()
+  })
 
-// console.log(id)
+console.log(id)
 
 const result = await warp.pst(contractId)
   .setEvaluationOptions({

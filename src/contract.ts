@@ -1,4 +1,6 @@
-import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/component";
+import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/flex";
+import { verified } from 'vouch-verified'
+
 import map from 'ramda/src/map'
 import assoc from 'ramda/src/assoc'
 
@@ -30,7 +32,7 @@ export async function handle(
 
   if (action.input.function === 'addPair') {
     const s = await AddPair(state, action)
-    return { state: s }
+    return s
   }
   if (action.input.function === 'createOrder') {
     const resultObj = await CreateOrder(state, action)
@@ -85,13 +87,13 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   if (stamps[`${caller}:${transactionId}`]) {
     throw new ContractError("Already Stamped Asset!")
   }
-  const vouch = "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8"
-  const vouchjs = "UZ1YsJa8yJrw8yynYzhaAikqD1uuMu9gi9u7Ia_Eja8"
-  // verify user
-  const result = await SmartWeave.unsafeClient.api.post('graphql', {
-    query: `
-query {
-  transactions(first: 1, owners: ["${vouch}", "${vouchjs}"], tags: { name: "Vouch-For", values: ["${caller}"]}) {
+
+  const vouchServices = Object.keys(await verified(state, action))
+  // check for ANS-109 vouch record for caller that is owned by vouchServices.
+
+  const query = `
+ query {
+  transactions(owners: [${vouchServices.map(s => `"${s}"`)}], tags: {name: "Vouch-For", values: ["${caller}"]}) {
     edges {
       node {
         id
@@ -102,22 +104,26 @@ query {
       }
     }
   }
-}
-  `})
-
-  const { node } = result?.data?.data?.transactions?.edges[0]
-  const vouchFor = node.tags.find(t => t.name === 'Vouch-For')?.value
-  // vouched
-  if (vouchFor === caller) {
-    state.stamps[`${caller}:${transactionId}`] = {
-      timestamp: new Date(),
-      asset: transactionId,
-      address: caller,
-      flagged: false // this flag is used to process rewards 
-    }
+ } 
+  `
+  // if ANS-109...
+  const result = await SmartWeave.unsafeClient.api.post('graphql', { query })
+  const edges = result?.data?.data?.transactions?.edges || []
+  if (edges.length < 1) {
+    throw new ContractError('Could not vouch caller!')
   }
 
-  return { state }
+  const node = edges[0].node;
+  const vouchFor = node.tags.find((t) => t.name === "Vouch-For")?.value;
+  if (vouchFor === caller) {
+    state.stamps[`${caller}:${transactionId}`] = {
+      timestamp: action.input.timestamp,
+      asset: transactionId,
+      address: caller,
+      flagged: false
+    };
+  }
+  return { state };
 }
 
 function transfer(state, action) {
