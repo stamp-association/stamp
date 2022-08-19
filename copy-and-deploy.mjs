@@ -13,7 +13,7 @@ const creator = '4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c'
 const oldState = await fetch('https://cache.permapages.app/9nDWI3eHrMQbrfs9j8_YPfLbYJmBodgn7cBCG8bii4o')
   .then(res => res.json())
 const newState = Object.assign({}, oldState, {
-  ticker: 'STAMPCOIN-TEST-v0.9x',
+  ticker: 'STAMP-TEST-v10',
   creator,
   emergencyHaltWallet: creator,
   halted: false,
@@ -29,7 +29,7 @@ newState.stamps = stampEntries
 
 //console.log('newState', newState)
 
-const warp = WarpFactory.forTestnet()
+const warp = WarpFactory.forMainnet()
 const result = await warp.createContract.deploy({
   wallet,
   initState: JSON.stringify(newState),

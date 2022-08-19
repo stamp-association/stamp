@@ -27,10 +27,12 @@ export async function handle(
     const s = await AddPair(state, action)
     return { state: s }
   }
+
   if (action.input.function === 'cancelOrder') {
     const s = await CancelOrder(state, action)
     return { state: s }
   }
+
   if (action.input.function === 'createOrder') {
     const resultObj = await CreateOrder(state, action)
     return { state: resultObj.state }
@@ -46,11 +48,10 @@ export async function handle(
     return { state: s }
   }
 
-
-
   if (Object.keys(functions).includes(action.input.function)) {
     return functions[action.input.function](state, action)
   }
+
   throw new ContractError(`${action.input.function} function not implemented!`)
 
 }
@@ -206,17 +207,4 @@ function balance(state: StateInterface, action: ActionInterface) {
       balance: balances[target],
     },
   };
-}
-
-/**
- * @param {number} bal
- * @param {number} total
- * @returns {number}
- */
-function calcPCT(bal, total) {
-  ContractAssert(typeof bal === 'number', 'Calculate method requires number')
-  ContractAssert(typeof total === 'number', 'Calculate method requires number')
-  const pct = Math.round(bal / total * 100)
-  ContractAssert(typeof pct === 'number', 'Calculate method requires number')
-  return pct
 }
