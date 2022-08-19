@@ -1,4 +1,4 @@
-import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/flex";
+import { AddPair, CancelOrder, CreateOrder, Halt, ReadOutbox } from "@verto/flex";
 import { verified } from 'vouch-verified'
 
 import map from 'ramda/src/map'
@@ -14,15 +14,8 @@ import {
 
 import { mintRewards, pstAllocation } from './utils'
 
-const handleComponent = (f) => async (s, a) => ({ state: await f(s, a) })
+const functions = { evolve, stamp, reward, transfer, balance }
 
-const functions = {
-  evolve, stamp, reward, transfer, readOutbox, balance,
-  addPair: handleComponent(AddPair),
-  createOrder: handleComponent(CreateOrder),
-  cancelOrder: handleComponent(CancelOrder),
-  halt: handleComponent(Halt)
-}
 const REWARD = 1000_000_000_000_000
 
 export async function handle(
@@ -32,12 +25,28 @@ export async function handle(
 
   if (action.input.function === 'addPair') {
     const s = await AddPair(state, action)
-    return s
+    return { state: s }
+  }
+  if (action.input.function === 'cancelOrder') {
+    const s = await CancelOrder(state, action)
+    return { state: s }
   }
   if (action.input.function === 'createOrder') {
     const resultObj = await CreateOrder(state, action)
     return { state: resultObj.state }
   }
+
+  if (action.input.function === 'halt') {
+    const s = await Halt(state, action)
+    return { state: s }
+  }
+
+  if (action.input.function === 'readOutbox') {
+    const s = await ReadOutbox(state, action)
+    return { state: s }
+  }
+
+
 
   if (Object.keys(functions).includes(action.input.function)) {
     return functions[action.input.function](state, action)
@@ -161,50 +170,10 @@ function transfer(state, action) {
   return { state };
 }
 
-async function readOutbox(state: StateInterface, action: ActionInterface): Promise<{ state: StateInterface }> {
-  const input = action.input;
-
-  // Ensure that a contract ID is passed
-  ContractAssert(!!input.contract, "Missing contract to invoke");
-
-  // Read the state of the foreign contract
-  const foreignState = await SmartWeave.contracts.readContractState(
-    input.contract
-  );
-
-  // Check if the foreign contract supports the foreign call protocol and compatible with the call
-  ContractAssert(
-    !!foreignState.foreignCalls,
-    "Contract is missing support for foreign calls"
-  );
-
-  // Get foreign calls for this contract that have not been executed
-  const calls: ForeignCallInterface[] = foreignState.foreignCalls.filter(
-    (element: ForeignCallInterface) =>
-      element.contract === SmartWeave.contract.id &&
-      !state.invocations.includes(element.txID)
-  );
-
-  // Run all invocations
-  let res: StateInterface = state;
-
-  for (const entry of calls) {
-    // Run invocation
-    res =
-      // @ts-expect-error
-      (await handle(res, { caller: input.contract, input: entry.input }))
-        .state;
-    // Push invocation to executed invocations
-    res.invocations.push(entry.txID);
-  }
-
-  return { state: res };
-}
-
 function evolve(state: StateInterface, action: ActionInterface) {
   if (state.canEvolve) {
-    if (state.creator !== action.caller) {
-      state.evolve = input.value
+    if (state.creator === action.caller) {
+      state.evolve = action.input.value
     }
   }
   return { state }
