@@ -77,6 +77,8 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
         // apply balances
         if (x.balances && Object.keys(x.balances).length > 0) {
           const r = pstAllocation(x.balances, coins)
+          delete r[undefined]
+          console.log(r)
           return r
         }
         console.log('could not allocate reward to ' + asset)
