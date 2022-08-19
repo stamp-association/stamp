@@ -13,7 +13,7 @@ const creator = '4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c'
 const oldState = await fetch('https://cache.permapages.app/9nDWI3eHrMQbrfs9j8_YPfLbYJmBodgn7cBCG8bii4o')
   .then(res => res.json())
 const newState = Object.assign({}, oldState, {
-  ticker: 'STAMP-TEST-v10',
+  ticker: 'STAMP-DRYRUN', // 'STAMP-TEST-v10'
   creator,
   emergencyHaltWallet: creator,
   halted: false,

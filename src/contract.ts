@@ -3,6 +3,9 @@ import { verified } from 'vouch-verified'
 
 import map from 'ramda/src/map'
 import assoc from 'ramda/src/assoc'
+import head from 'ramda/src/head'
+import keys from 'ramda/src/keys'
+import values from 'ramda/src/values'
 
 import {
   StampInterface,
@@ -65,22 +68,33 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   // STEP 3 - aggregate by asset identifier (Asset)
   // STEP 4 - Calculate reward points/coins
   const rewards = mintRewards(newStampValues, REWARD)
+
   // STEP 5 - for each reward, readContractState, distribute rewards via PST owners
-  map(
-    async (reward) => {
-      const asset = head(keys(reward))
-      const coins = head(values(reward))
-      const { balances } = await SmartWeave.contracts.readContractState(asset)
-      // apply balances
-      map(r => {
-        const addr = head(keys(r))
-        const value = head(values(r))
-        state.balances[addr] += value
-        state.balances[state.creator] -= value
-      }, pstAllocation(balances, coins))
+  const allocations = await Promise.all(map(
+    async ([asset, coins]) => {
+      try {
+        const x = await SmartWeave.contracts.readContractState(asset)
+        // apply balances
+        if (x.balances && Object.keys(x.balances).length > 0) {
+          const r = pstAllocation(x.balances, coins)
+          return r
+        }
+        console.log('could not allocate reward to ' + asset)
+        return null
+      } catch (e) {
+        console.log(e)
+        return null
+      }
     },
-    rewards
-  )
+    Object.entries(rewards)
+  )).then(a => a.filter(o => o !== null))
+
+  // need to apply allocations to state balance
+  allocations.forEach(o => {
+    Object.entries(o).forEach(([addr, v]) => {
+      state.balances[addr] ? state.balances[addr] += v : state.balances[addr] = v
+    })
+  })
   // STEP 6 - flag all stamps as rewarded or flagged = true
   state.stamps = map(assoc('flagged', true), state.stamps)
 
