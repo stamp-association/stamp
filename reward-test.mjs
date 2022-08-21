@@ -5,7 +5,7 @@ import { WarpFactory } from './warp/lib/cjs/index.js'
 const walletFile = process.argv.slice(2)[0]
 const wallet = JSON.parse(fs.readFileSync(walletFile, 'utf-8'))
 
-const CONTRACT = 'bOpSpTXBtxSaqmiNPKYs_A3cejfUC0ywlUJi4imW6EI'
+const CONTRACT = 'aSMILD7cEJr93i7TAVzzMjtci_sGkXcWnqpDkG6UGcA'
 const warp = WarpFactory.forMainnet()
 const contract = warp.contract(CONTRACT).connect(wallet).setEvaluationOptions({
   allowUnsafeClient: true,
@@ -13,7 +13,8 @@ const contract = warp.contract(CONTRACT).connect(wallet).setEvaluationOptions({
 })
 
 const result = await contract.writeInteraction({
-  function: 'reward'
+  function: 'reward',
+  timestamp: Date.now()
 })
 
 console.log('result', result)

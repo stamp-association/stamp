@@ -61,6 +61,7 @@ export async function handle(
 
 async function reward(state: StateInterface, action: ActionInterface): Promise<{ state: StateInterface }> {
   const caller = action.caller;
+  ContractAssert(action.input.timestamp, 'Timestamp is required for reward processing.')
   // STEP 1a - verify contract caller is creator
   ContractAssert(caller === state.creator, 'Only coin creator can run reward function!')
   // STEP 2 - get all stamps that are not flagged true
@@ -68,6 +69,11 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   // STEP 3 - aggregate by asset identifier (Asset)
   // STEP 4 - Calculate reward points/coins
   const rewards = mintRewards(newStampValues, REWARD)
+
+  // create reward log for audit purposes
+  state.rewardLog = Object.entries(rewards).reduce((a, [asset, coins]) => {
+    return [...a, { asset, coins, timestamp: action.input.timestamp }]
+  }, state.rewardLog || [])
 
   // STEP 5 - for each reward, readContractState, distribute rewards via PST owners
   const allocations = await Promise.all(map(
