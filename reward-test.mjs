@@ -12,6 +12,11 @@ const contract = warp.contract(CONTRACT).connect(wallet).setEvaluationOptions({
   allowBigInt: true
 })
 
+// const result = await contract.dryWrite({
+//   function: 'reward',
+//   timestamp: Date.now()
+// })
+
 const result = await contract.writeInteraction({
   function: 'reward',
   timestamp: Date.now()
