@@ -4621,7 +4621,7 @@ vouch-verified@^1.0.4:
   resolved "https://registry.yarnpkg.com/vouch-verified/-/vouch-verified-1.0.4.tgz#bd4b9072b5c26f3f220c92b55aad51fd046384bf"
   integrity sha512-8Lg4ss2haXs9Ti/kw4kZ2NT99JZQvxg+m7EbBPN/vfFdeCcDhrhsu0adNP906etv0pANIS+I9A8dxakWUSKelA==
 
-warp-contracts@1.2.0-rc.1:
+warp-contracts@^1.2.0-rc.1:
   version "1.2.0-rc.1"
   resolved "https://registry.yarnpkg.com/warp-contracts/-/warp-contracts-1.2.0-rc.1.tgz#1bcd58fdb30ab091ef1e894ec743a8996dd5bac5"
   integrity sha512-+dVq9Cc05YEK6TM1tItOLatZFtasx6Ufho/+4cDNHzRElh9vUjJV43vS6KZC3wVKxclUTQEXeRAMn48qfhiR1g==

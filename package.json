@@ -11,7 +11,7 @@
     "ramda": "^0.28.0",
     "tsm": "^2.2.2",
     "uvu": "^0.5.6",
-    "warp-contracts": "1.2.0-rc.1"
+    "warp-contracts": "^1.2.0-rc.1"
   },
   "dependencies": {
     "@verto/flex": "^0.1.1",
