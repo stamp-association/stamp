@@ -14,7 +14,7 @@
     "warp-contracts": "^1.2.0-rc.2"
   },
   "dependencies": {
-    "@verto/flex": "^0.1.1",
+    "@verto/flex": "^0.1.14",
     "arlocal": "^1.1.16",
     "arweave": "^1.11.4",
     "replace-in-file": "^6.3.5",
