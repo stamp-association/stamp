@@ -1,0 +1,13 @@
+{
+  "pairs": [],
+  "halted": false,
+  "stamps": {},
+  "ticker": "DO_NOT_USE",
+  "creator": "4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c",
+  "balances": {},
+  "canEvolve": true,
+  "invocations": [],
+  "foreignCalls": [],
+  "usedTransfers": [],
+  "emergencyHaltWallet": "4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c"
+}

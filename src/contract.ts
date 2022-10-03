@@ -144,6 +144,10 @@ export async function handle(
         throw new ContractError("This claim has already been made");
       }
     }
+
+    if (balances[caller] === undefined) {
+      balances[caller] = 0;
+    }
     // Not already claimed --> can claim
     balances[caller] += obj.qty;
 

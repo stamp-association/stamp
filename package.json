@@ -19,6 +19,7 @@
     "arweave": "^1.11.4",
     "replace-in-file": "^6.3.5",
     "smartweave": "^0.4.49",
-    "vouch-verified": "^1.0.4"
+    "vouch-verified": "^1.0.4",
+    "warp1": "npm:warp-contracts@1.1.14"
   }
 }
