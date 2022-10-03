@@ -4,8 +4,9 @@ import Arweave from 'arweave'
 import ArLocal from 'arlocal'
 import { assoc } from 'ramda'
 import fs from 'fs'
-import { WarpNodeFactory } from 'warp1' // inorder for this to work you need to edit package json and change imports to lib/cjs
+import { WarpNodeFactory, LoggerFactory } from 'warp1' // inorder for this to work you need to edit package json and change imports to lib/cjs
 
+LoggerFactory.INST.logLevel('fatal')
 
 let stampWallet = {}
 let userWallet = {}
@@ -54,6 +55,10 @@ test('evolve stampcoin', async () => {
   assert.equal(stampState.balances[userWallet.addr], 2000000000000010)
 
   assert.ok(true)
+
+  await doStamp(arweave, warp)
+  await doRewards(arweave, warp)
+  console.log(await readState(warp))
 
 
   await arlocal.stop()
@@ -160,7 +165,7 @@ async function deployBarContract(arweave, warp) {
     }),
   });
   tx.addTag("App-Name", "SmartWeaveContract");
-  tx.addTag("Content-Type", "application/x.arweave-manifest+json");
+  tx.addTag("Content-Type", "application/json");
   tx.addTag("Contract-Src", srctx.id);
 
   await arweave.transactions.sign(tx, userWallet.jwk);
@@ -325,7 +330,7 @@ async function setup(arweave) {
     data: JSON.stringify(initState)
   })
   tx.addTag("App-Name", "SmartWeaveContract");
-  tx.addTag("Content-Type", "application/x.arweave-manifest+json");
+  tx.addTag("Content-Type", "application/json");
   tx.addTag("Contract-Src", srctx.id);
 
   await arweave.transactions.sign(tx, stampWallet.jwk);
