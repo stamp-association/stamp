@@ -26,8 +26,8 @@ export async function handle(
   action: ActionInterface
 ): Promise<{ state: StateInterface } | { result: BalanceInterface }> {
   const balances = state.balances;
-  const claimable = state.claimable;
-  const claims = state.claims;
+  const claimable = state.claimable || [];
+  const claims = state.claims || [];
   const input = action.input;
   const caller = action.caller;
 

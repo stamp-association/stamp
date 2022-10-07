@@ -47,7 +47,7 @@ async function sellStampCoin(arweave, warp) {
   }).writeInteraction({
     function: 'createOrder',
     pair: [stampContract, barContract],
-    qty: 1000000
+    qty: 2_000_000_000_000
   })
   await arweave.api.get('mine')
 
@@ -58,7 +58,11 @@ async function sellStampCoin(arweave, warp) {
   }).readState()
   console.log(JSON.stringify(state, null, 2))
 
-
+  warp.contract(barContract).setEvaluationOptions({
+    allowUnsafeClient: true,
+    allowBigInt: true,
+    internalWrites: true
+  }).readState().then(({ state }) => console.log(JSON.stringify(state, null, 2)))
 }
 
 async function buyStampCoin(arweave, warp) {
@@ -70,7 +74,7 @@ async function buyStampCoin(arweave, warp) {
   }).writeInteraction({
     function: 'allow',
     target: stampContract,
-    qty: 1000000
+    qty: 1_000_000_000
   })
   await arweave.api.get('mine')
 
@@ -89,9 +93,9 @@ async function buyStampCoin(arweave, warp) {
   }).writeInteraction({
     function: 'createOrder',
     pair: [barContract, stampContract],
-    price: 10000,
+    price: 10_000,
     transaction: txId,
-    qty: 1000000
+    qty: 1_000_000_000
   })
   await arweave.api.get('mine')
 
@@ -121,8 +125,8 @@ async function setup(arweave, warp) {
     wallet: sellerWallet.jwk,
     initState: JSON.stringify({
       balances: {
-        [sellerWallet.addr]: 100000000000000000,
-        [buyerWallet.addr]: 100000000000000000,
+        [sellerWallet.addr]: 1_000_000_000,
+        [buyerWallet.addr]: 1_000_000_000,
       },
       canEvolve: true,
       claimable: [],
@@ -148,8 +152,8 @@ async function setup(arweave, warp) {
       "ticker": "DO_NOT_USE",
       "creator": sellerWallet.addr,
       "balances": {
-        [buyerWallet.addr]: 100000000000000000,
-        [sellerWallet.addr]: 100000000000000000
+        [buyerWallet.addr]: 0,
+        [sellerWallet.addr]: 10_000_000_000_000
       },
       "canEvolve": true,
       "invocations": [],

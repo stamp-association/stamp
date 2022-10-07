@@ -986,12 +986,15 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 var feeWallet = "SMft-XozLyxl0ztM-gPSYKvlZVCBiiftNIb4kGFI7wg";
+
 var claimBalance = (tokenID, transferTx, qty) => __async(void 0, null, function* () {
+  console.log('qty', qty)
   const result = yield SmartWeave.contracts.write(tokenID, {
     function: "claim",
     txID: transferTx,
     qty
   });
+  console.log(result)
   if (result.type !== "ok") {
     throw new ContractError(`Unable to make claim with txID: ${transferTx}`);
   }
@@ -1467,8 +1470,8 @@ var functions = { evolve, stamp, reward, transfer, balance };
 var REWARD = 1e15;
 export async function handle(state, action) {
   const balances = state.balances;
-  const claimable = state.claimable;
-  const claims = state.claims;
+  const claimable = state.claimable || [];
+  const claims = state.claims || [];
   const input = action.input;
   const caller = action.caller;
   if (input.function === "readOutbox") {
@@ -1610,7 +1613,6 @@ async function stamp(state, action) {
   if (stamps[`${caller}:${transactionId}`]) {
     throw new ContractError("Already Stamped Asset!");
   }
-  /*
   const vouchServices = Object.keys(await verified(state, action));
   const query = `
  query {
@@ -1634,15 +1636,14 @@ async function stamp(state, action) {
   }
   const node = edges[0].node;
   const vouchFor = node.tags.find((t) => t.name === "Vouch-For")?.value;
-  */
-  //if (vouchFor === caller) {
-  state.stamps[`${caller}:${transactionId}`] = {
-    timestamp: action.input.timestamp,
-    asset: transactionId,
-    address: caller,
-    flagged: false
-  };
-  //}
+  if (vouchFor === caller) {
+    state.stamps[`${caller}:${transactionId}`] = {
+      timestamp: action.input.timestamp,
+      asset: transactionId,
+      address: caller,
+      flagged: false
+    };
+  }
   return { state };
 }
 function transfer(state, action) {
