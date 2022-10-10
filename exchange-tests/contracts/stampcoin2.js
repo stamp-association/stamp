@@ -1100,7 +1100,7 @@ var CreateOrder = (state, action) => __async(void 0, null, function* () {
   if (price) {
     ContractAssert(typeof price === "number", "Price must be a number");
     ContractAssert(price === void 0 || price === null || price > 0, "Price must be greater than 0");
-    ContractAssert(Number.isInteger(price), "Price must be an integer");
+    //ContractAssert(Number.isInteger(price), "Price must be an integer");
   }
   if (!Number.isInteger(qty) || qty === void 0) {
     throw new ContractError("Invalid value for quantity. Must be an integer.");
