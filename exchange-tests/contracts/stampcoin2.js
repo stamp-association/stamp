@@ -986,15 +986,12 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 var feeWallet = "SMft-XozLyxl0ztM-gPSYKvlZVCBiiftNIb4kGFI7wg";
-
 var claimBalance = (tokenID, transferTx, qty) => __async(void 0, null, function* () {
-  console.log('qty', qty)
   const result = yield SmartWeave.contracts.write(tokenID, {
     function: "claim",
     txID: transferTx,
     qty
   });
-  console.log(result)
   if (result.type !== "ok") {
     throw new ContractError(`Unable to make claim with txID: ${transferTx}`);
   }
@@ -1100,7 +1097,6 @@ var CreateOrder = (state, action) => __async(void 0, null, function* () {
   if (price) {
     ContractAssert(typeof price === "number", "Price must be a number");
     ContractAssert(price === void 0 || price === null || price > 0, "Price must be greater than 0");
-    //ContractAssert(Number.isInteger(price), "Price must be an integer");
   }
   if (!Number.isInteger(qty) || qty === void 0) {
     throw new ContractError("Invalid value for quantity. Must be an integer.");
