@@ -1,5 +1,7 @@
-import { WarpFactory } from 'warp-contracts/mjs'
+import { WarpFactory, LoggerFactory } from 'warp-contracts/mjs'
 import fs from 'fs'
+
+LoggerFactory.INST.logLevel('error')
 
 const walletFile = process.argv.slice(2)[0]
 const wallet = JSON.parse(fs.readFileSync(walletFile, 'utf-8'))

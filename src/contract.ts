@@ -194,7 +194,7 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   // STEP 1a - verify contract caller is creator
   ContractAssert(caller === state.creator, 'Only coin creator can run reward function!')
   // STEP 2 - get all stamps that are not flagged true
-  const newStampValues = Object.values(state.stamps).filter(stamp => stamp.flagged === false);
+  const newStampValues = Object.values(state.stamps).filter(stamp => stamp.flagged === false).filter(s => s.asset?.length === 43);
   // STEP 3 - aggregate by asset identifier (Asset)
   // STEP 4 - Calculate reward points/coins
   const rewards = mintRewards(newStampValues, REWARD)
@@ -243,47 +243,22 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   const stamps = state.stamps;
   const transactionId = action.input.transactionId
   ContractAssert(transactionId, 'transactionId is required!')
+  ContractAssert(transactionId.length === 43, 'transactionId must be valid!')
 
   // already stamped by user
   if (stamps[`${caller}:${transactionId}`]) {
     throw new ContractError("Already Stamped Asset!")
   }
+  // TODO: VouchFor via readState
 
-  const vouchServices = Object.keys(await verified(state, action))
-  // check for ANS-109 vouch record for caller that is owned by vouchServices.
-
-  const query = `
- query {
-  transactions(owners: [${vouchServices.map(s => `"${s}"`)}], tags: {name: "Vouch-For", values: ["${caller}"]}) {
-    edges {
-      node {
-        id
-        tags {
-          name
-          value
-        }
-      }
-    }
-  }
- } 
-  `
-  // if ANS-109...
-  const result = await SmartWeave.unsafeClient.api.post('graphql', { query })
-  const edges = result?.data?.data?.transactions?.edges || []
-  if (edges.length < 1) {
-    throw new ContractError('Could not vouch caller!')
-  }
-
-  const node = edges[0].node;
-  const vouchFor = node.tags.find((t) => t.name === "Vouch-For")?.value;
-  if (vouchFor === caller) {
-    state.stamps[`${caller}:${transactionId}`] = {
-      timestamp: action.input.timestamp,
-      asset: transactionId,
-      address: caller,
-      flagged: false
-    };
-  }
+  // if (vouchFor === caller) {
+  state.stamps[`${caller}:${transactionId}`] = {
+    timestamp: action.input.timestamp,
+    asset: transactionId,
+    address: caller,
+    flagged: false
+  };
+  // }
   return { state };
 }
 
