@@ -20,6 +20,7 @@ import { mintRewards, pstAllocation } from './utils'
 const functions = { evolve, stamp, reward, transfer, balance }
 
 const REWARD = 1000_000_000_000_000
+const VOUCH_DAO = '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk'
 
 export async function handle(
   state: StateInterface,
@@ -30,44 +31,6 @@ export async function handle(
   const claims = state.claims || [];
   const input = action.input;
   const caller = action.caller;
-
-  if (input.function === "readOutbox") {
-    // Ensure that a contract ID is passed
-    ContractAssert(!!input.contract, "Missing contract to invoke");
-
-    // Read the state of the foreign contract
-    const foreignState = await SmartWeave.contracts.readContractState(
-      input.contract
-    );
-
-    // Check if the foreign contract supports the foreign call protocol and compatible with the call
-    ContractAssert(
-      !!foreignState.foreignCalls,
-      "Contract is missing support for foreign calls"
-    );
-
-    // Get foreign calls for this contract that have not been executed
-    const calls: ForeignCallInterface[] = foreignState.foreignCalls.filter(
-      (element: ForeignCallInterface) =>
-        element.contract === SmartWeave.contract.id &&
-        !state.invocations.includes(element.txID)
-    );
-
-    // Run all invocations
-    let res: StateInterface = state;
-
-    for (const entry of calls) {
-      // Run invocation
-      res =
-        // @ts-expect-error
-        (await handle(res, { caller: input.contract, input: entry.input }))
-          .state;
-      // Push invocation to executed invocations
-      res.invocations.push(entry.txID);
-    }
-
-    return { state: res };
-  }
 
   if (input.function === "allow") {
     const target = input.target;
@@ -112,7 +75,6 @@ export async function handle(
     // Check to make sure it hasn't been claimed already
     for (let i = 0; i < claims.length; i++) {
       if (claims[i] === txID) {
-        console.log('Already Claimed!')
         return { state }
         //throw new ContractError("This claim has already been made");
       }
@@ -213,7 +175,6 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
         if (x.balances && Object.keys(x.balances).length > 0) {
           const r = pstAllocation(x.balances, coins)
           delete r[undefined]
-          console.log(r)
           return r
         }
         console.log('could not allocate reward to ' + asset)
@@ -249,16 +210,17 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   if (stamps[`${caller}:${transactionId}`]) {
     throw new ContractError("Already Stamped Asset!")
   }
-  // TODO: VouchFor via readState
+  // only vouched users can stamp
+  const vouchDAOstate = await SmartWeave.contracts.readContractState(VOUCH_DAO)
+  ContractAssert(vouchDAOstate.vouched[caller], 'This wallet is not allowed to STAMP! caller is not vouched!')
 
-  // if (vouchFor === caller) {
   state.stamps[`${caller}:${transactionId}`] = {
     timestamp: action.input.timestamp,
     asset: transactionId,
     address: caller,
     flagged: false
   };
-  // }
+
   return { state };
 }
 
