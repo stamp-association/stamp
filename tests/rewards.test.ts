@@ -75,3 +75,5 @@ test('run rewards', () => {
   const result = mintRewards(stamps, mint)
   assert.equal(Object.values(result).reduce((a, b) => a + b, 0), mint)
 })
+
+test.run()

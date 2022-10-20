@@ -1,5 +1,4 @@
 import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/flex";
-import { verified } from 'vouch-verified'
 
 import map from 'ramda/src/map'
 import assoc from 'ramda/src/assoc'
