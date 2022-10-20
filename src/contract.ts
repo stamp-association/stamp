@@ -179,7 +179,7 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
         console.log('could not allocate reward to ' + asset)
         return null
       } catch (e) {
-        console.log(e)
+        console.log('Could not read contract state of ' + asset + ' - ' + e.message)
         return null
       }
     },
@@ -189,7 +189,11 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   // need to apply allocations to state balance
   allocations.forEach(o => {
     Object.entries(o).forEach(([addr, v]) => {
-      state.balances[addr] ? state.balances[addr] += v : state.balances[addr] = v
+      if (state.balances[addr]) {
+        state.balances[addr] += v
+      } else {
+        state.balances[addr] = v
+      }
     })
   })
   // STEP 6 - flag all stamps as rewarded or flagged = true
