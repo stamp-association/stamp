@@ -6,7 +6,7 @@ LoggerFactory.INST.logLevel('error')
 const walletFile = process.argv.slice(2)[0]
 const wallet = JSON.parse(fs.readFileSync(walletFile, 'utf-8'))
 
-const CONTRACT = 'aSMILD7cEJr93i7TAVzzMjtci_sGkXcWnqpDkG6UGcA'
+const CONTRACT = 'jAE_V6oXkb0dohIOjReMhrTlgLW0X2j3rxIZ5zgbjXw'
 const warp = WarpFactory.forMainnet()
 const contract = warp.contract(CONTRACT).connect(wallet).setEvaluationOptions({
   internalWrites: true,
