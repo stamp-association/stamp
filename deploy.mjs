@@ -9,7 +9,7 @@ const src = fs.readFileSync('./dist/contract.js', 'utf-8')
 const creator = 'gpjgoaeJ_GhAZXeyGYY2hKhsoIay4elLJt1EOjSA1kY'
 //const creator = '4ALXfd76F129U8OCv0YUzTSuBTivUeqAVqnLD-sUk4c'
 const initState = JSON.stringify({
-  ticker: 'STAMPCOIN-TEST-v11',
+  ticker: 'STAMPCOIN-TEST-v12',
   creator,
   balances: {},
   invocations: [],
