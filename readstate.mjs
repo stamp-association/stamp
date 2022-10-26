@@ -5,7 +5,7 @@ import { path } from 'ramda'
 const walletFile = process.argv.slice(2)[0]
 const wallet = JSON.parse(fs.readFileSync(walletFile, 'utf-8'))
 
-const CONTRACT = 'jAE_V6oXkb0dohIOjReMhrTlgLW0X2j3rxIZ5zgbjXw'
+const CONTRACT = 'FMRHYgSijiUNBrFy-XqyNNXenHsCV0ThR4lGAPO4chA'
 
 const warp = WarpFactory.forMainnet()
 const contract = warp.contract(CONTRACT).connect(wallet)
