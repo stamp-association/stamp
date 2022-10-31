@@ -243,8 +243,12 @@ function transfer(state: StateInterface, action: ActionInterface) {
   if (!target) {
     throw new ContractError("No target specified.");
   }
+
   if (quantity <= 0 || caller === target) {
     throw new ContractError("Invalid token transfer.");
+  }
+  if (!(caller in balances)) {
+    throw new ContractError("Caller doesn't own any balance.");
   }
   if (balances[caller] < quantity) {
     throw new ContractError(
