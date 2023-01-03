@@ -75,3 +75,10 @@ export function pstAllocation(balances: Record<string, number>, reward: number) 
 
   return allocation
 }
+
+export function divideQty(n) {
+  if (n < 1) {
+    return [0, 0]
+  }
+  return [Math.floor(n * 0.8), Math.floor(n * 0.2)]
+}

@@ -14,12 +14,13 @@ import {
   ForeignCallInterface,
 } from "./faces";
 
-import { mintRewards, pstAllocation } from './utils'
+import { mintRewards, pstAllocation, divideQty } from './utils'
 
 const functions = { evolve, stamp, reward, transfer, balance }
 
 const REWARD = 1000_000_000_000_000
 const VOUCH_DAO = '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk'
+const ANNUAL_BLOCKS = 720 * 365
 
 export async function handle(
   state: StateInterface,
@@ -206,8 +207,21 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   const caller = action.caller;
   const stamps = state.stamps;
   const transactionId = action.input.transactionId
+  const qty = action.input.qty || 0
+  const callerBalance = state.balances[action.caller] || 0
+
+  // initialize credits object to state
+  if (!state.credits) {
+    state.credits = {}
+  }
+
   ContractAssert(transactionId, 'transactionId is required!')
   ContractAssert(transactionId.length === 43, 'transactionId must be valid!')
+
+  // if super stamp request check callers balance
+  if (qty > 0 && qty < callerBalance) {
+    throw new ContractError('Not enough tokens to SuperStamp!')
+  }
 
   // already stamped by user
   if (stamps[`${caller}:${transactionId}`]) {
@@ -216,6 +230,41 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   // only vouched users can stamp
   const vouchDAOstate = await SmartWeave.contracts.readContractState(VOUCH_DAO)
   ContractAssert(vouchDAOstate.vouched[caller], 'This wallet is not allowed to STAMP! caller is not vouched!')
+
+  // do super stamp
+  if (qty > 0) {
+    // is super stamp 
+    // get asset holders from asset
+    const assetState = await SmartWeave.contracts.readContractState(transactionId)
+    // remove rewards from caller
+    state.balances[caller] -= qty
+    // divide super stamp tokens in to 80% and 20% buckets
+    const [rewards, credits] = divideQty(qty)
+    // send 80% to asset holders
+    if (assetState.balances && Object.keys(assetState.balances).length > 0) {
+      const r = pstAllocation(assetState.balances, rewards)
+      delete r[undefined]
+      // apply rewards to asset holders
+      Object.keys(r).forEach(holder => state.balances[holder] += r[holder])
+
+    }
+    // send 20% to credit queue
+    if (assetState.balances && Object.keys(assetState.balances).length > 0) {
+      const c = pstAllocation(assetState.balances, credits)
+      delete c[undefined]
+      // apply credits to asset holders
+      Object.keys(c).forEach(holder => {
+        if (!state.credits[ANNUAL_BLOCKS]) {
+          state.credits[ANNUAL_BLOCKS] = []
+        }
+        state.credits[ANNUAL_BLOCKS].concat([{
+          holder: c[holder],
+          asset: transactionId
+        }])
+      })
+
+    }
+  }
 
   state.stamps[`${caller}:${transactionId}`] = {
     timestamp: action.input.timestamp,
