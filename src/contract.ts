@@ -208,6 +208,7 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   const stamps = state.stamps;
   const transactionId = action.input.transactionId
   const qty = action.input.qty || 0
+
   const callerBalance = state.balances[action.caller] || 0
 
   // initialize credits object to state
@@ -219,7 +220,7 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   ContractAssert(transactionId.length === 43, 'transactionId must be valid!')
 
   // if super stamp request check callers balance
-  if (qty > 0 && qty < callerBalance) {
+  if (qty > 0 && qty > callerBalance) {
     throw new ContractError('Not enough tokens to SuperStamp!')
   }
 
@@ -244,21 +245,26 @@ async function stamp(state: StateInterface, action: ActionInterface) {
     if (assetState.balances && Object.keys(assetState.balances).length > 0) {
       const r = pstAllocation(assetState.balances, rewards)
       delete r[undefined]
+
       // apply rewards to asset holders
-      Object.keys(r).forEach(holder => state.balances[holder] += r[holder])
+      Object.keys(r).forEach(holder => state.balances[holder] = (state.balances[holder] || 0) + r[holder])
 
     }
     // send 20% to credit queue
     if (assetState.balances && Object.keys(assetState.balances).length > 0) {
+      const fbh = SmartWeave.block.height + ANNUAL_BLOCKS
       const c = pstAllocation(assetState.balances, credits)
       delete c[undefined]
+      console.log({ c, credits })
       // apply credits to asset holders
       Object.keys(c).forEach(holder => {
-        if (!state.credits[ANNUAL_BLOCKS]) {
-          state.credits[ANNUAL_BLOCKS] = []
+        // TODO: current block height + ANNUAL_BLOCKS
+        if (!state.credits[fbh]) {
+          state.credits[fbh] = []
         }
-        state.credits[ANNUAL_BLOCKS].concat([{
-          holder: c[holder],
+        state.credits[fbh] = state.credits[fbh].concat([{
+          holder: holder,
+          qty: c[holder],
           asset: transactionId
         }])
       })
