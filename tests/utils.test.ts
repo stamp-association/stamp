@@ -21,6 +21,7 @@ test('pstAllocation 1', () => {
   }
 
   const result = pstAllocation(balances, reward)
+  console.log('result', result)
   assert.equal(Object.values(result).reduce((a, b) => a + b, 0), reward)
 })
 

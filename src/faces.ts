@@ -2,6 +2,7 @@ export interface StampInterface {
   asset: string;
   address: string;
   timestamp: number;
+  super?: boolean;
   flagged: boolean;
 }
 
@@ -21,6 +22,13 @@ export interface StateInterface {
   stamps: {
     [address_asset: string]: StampInterface
   };
+  credits: {
+    [height: string]: {
+      holder: string,
+      qty: number,
+      asset: string
+    }
+  };
   canEvolve: boolean;
 }
 
@@ -37,6 +45,8 @@ export interface ActionInterface {
 
 export interface InputInterface {
   function:
+  | "reward"
+  | "stamp"
   | "transfer"
   | "balance"
   | "readOutbox"
