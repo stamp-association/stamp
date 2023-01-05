@@ -50,6 +50,7 @@ test('stamp a contract', async () => {
     timestamp: ts,
     asset: 'wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek',
     address: '0gf7KpDmLMfCq8oqVeQqqJChzRnx0ZOtWsvHfVYKACo',
+    super: false,
     flagged: false
   })
   assert.ok(true)
@@ -71,6 +72,7 @@ test('super stamp a contract', async () => {
     timestamp: ts,
     asset: 'wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek',
     address: '0gf7KpDmLMfCq8oqVeQqqJChzRnx0ZOtWsvHfVYKACo',
+    super: true,
     flagged: false
   })
   assert.ok(true)

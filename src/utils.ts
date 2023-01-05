@@ -14,10 +14,41 @@ import groupBy from 'ramda/src/groupBy'
 import toPairs from 'ramda/src/toPairs'
 import flatten from 'ramda/src/flatten'
 import sum from 'ramda/src/sum'
+import { compose, over, lensProp, lte } from 'ramda'
 
 import {
   StampInterface,
 } from "./faces";
+
+export function rewardCredits(state, height) {
+  Object.keys(state.credits).filter(k => k < height).forEach(k => {
+    state.credits[k].forEach(c => {
+      if (!state.balances[c.holder]) {
+        state.balances[c.holder] = 0
+      }
+      state.balances[c.holder] = state.balances[c.holder] + c.qty
+    })
+  })
+
+  return compose(
+    over(lensProp('credits'), compose(
+      reduce((a, v) => assoc(v, state.credits[v], a), {}),
+      filter(lte(height)),
+      keys
+    ))
+  )(state)
+  /*
+  
+
+  state.credits = Object.keys(state.credits).filter(k => k >= height).reduce(
+    (credits, height) => {
+      credits[height] = state.credits[height]
+      return credits
+    }
+    , {})
+  return state
+  */
+}
 
 export function mintRewards(stamps, reward) {
   const stampers = groupBy(prop('address'), stamps)

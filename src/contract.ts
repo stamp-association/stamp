@@ -14,7 +14,7 @@ import {
   ForeignCallInterface,
 } from "./faces";
 
-import { mintRewards, pstAllocation, divideQty } from './utils'
+import { mintRewards, pstAllocation, divideQty, rewardCredits } from './utils'
 
 const functions = { evolve, stamp, reward, transfer, balance }
 
@@ -200,6 +200,11 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   // STEP 6 - flag all stamps as rewarded or flagged = true
   state.stamps = map(assoc('flagged', true), state.stamps)
 
+  // handle credits
+  if (state.credits) {
+    state = rewardCredits(state, SmartWeave.block.height)
+  }
+
   return { state }
 }
 
@@ -276,6 +281,7 @@ async function stamp(state: StateInterface, action: ActionInterface) {
     timestamp: action.input.timestamp,
     asset: transactionId,
     address: caller,
+    super: qty > 0,
     flagged: false
   };
 
