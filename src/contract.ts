@@ -156,7 +156,11 @@ async function reward(state: StateInterface, action: ActionInterface): Promise<{
   // STEP 1a - verify contract caller is creator
   ContractAssert(caller === state.creator, 'Only coin creator can run reward function!')
   // STEP 2 - get all stamps that are not flagged true
-  const newStampValues = Object.values(state.stamps).filter(stamp => stamp.flagged === false).filter(s => s.asset?.length === 43);
+  const newStampValues = Object.values(state.stamps)
+    .filter(stamp => stamp.flagged === false)
+    // only vouched stamps get rewarded
+    .filter(stamp => stamp.vouched === true)
+    .filter(s => s.asset?.length === 43);
   // STEP 3 - aggregate by asset identifier (Asset)
   // STEP 4 - Calculate reward points/coins
   const rewards = mintRewards(newStampValues, REWARD)
@@ -233,10 +237,10 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   if (stamps[`${caller}:${transactionId}`]) {
     throw new ContractError("Already Stamped Asset!")
   }
-  // only vouched users can stamp
+  // anyone can stamp, but only vouched users count for rewards
   const vouchDAOstate = await SmartWeave.contracts.readContractState(VOUCH_DAO)
-  ContractAssert(vouchDAOstate.vouched[caller], 'This wallet is not allowed to STAMP! caller is not vouched!')
-
+  //ContractAssert(vouchDAOstate.vouched[caller], 'This wallet is not allowed to STAMP! caller is not vouched!')
+  const vouched = Boolean(vouchDAOstate.vouched[caller].length)
   // do super stamp
   if (qty > 0) {
     // is super stamp 
@@ -278,9 +282,11 @@ async function stamp(state: StateInterface, action: ActionInterface) {
   }
 
   state.stamps[`${caller}:${transactionId}`] = {
-    timestamp: action.input.timestamp,
+    height: SmartWeave.block.height,
+    timestamp: SmartWeave.block.timestamp,
     asset: transactionId,
     address: caller,
+    vouched,
     super: qty > 0,
     flagged: false
   };

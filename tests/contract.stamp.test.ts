@@ -16,7 +16,8 @@ globalThis.ContractError = Error
 
 globalThis.SmartWeave = {
   block: {
-    height: 10000000000
+    height: 10000000000,
+    timestamp: 1674516522842
   },
   contracts: {
     readContractState: (c) => {
@@ -36,22 +37,23 @@ globalThis.SmartWeave = {
 }
 
 test('stamp a contract', async () => {
-  const ts = Date.now()
+
   const { state } = await handle({ balances: {}, stamps: {} }, {
     input: {
       function: 'stamp',
-      transactionId: 'wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek',
-      timestamp: ts
+      transactionId: 'wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek'
     },
     caller: '0gf7KpDmLMfCq8oqVeQqqJChzRnx0ZOtWsvHfVYKACo'
   })
 
   assert.equal(state.stamps['0gf7KpDmLMfCq8oqVeQqqJChzRnx0ZOtWsvHfVYKACo:wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek'], {
-    timestamp: ts,
+    timestamp: 1674516522842,
+    height: 10000000000,
     asset: 'wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek',
     address: '0gf7KpDmLMfCq8oqVeQqqJChzRnx0ZOtWsvHfVYKACo',
     super: false,
-    flagged: false
+    flagged: false,
+    vouched: true
   })
   assert.ok(true)
 })
@@ -69,11 +71,13 @@ test('super stamp a contract', async () => {
   })
 
   assert.equal(state.stamps['0gf7KpDmLMfCq8oqVeQqqJChzRnx0ZOtWsvHfVYKACo:wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek'], {
-    timestamp: ts,
+    timestamp: 1674516522842,
+    height: 10000000000,
     asset: 'wy-axWrIVPr8nIKY38VYQdeAY5QpvK_Vv8vwtrXuxek',
     address: '0gf7KpDmLMfCq8oqVeQqqJChzRnx0ZOtWsvHfVYKACo',
     super: true,
-    flagged: false
+    flagged: false,
+    vouched: true
   })
   assert.ok(true)
 

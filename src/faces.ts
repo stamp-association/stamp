@@ -1,7 +1,12 @@
 export interface StampInterface {
+  height: number,
+  timestamp: number,
   asset: string;
   address: string;
-  timestamp: number;
+  vouched: boolean;
+  vpst: {
+    [address: string]: number;
+  };
   super?: boolean;
   flagged: boolean;
 }
@@ -17,8 +22,6 @@ export interface StateInterface {
   emergencyHaltWallet: string;
   halted: false;
   pairs: Array<any>;
-  usedTransfers: Array<any>;
-  foreignCalls: Array<any>;
   stamps: {
     [address_asset: string]: StampInterface
   };
