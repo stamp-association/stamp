@@ -1,4 +1,29 @@
-# StampCoin (Test)
+# Stamp Protocol (Test)
+
+The STAMP Protocol is a decentralized protocol to allow consumers of any asset on the permaweb to attribute value, if the consumer is VOUCHED, then that attribution of value counts towards token rewards to be distributed to the asset holders.
+
+## Developer Integration
+
+```sh
+npm install https://client_stamps.arweave.dev
+```
+
+```js
+import Stamps from '@permaweb/stamps'
+import { WarpFactory } from 'warp-contracts'
+
+const warp = WarpFactory.forMainnet()
+const stamps = Stamps.init({ warp })
+
+const result = await stamps.stamp(assetId, qty)
+const { count, vouched, super } = await stamps.count()
+```
+
+## Client API
+
+Stamps.init
+
+
 
 > TEST Purposes only
 

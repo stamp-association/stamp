@@ -2,9 +2,7 @@ import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/flex";
 
 import map from 'ramda/src/map'
 import assoc from 'ramda/src/assoc'
-import head from 'ramda/src/head'
-import keys from 'ramda/src/keys'
-import values from 'ramda/src/values'
+import propEq from 'ramda/src/propEq'
 
 import {
   StampInterface,
@@ -16,7 +14,7 @@ import {
 
 import { mintRewards, pstAllocation, divideQty, rewardCredits } from './utils'
 
-const functions = { evolve, stamp, reward, transfer, balance }
+const functions = { evolve, stamp, reward, transfer, balance, stampCountByAsset, stampsByAsset, stampsByAddress }
 
 const REWARD = 1000_000_000_000_000
 const VOUCH_DAO = '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk'
@@ -27,100 +25,8 @@ export async function handle(
   action: ActionInterface
 ): Promise<{ state: StateInterface } | { result: BalanceInterface }> {
   const balances = state.balances;
-  const claimable = state.claimable || [];
-  const claims = state.claims || [];
   const input = action.input;
   const caller = action.caller;
-
-  if (input.function === "allow") {
-    const target = input.target;
-    const quantity = input.qty;
-
-    if (!Number.isInteger(quantity) || quantity === undefined) {
-      throw new ContractError(
-        "Invalid value for quantity. Must be an integer."
-      );
-    }
-    if (!target) {
-      throw new ContractError("No target specified.");
-    }
-    if (quantity <= 0 || caller === target) {
-      throw new ContractError("Invalid token transfer.");
-    }
-    if (balances[caller] < quantity) {
-      throw new ContractError(
-        "Caller balance not high enough to make claimable " +
-        quantity +
-        " token(s)."
-      );
-    }
-
-    balances[caller] -= quantity;
-    claimable.push({
-      from: caller,
-      to: target,
-      qty: quantity,
-      txID: SmartWeave.transaction.id,
-    });
-
-    return { state };
-  }
-
-  if (input.function === "claim") {
-    // Claim input: txID
-    const txID = input.txID;
-    // Claim qty
-    const qty = input.qty;
-
-    // Check to make sure it hasn't been claimed already
-    for (let i = 0; i < claims.length; i++) {
-      if (claims[i] === txID) {
-        return { state }
-        //throw new ContractError("This claim has already been made");
-      }
-    }
-
-    if (!claimable.length) {
-      throw new ContractError("Contract has no claims available");
-    }
-    // Search for txID inside of `claimable`
-    let obj, index;
-    for (let i = 0; i < claimable.length; i++) {
-      if (claimable[i].txID === txID) {
-        index = i;
-        obj = claimable[i];
-      }
-    }
-    if (obj === undefined) {
-      throw new ContractError("Unable to find claim");
-    }
-    if (obj.to !== caller) {
-      throw new ContractError("Claim not addressed to caller");
-    }
-    if (obj.qty !== qty) {
-      throw new ContractError("Claiming incorrect quantity of tokens");
-    }
-    // Check to make sure it hasn't been claimed already
-    for (let i = 0; i < claims.length; i++) {
-      if (claims[i] === txID) {
-        throw new ContractError("This claim has already been made");
-      }
-    }
-
-    if (balances[caller] === undefined) {
-      balances[caller] = 0;
-    }
-    // Not already claimed --> can claim
-    balances[caller] += obj.qty;
-
-    // remove from claimable
-    claimable.splice(index, 1);
-
-    // add txID to `claims`
-    claims.push(txID);
-
-    return { state };
-  }
 
   if (input.function === "addPair") {
     const _ = await AddPair(state, action)
@@ -369,4 +275,31 @@ function balance(state: StateInterface, action: ActionInterface) {
       balance: balances[target],
     },
   };
+}
+
+
+function stampCountByAsset(state: StateInterface, action: ActionInterface) {
+  const stamps = Object.values(state.stamps).filter(propEq('asset', action.input.asset))
+  return {
+    result: {
+      count: stamps.length,
+      vouched: stamps.filter(propEq('vouched', true)).length,
+      super: stamps.filter(propEq('super', true)).length
+    }
+  }
+}
+
+function stampsByAsset(state: StateInterface, action: ActionInterface) {
+  const stamps = Object.values(state.stamps).filter(propEq('asset', action.input.asset))
+  return {
+    result: { stamps }
+  }
+}
+
+
+function stampsByAddress(state: StateInterface, action: ActionInterface) {
+  const stamps = Object.values(state.stamps).filter(propEq('asset', action.input.target || action.caller))
+  return {
+    result: { stamps }
+  }
 }
