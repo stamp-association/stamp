@@ -38,8 +38,18 @@ export default {
             tags: [{ name: 'App-Protocol', value: 'Stamp' }]
           })
       },
-      hasStamped: (address) => {
-
+      hasStamped: (address, transactionId) => {
+        return warp.contract(STAMP)
+          .setEvaluationOptions({
+            allowBigInt: true,
+            internalWrites: true
+          })
+          .readState()
+          .then(prop('cachedValue')).then(prop('state')).then(prop('stamps')).then(Object.values)
+          .then(filter(propEq('asset', transactionId)))
+          .then(filter(propEq('address', address)))
+          .then(length)
+          .then(l => l === 1)
       },
       count: (transactionId) => {
         return warp.contract(STAMP)
