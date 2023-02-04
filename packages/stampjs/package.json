@@ -2,5 +2,13 @@
   "name": "stampjs",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "uvu": "^0.5.6",
+    "warp-contracts": "^1.2.51"
+  },
+  "scripts": {
+    "test": "uvu test"
+  }
 }
