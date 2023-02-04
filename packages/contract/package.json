@@ -16,6 +16,7 @@
     "replace-in-file": "^6.3.5"
   },
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "evolve": "node evolve ../../wallet.json"
   }
 }
