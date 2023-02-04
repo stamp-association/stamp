@@ -16,10 +16,6 @@ import flatten from 'ramda/src/flatten'
 import sum from 'ramda/src/sum'
 import { compose, over, lensProp, lte } from 'ramda'
 
-import {
-  StampInterface,
-} from "./faces";
-
 export function rewardCredits(state, height) {
   Object.keys(state.credits).filter(k => k < height).forEach(k => {
     state.credits[k].forEach(c => {
@@ -83,7 +79,7 @@ export function mintRewards(stamps, reward) {
 export function pstAllocation(balances, reward) {
   var total = reduce(add, 0, values(balances).filter(v => v > 0))
 
-  const allocation = mergeAll(reduce((a: Array<any>, s: Array<any>) => {
+  const allocation = mergeAll(reduce((a, s) => {
     const asset = s[0]
     const balance = s[1]
 

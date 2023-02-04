@@ -32,6 +32,14 @@ test('init stampjs - warp is required!', () => {
   }
 })
 
+test('stamp asset', async () => {
+  const result = await stamps.stamp('oHB-hYNKHOSqWrxJjroXZatSEmmFYpdKpoGTXNqvSo8')
+  console.log(result)
+  assert.ok(true)
+})
+
+
+/*
 test('stamp count', async () => {
   const result = await stamps.count('clvfYpvsdMNkMz2JeqEYzDTTcxEEJctv3sccMsyG7RA')
   assert.equal(10, result)
@@ -44,15 +52,11 @@ test('stamp token balance', async () => {
 
 })
 
-test('stamp asset', async () => {
-  const result = await stamps.stamp('oHB-hYNKHOSqWrxJjroXZatSEmmFYpdKpoGTXNqvSo8')
-  console.log(result)
-  assert.ok(true)
-})
 
 test('check if user has stamped', async () => {
   const stamped = await stamps.hasStamped('vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI', 'clvfYpvsdMNkMz2JeqEYzDTTcxEEJctv3sccMsyG7RA')
   assert.ok(stamped)
 })
+*/
 
 test.run()

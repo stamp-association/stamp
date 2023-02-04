@@ -1,6 +1,7 @@
 {
   "name": "contract",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
@@ -10,6 +11,11 @@
     "warp-contracts": "^1.2.51"
   },
   "dependencies": {
-    "@verto/flex": "^0.1.15"
+    "@verto/flex": "^0.1.15",
+    "ramda": "^0.28.0",
+    "replace-in-file": "^6.3.5"
+  },
+  "scripts": {
+    "build": "node build.js"
   }
 }

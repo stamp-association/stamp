@@ -138,7 +138,7 @@ async function stamp(state, action) {
   // anyone can stamp, but only vouched users count for rewards
   const vouchDAOstate = await SmartWeave.contracts.readContractState(VOUCH_DAO)
   //ContractAssert(vouchDAOstate.vouched[caller], 'This wallet is not allowed to STAMP! caller is not vouched!')
-  const vouched = Boolean(vouchDAOstate.vouched[caller].length)
+  const vouched = Boolean(vouchDAOstate.vouched[caller])
   // do super stamp
   if (qty > 0) {
     // is super stamp 
