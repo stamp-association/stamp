@@ -3,7 +3,7 @@ const STAMP = 'QY54ApX4agQPjsi3214GanqpCO7RvWdBqLTAvkGEo8g'
 export default {
   init: function ({
     warp,
-    dre,
+    dre = 'https://dre-1.warp.cc',
     address,
     percent
   }) {
@@ -16,7 +16,7 @@ export default {
        * @returns {Promise<any>}
        */
       stamp: async (transactionId) => {
-        await warp.contract(STAMP).syncState(dre, { validity: true })
+        //await warp.contract(STAMP).syncState(dre, { validity: true })
         return warp.contract(STAMP).connect('use_wallet').writeInteraction({
           transactionId,
           timestamp: Date.now()
