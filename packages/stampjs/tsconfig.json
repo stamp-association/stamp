@@ -1,0 +1,14 @@
+{
+  // Change this to match your project
+  "include": [
+    "src/**/*"
+  ],
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "allowJs": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "declarationMap": true
+  }
+}
