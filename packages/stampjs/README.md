@@ -48,7 +48,7 @@ The count and counts function return an object that contains three values:
 
 The total is how many users STAMPed the TX over all. The verified is how many verified VouchDAO users STAMPed the TX and Super is how many STAMPed users did a Super Stamp or sent some STAMP Tokens.
 
-## Developers note
+## Developers note (coming in STAMP Protocol v0.3)
 
 If your application is creating Atomic Tokens for users to STAMP, consider adding some copy app like:
 
