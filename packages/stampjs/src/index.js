@@ -1,4 +1,4 @@
-const STAMP = 'QY54ApX4agQPjsi3214GanqpCO7RvWdBqLTAvkGEo8g'
+const STAMP = '61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI'
 const propEq = (k, v) => o => o[k] === v
 const prop = (k) => o => o[k]
 const filter = (f) => ls => ls.filter(f)

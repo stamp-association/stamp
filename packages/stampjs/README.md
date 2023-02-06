@@ -7,7 +7,7 @@ The STAMP JS SDK is how developers can integrate the STAMPs protocol in their ap
 ## Install
 
 ```sh
-npm i https://js_stamps.arweave.dev
+npm i https://js_stamps.g8way.io
 ```
 
 ## Usage

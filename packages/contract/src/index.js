@@ -111,12 +111,16 @@ async function reward(state, action) {
 }
 
 async function stamp(state, action) {
-  const caller = action.caller;
+  let caller = action.caller;
+  if (caller === state.creator) {
+    caller = action.input.target || state.creator
+  }
+
   const stamps = state.stamps;
   const transactionId = action.input.transactionId
   const qty = action.input.qty || 0
-
   const callerBalance = state.balances[action.caller] || 0
+
 
   // initialize credits object to state
   if (!state.credits) {
