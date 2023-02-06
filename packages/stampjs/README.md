@@ -4,11 +4,19 @@ STAMPS JS is the SDK for the STAMP Protocol version 0.2
 
 The STAMP JS SDK is how developers can integrate the STAMPs protocol in their applications.
 
-```js
-import Stamps from '@permaweb/stamps'
+## Install
 
-// initialize
-const stamps = Stamps.init({warp, dre})
+```sh
+npm i https://js_stamps.arweave.dev
+```
+
+## Usage
+
+```js
+import Stamps from '@permaweb/stampjs'
+
+// initialize - passing a warp instance
+const stamps = Stamps.init({warp: WarpFactory.forMainnet() })
 
 // stamp an Asset
 await stamps.stamp(TX, [qty])
@@ -47,6 +55,8 @@ The count and counts function return an object that contains three values:
 ```
 
 The total is how many users STAMPed the TX over all. The verified is how many verified VouchDAO users STAMPed the TX and Super is how many STAMPed users did a Super Stamp or sent some STAMP Tokens.
+
+-- FUTURE --
 
 ## Developers note (coming in STAMP Protocol v0.3)
 
