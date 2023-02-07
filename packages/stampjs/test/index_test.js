@@ -33,9 +33,33 @@ test('init stampjs - warp is required!', () => {
 })
 
 test('stamp asset', async () => {
-  const result = await stamps.stamp('oHB-hYNKHOSqWrxJjroXZatSEmmFYpdKpoGTXNqvSo8')
-  console.log(result)
+  const result = await stamps.stamp('KhZ7qIAxOr4nMHT2Jh6kKjrrK_17aGFbXRaO7X6FI5o')
+  console.log('stamp result', result.originalTxId)
   assert.ok(true)
+})
+
+test('stamp asset with a tag', async () => {
+  const result = await stamps.stamp('M4sru2azaPEY-zOViXhCtfygFpvBy7C0ir8iOnrgRdA', 0, [{ name: 'test', value: 'test' }])
+  console.log('stamp with test tag', result.originalTxId)
+  assert.ok(true)
+})
+
+test('stamp asset with qty', async () => {
+  try {
+    const result = await stamps.stamp('KhZ7qIAxOr4nMHT2Jh6kKjrrK_17aGFbXRaO7X6FI5o', 1, [{ name: 'test', value: 'test' }])
+    console.log('stamp with test tag', result.originalTxId)
+  } catch (e) {
+    assert.equal(e.message, 'Cannot create interaction: Not enough tokens to SuperStamp!')
+  }
+})
+
+test('stamp asset with string for qty should error', async () => {
+  try {
+    const result = await stamps.stamp('KhZ7qIAxOr4nMHT2Jh6kKjrrK_17aGFbXRaO7X6FI5o', '1', [{ name: 'test', value: 'test' }])
+    console.log('stamp with test tag', result.originalTxId)
+  } catch (e) {
+    assert.equal(e.message, 'Error: qty must be a integer!')
+  }
 })
 
 

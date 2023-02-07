@@ -19,7 +19,7 @@ import Stamps from '@permaweb/stampjs'
 const stamps = Stamps.init({warp: WarpFactory.forMainnet() })
 
 // stamp an Asset
-await stamps.stamp(TX, [qty])
+await stamps.stamp(TX, [qty], [tags])
 
 // get stamp count
 const { total } = await stamps.count(TX)

@@ -20,28 +20,43 @@ export default {
     return Object.freeze({
       /**
        * @param {string} transactionId
+       * @param {number} qty? - integer representing the number of tokens to transfer
+       * @param {{name: string, value: string}[]} tags? - tx tags to be added to the transaction
        * @returns {Promise<any>}
        */
-      stamp: async (transactionId) => {
+      stamp: async (transactionId, qty = 0, tags = []) => {
         if (transactionId.length !== 43) {
-          throw new Error('Invalid Atomic Token identifier!')
+          throw new Error('Error: Invalid Atomic Token identifier!')
         }
+        if (typeof qty !== 'number') {
+          throw new Error('Error: qty must be a integer!')
+        }
+
         try {
           await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
         } catch (e) {
           throw new Error('DRE is not defined correctly! ERROR:', e.message)
         }
+
+        const input = {
+          function: 'stamp',
+          transactionId,
+          timestamp: Date.now()
+        }
+
+        if (qty > 0) {
+          input.qty = Number(Math.floor(qty).toFixed(0)) * 1e12
+        }
+
+        tags = [{ name: 'App-Protocol', value: 'Stamp' }, ...tags]
+
         return warp.contract(STAMP).connect('use_wallet')
           .setEvaluationOptions({
             allowBigInt: true,
           })
-          .writeInteraction({
-            function: 'stamp',
-            transactionId,
-            timestamp: Date.now()
-          }, {
+          .writeInteraction(input, {
             strict: true,
-            tags: [{ name: 'App-Protocol', value: 'Stamp' }]
+            tags
           })
       },
       /**
