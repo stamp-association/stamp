@@ -5,7 +5,7 @@ The STAMP Protocol is a decentralized protocol to allow consumers of any asset o
 ## Developer Integration
 
 ```sh
-npm install https://client_stamps.arweave.dev
+npm install https://stampjs-v004_stamps.g8way.io
 ```
 
 ```js
