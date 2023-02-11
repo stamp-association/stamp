@@ -151,13 +151,13 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@permaweb/stampjs@https://arweave.net/-edigKRKY4laHnVz6jOeos5Ke4820gTygWp_CTW1FE4":
+  version "0.0.5"
+  resolved "https://arweave.net/-edigKRKY4laHnVz6jOeos5Ke4820gTygWp_CTW1FE4#e3e7d11679ceb9d13fd64eb9c39c7e6f469cf9df"
+
 "@permaweb/stampjs@https://arweave.net/2NPOIZyqgE6hQ6S2cTRj9Ce3enmRjeMIaPZYbzgDnxY":
   version "0.0.1"
   resolved "https://arweave.net/2NPOIZyqgE6hQ6S2cTRj9Ce3enmRjeMIaPZYbzgDnxY#d840603d57193f592439b86f70db4e816527802a"
-
-"@permaweb/stampjs@https://arweave.net/nKwvFAiPj103cZ_e6DT7TZFt-K0O9Y49rtxGd66djRY":
-  version "0.0.1"
-  resolved "https://arweave.net/nKwvFAiPj103cZ_e6DT7TZFt-K0O9Y49rtxGd66djRY#99ab26e124b8041def9e16c20e4a4d437bf909c2"
 
 "@sveltejs/vite-plugin-svelte@^2.0.2":
   version "2.0.2"
