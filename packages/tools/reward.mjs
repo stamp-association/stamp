@@ -13,6 +13,7 @@ async function main() {
       internalWrites: true,
       allowBigInt: true
     })
+    //.dryWrite({
     .writeInteraction({
       function: 'reward',
       timestamp: Date.now()

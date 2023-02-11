@@ -10,6 +10,7 @@ const functions = { evolve, stamp, reward, transfer, balance, stampCountByAsset,
 
 const REWARD = 1000_000_000_000_000
 const VOUCH_DAO = '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk'
+const ARNS = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U'
 const ANNUAL_BLOCKS = 720 * 365
 
 export async function handle(
@@ -72,6 +73,10 @@ async function reward(state, action) {
   const allocations = await Promise.all(map(
     async ([asset, coins]) => {
       try {
+        if (asset === '8iZh2EveCFkMeKJyKkln_WcQtfuF9YihQe3wc0ic9QA') {
+          console.log('could not allocate reward to ' + asset)
+          return null
+        }
         const x = await SmartWeave.contracts.readContractState(asset)
         // apply balances
         if (x.balances && Object.keys(x.balances).length > 0) {
@@ -120,6 +125,7 @@ async function stamp(state, action) {
   const transactionId = action.input.transactionId
   const qty = action.input.qty || 0
   const callerBalance = state.balances[action.caller] || 0
+  const subdomain = action.input.subdomain || ''
 
 
   // initialize credits object to state
@@ -183,6 +189,7 @@ async function stamp(state, action) {
     }
   }
 
+
   state.stamps[`${caller}:${transactionId}`] = {
     height: SmartWeave.block.height,
     timestamp: SmartWeave.block.timestamp,
@@ -192,6 +199,27 @@ async function stamp(state, action) {
     super: qty > 0,
     flagged: false
   };
+
+  if (subdomain !== '') {
+    const arns = await SmartWeave.contracts.readContractState(ARNS)
+    // find ANT
+    const ANT = arns.records[subdomain]
+    if (ANT) {
+      // readstate of ArNS TEST
+      const ant = await SmartWeave.contracts.readContractState(ANT)
+      // find ANT Record
+      const antOwner = ant.owner
+      // need to verify the transaction id is in ANT Contract
+      if (Object.values(ant.records).map(v => typeof v === 'string' ? v : v.transactionId).includes(transactionId)) {
+        state.stamps[`${caller}:${transactionId}`] = {
+          ant: ANT,
+          antOwner: antOwner,
+          ...state.stamps[`${caller}:${transactionId}`]
+        }
+      }
+
+    }
+  }
 
   return { state };
 }

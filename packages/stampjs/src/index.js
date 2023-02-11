@@ -1,8 +1,17 @@
+import { getSubdomain } from './utils.js'
+
 const STAMP = '61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI'
+
 const propEq = (k, v) => o => o[k] === v
 const prop = (k) => o => o[k]
 const filter = (f) => ls => ls.filter(f)
 const length = (ls) => ls.length
+
+globalThis.window = {
+  location: {
+    hostname: 'tom.g8way.io'
+  }
+}
 
 export default {
   /**
@@ -47,6 +56,8 @@ export default {
         if (qty > 0) {
           input.qty = Number(Math.floor(qty).toFixed(0)) * 1e12
         }
+
+        input.subdomain = getSubdomain(window.location.hostname)
 
         tags = [{ name: 'App-Protocol', value: 'Stamp' }, ...tags]
 

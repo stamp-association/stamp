@@ -11,7 +11,8 @@ const src = fs.readFileSync('./dist/index.js', 'utf-8')
 const srcTx = await warp.createSourceTx({ src }, wallet)
 const newSrcTxId = await warp.saveSourceTx(srcTx)
 
-const CONTRACT = 'QY54ApX4agQPjsi3214GanqpCO7RvWdBqLTAvkGEo8g' // STAMP-TEST
+//const CONTRACT = 'QY54ApX4agQPjsi3214GanqpCO7RvWdBqLTAvkGEo8g' // STAMP-TEST
+const CONTRACT = '61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI' // STAMP
 const contract = warp.contract(CONTRACT).connect(wallet)
 
 console.log('new Source', newSrcTxId)
