@@ -7,12 +7,6 @@ const prop = (k) => o => o[k]
 const filter = (f) => ls => ls.filter(f)
 const length = (ls) => ls.length
 
-globalThis.window = {
-  location: {
-    hostname: 'tom.g8way.io'
-  }
-}
-
 export default {
   /**
    * @param {any} env
