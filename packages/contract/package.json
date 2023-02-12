@@ -7,8 +7,9 @@
   "devDependencies": {
     "arweave": "^1.12.4",
     "esbuild": "^0.17.5",
+    "esm": "^3.2.25",
     "uvu": "^0.5.6",
-    "warp-contracts": "^1.2.51"
+    "warp-contracts": "^1.2.52"
   },
   "dependencies": {
     "@verto/flex": "^0.1.15",
@@ -17,6 +18,7 @@
   },
   "scripts": {
     "build": "node build.js",
-    "evolve": "node evolve ../../wallet.json"
+    "evolve": "node evolve ../../wallet.json",
+    "test": "uvu test"
   }
 }

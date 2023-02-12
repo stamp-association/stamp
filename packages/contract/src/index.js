@@ -1,12 +1,8 @@
 import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/flex";
+import { map, assoc, propEq } from 'ramda'
+import { mintRewards, pstAllocation, divideQty, rewardCredits } from './utils.js'
 
-import map from 'ramda/src/map'
-import assoc from 'ramda/src/assoc'
-import propEq from 'ramda/src/propEq'
-
-import { mintRewards, pstAllocation, divideQty, rewardCredits } from './utils'
-
-const functions = { evolve, stamp, reward, transfer, balance, stampCountByAsset, stampsByAsset, stampsByAddress }
+const functions = { evolve, stamp, reward, transfer, balance, originCount, stampCountByAsset, stampsByAsset, stampsByAddress }
 
 const REWARD = 1000_000_000_000_000
 const VOUCH_DAO = '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk'
@@ -301,6 +297,19 @@ function balance(state, action) {
   };
 }
 
+async function originCount(state, action) {
+  if (!action.input.subdomain) {
+    throw ContractError('subdomain is required')
+  }
+  const arns = await SmartWeave.contracts.readContractState(ARNS)
+  // find ANT
+  const ANT = arns.records[action.input.subdomain]
+  if (!ANT) {
+    throw ContractError('could not find ANT')
+  }
+  const count = Object.values(state.stamps).filter(propEq('ant', ANT)).length
+  return { result: count }
+}
 
 function stampCountByAsset(state, action) {
   const stamps = Object.values(state.stamps).filter(propEq('asset', action.input.asset))

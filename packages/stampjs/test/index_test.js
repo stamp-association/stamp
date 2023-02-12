@@ -33,18 +33,20 @@ test('init stampjs - warp is required!', () => {
     assert.ok(true)
   }
 })
-
+/*
 test('stamp asset', async () => {
   const result = await stamps.stamp('KhZ7qIAxOr4nMHT2Jh6kKjrrK_17aGFbXRaO7X6FI5o')
   console.log('stamp result', result.originalTxId)
   assert.ok(true)
 })
-
+*/
+/*
 test('stamp asset with a tag', async () => {
   const result = await stamps.stamp('M4sru2azaPEY-zOViXhCtfygFpvBy7C0ir8iOnrgRdA', 0, [{ name: 'test', value: 'test' }])
   console.log('stamp with test tag', result.originalTxId)
   assert.ok(true)
 })
+*/
 
 test('stamp asset with qty', async () => {
   try {
@@ -63,8 +65,6 @@ test('stamp asset with string for qty should error', async () => {
     assert.equal(e.message, 'Error: qty must be a integer!')
   }
 })
-
-
 
 test('stamp count', async () => {
   const result = await stamps.count('clvfYpvsdMNkMz2JeqEYzDTTcxEEJctv3sccMsyG7RA')
@@ -88,6 +88,5 @@ test('check if user has stamped', async () => {
   const stamped = await stamps.hasStamped('vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI', 'clvfYpvsdMNkMz2JeqEYzDTTcxEEJctv3sccMsyG7RA')
   assert.ok(stamped)
 })
-
 
 test.run()

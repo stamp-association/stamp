@@ -1,20 +1,8 @@
-import filter from 'ramda/src/filter'
-import propEq from 'ramda/src/propEq'
-import length from 'ramda/src/length'
-import reduce from 'ramda/src/reduce'
-import assoc from 'ramda/src/assoc'
-import values from 'ramda/src/values'
-import keys from 'ramda/src/keys'
-import add from 'ramda/src/add'
-import mergeAll from 'ramda/src/mergeAll'
-import map from 'ramda/src/map'
-import pluck from 'ramda/src/pluck'
-import prop from 'ramda/src/prop'
-import groupBy from 'ramda/src/groupBy'
-import toPairs from 'ramda/src/toPairs'
-import flatten from 'ramda/src/flatten'
-import sum from 'ramda/src/sum'
-import { compose, over, lensProp, lte } from 'ramda'
+import {
+  filter, propEq, length, reduce, assoc, values,
+  keys, add, mergeAll, map, pluck, prop, groupBy, toPairs,
+  flatten, sum, compose, over, lensProp, lte
+} from 'ramda'
 
 export function rewardCredits(state, height) {
   Object.keys(state.credits).filter(k => k < height).forEach(k => {
