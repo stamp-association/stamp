@@ -19,7 +19,7 @@
     "build:types": "tsc src/index.js --declaration --allowJs --emitDeclarationOnly --outDir dist",
     "build:src": "esbuild src/index.js --format=esm --bundle --outdir=dist",
     "build": "yarn build:types && yarn build:src",
-    "deploy": "bundlr upload permaweb-stampjs-0.0.5.tgz -c arweave -h https://node2.bundlr.network -w ../../tom.json"
+    "deploy": "bundlr upload permaweb-stampjs-0.0.6.tgz -c arweave -h https://node2.bundlr.network -w ../../tom.json"
   },
   "licenses": [
     "MIT"
