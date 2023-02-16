@@ -18,7 +18,7 @@ async function main() {
     .filter(x => x.asset !== 'UoDCeYYmamvnc0mrElUxr5rMKUYRaujo9nmci206WjQ')
     .map(s => warp.contract(s.asset).readState())
   )
-  console.log(results)
+  console.log(results.length)
 
 
 

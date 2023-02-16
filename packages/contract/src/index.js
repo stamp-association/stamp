@@ -77,6 +77,10 @@ async function reward(state, action) {
           console.log('could not allocate reward to ' + asset)
           return null
         }
+        if (asset === 'jZlNjWPNfuGWLyIRXh9QUz9qlig_a6fBZU68Eb-Co-Q') {
+          console.log('could not allocate reward to ' + asset)
+          return null
+        }
         const x = await SmartWeave.contracts.readContractState(asset)
         // apply balances
         if (x.balances && Object.keys(x.balances).length > 0) {
