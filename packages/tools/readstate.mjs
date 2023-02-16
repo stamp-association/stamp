@@ -13,7 +13,15 @@ async function main() {
     })
     .readState()
 
-  console.log(result.cachedValue.state)
+  const results = await Promise.all(Object.values(result.cachedValue.state.stamps)
+    .filter(x => x.flagged === false)
+    .filter(x => x.asset !== 'UoDCeYYmamvnc0mrElUxr5rMKUYRaujo9nmci206WjQ')
+    .map(s => warp.contract(s.asset).readState())
+  )
+  console.log(results)
+
+
+
 }
 
 main()
