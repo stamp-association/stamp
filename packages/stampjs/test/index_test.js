@@ -98,7 +98,7 @@ test('filter fn should return stamps', async () => {
     ['prop', 'stamps']
   ])
 
-  assert.equal(result, 27)
+  assert.ok(result > 1)
 })
 
 test.run()

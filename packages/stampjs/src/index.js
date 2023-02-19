@@ -67,7 +67,7 @@ const path = (props) => o => props.reduce((a, v) => prop(v)(a), o)
 
 /**
  * @callback FilterFn
- * @param {Array} logic - fpjson array
+ * @param {any[]} logic - fpjson array
  * @returns {Promise<any>}
  */
 
@@ -273,7 +273,7 @@ export default {
     /**
      * @type {FilterFn} filter
      */
-    async function filter(logic) {
+    async function ap(logic) {
 
       try {
         await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
@@ -297,7 +297,7 @@ export default {
       counts,
       balance,
       originCount,
-      filter
+      filter: ap
     })
   }
 }
