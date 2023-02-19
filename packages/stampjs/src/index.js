@@ -1,4 +1,7 @@
 import { getSubdomain } from './utils.js'
+import _fpjson from 'fpjson-lang'
+
+const fpjson = typeof _fpjson === 'function' ? _fpjson : _fpjson.default
 
 const STAMP = '61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI'
 
@@ -6,6 +9,7 @@ const propEq = (k, v) => o => o[k] === v
 const prop = (k) => o => o[k]
 const filter = (f) => ls => ls.filter(f)
 const length = (ls) => ls.length
+const path = (props) => o => props.reduce((a, v) => prop(v)(a), o)
 
 /**
  * @typedef {Object} Env
@@ -59,6 +63,12 @@ const length = (ls) => ls.length
  * @callback OriginCount
  * @param {string} subdomain - subdomain origin
  * @returns {Promise<number>}
+ */
+
+/**
+ * @callback FilterFn
+ * @param {any[]} logic - fpjson array
+ * @returns {Promise<any>}
  */
 
 /**
@@ -260,13 +270,34 @@ export default {
         .then(prop('result'))
     }
 
+    /**
+     * @type {FilterFn} filter
+     */
+    async function ap(logic) {
+
+      try {
+        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+      } catch (e) {
+        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+      }
+      return warp.contract(STAMP)
+        .setEvaluationOptions({
+          allowBigInt: true,
+          internalWrites: true
+        }).readState()
+        .then(path(['cachedValue', 'state']))
+        .then(state => fpjson([logic, state]))
+
+    }
+
     return Object.freeze({
       stamp,
       hasStamped,
       count,
       counts,
       balance,
-      originCount
+      originCount,
+      filter: ap
     })
   }
 }

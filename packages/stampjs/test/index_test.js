@@ -46,7 +46,7 @@ test('stamp asset with a tag', async () => {
   console.log('stamp with test tag', result.originalTxId)
   assert.ok(true)
 })
-*/
+
 
 test('stamp asset with qty', async () => {
   try {
@@ -87,6 +87,18 @@ test('stamp token balance', async () => {
 test('check if user has stamped', async () => {
   const stamped = await stamps.hasStamped('vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI', 'clvfYpvsdMNkMz2JeqEYzDTTcxEEJctv3sccMsyG7RA')
   assert.ok(stamped)
+})
+*/
+
+test('filter fn should return stamps', async () => {
+  const result = await stamps.filter(['compose',
+    ['length'],
+    ['filter', ['propEq', 'flagged', false]],
+    ['values'],
+    ['prop', 'stamps']
+  ])
+
+  assert.ok(result > 1)
 })
 
 test.run()

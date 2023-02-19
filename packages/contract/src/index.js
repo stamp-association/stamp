@@ -53,6 +53,7 @@ async function reward(state, action) {
   // STEP 2 - get all stamps that are not flagged true
   const newStampValues = Object.values(state.stamps)
     .filter(stamp => stamp.flagged === false)
+    .filter(stamp => stamp.address !== '9x24zjvs9DA5zAz2DmqBWAg6XcxrrE-8w3EkpwRm4e4')
     // only vouched stamps get rewarded
     .filter(stamp => stamp.vouched === true)
     .filter(s => s.asset?.length === 43);
@@ -81,6 +82,7 @@ async function reward(state, action) {
           console.log('could not allocate reward to ' + asset)
           return null
         }
+
         const x = await SmartWeave.contracts.readContractState(asset)
         // apply balances
         if (x.balances && Object.keys(x.balances).length > 0) {

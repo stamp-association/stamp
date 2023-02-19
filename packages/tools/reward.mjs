@@ -1,7 +1,8 @@
 import { WarpFactory, defaultCacheOptions, LoggerFactory } from 'warp-contracts'
 import fs from 'fs'
 
-const wallet = JSON.parse(fs.readFileSync('../../wallet.json', 'utf-8'))
+const wallet = JSON.parse(fs.readFileSync('./stamp.json', 'utf-8'))
+
 LoggerFactory.INST.logLevel('error')
 const warp = WarpFactory.forMainnet()
 
@@ -14,8 +15,8 @@ async function main() {
       internalWrites: true,
       allowBigInt: true
     })
-    //.dryWrite({
-    .writeInteraction({
+    .dryWrite({
+      //.writeInteraction({
       function: 'reward',
       timestamp: Date.now()
     }, { strict: true })

@@ -4,9 +4,19 @@ The STAMP Protocol is a decentralized protocol to allow consumers of any asset o
 
 ## Developer Integration
 
+## Install
+
 ```sh
-npm install https://stampjs-v006_stamps.g8way.io
+npm i https://stampjs-v0011_stamps.g8way.io
 ```
+
+or
+
+```sh
+npm i @permaweb/stampjs
+```
+
+## Usage
 
 ```js
 import Stamps from '@permaweb/stamps'
