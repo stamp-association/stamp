@@ -151,13 +151,13 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@permaweb/stampjs@https://arweave.net/-edigKRKY4laHnVz6jOeos5Ke4820gTygWp_CTW1FE4":
-  version "0.0.5"
-  resolved "https://arweave.net/-edigKRKY4laHnVz6jOeos5Ke4820gTygWp_CTW1FE4#e3e7d11679ceb9d13fd64eb9c39c7e6f469cf9df"
-
-"@permaweb/stampjs@https://arweave.net/2NPOIZyqgE6hQ6S2cTRj9Ce3enmRjeMIaPZYbzgDnxY":
-  version "0.0.1"
-  resolved "https://arweave.net/2NPOIZyqgE6hQ6S2cTRj9Ce3enmRjeMIaPZYbzgDnxY#d840603d57193f592439b86f70db4e816527802a"
+"@permaweb/stampjs@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@permaweb/stampjs/-/stampjs-0.0.10.tgz#62b90ffe7d765d91090804e7a508a35e185b5346"
+  integrity sha512-bK1B5hvo4CjYmVbaR7/2lJXEtzD85hKep/NVvXUHAXU7q1SNDAP/laEI/cbzApBn6plrkkeLYq4tBS6JzZWRug==
+  dependencies:
+    fpjson-lang "^0.1.3"
+    ramda "^0.28.0"
 
 "@sveltejs/vite-plugin-svelte@^2.0.2":
   version "2.0.2"
@@ -330,6 +330,13 @@ fill-range@^7.0.1:
   integrity sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==
   dependencies:
     to-regex-range "^5.0.1"
+
+fpjson-lang@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/fpjson-lang/-/fpjson-lang-0.1.3.tgz#850a3bac1da2b4488118000acf4aab1bb06109e6"
+  integrity sha512-GBLFEQmeoTdFLp1yfDhierzozniCClzeuu+Y9Xny+JIf1gOGM8n/gqZqn0sneKikt71K6qxFVZDrpfkPTA53nA==
+  dependencies:
+    ramda "^0.28.0"
 
 fs.realpath@^1.0.0:
   version "1.0.0"
@@ -552,6 +559,11 @@ queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
+
+ramda@^0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.28.0.tgz#acd785690100337e8b063cab3470019be427cc97"
+  integrity sha512-9QnLuG/kPVgWvMQ4aODhsBUFKOUmnbUnsSXACv+NCQZcHbeb+v8Lodp8OVxtRULN1/xOyYLLaL6npE6dMq5QTA==
 
 readdirp@~3.6.0:
   version "3.6.0"

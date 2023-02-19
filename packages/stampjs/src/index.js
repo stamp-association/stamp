@@ -1,7 +1,7 @@
 import { getSubdomain } from './utils.js'
 import _fpjson from 'fpjson-lang'
 
-const fpjson = _fpjson.default
+const fpjson = typeof _fpjson === 'function' ? _fpjson : _fpjson.default
 
 const STAMP = '61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI'
 

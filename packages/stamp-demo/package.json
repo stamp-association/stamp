@@ -20,6 +20,6 @@
     "vite": "^4.1.0"
   },
   "dependencies": {
-    "@permaweb/stampjs": "https://arweave.net/-edigKRKY4laHnVz6jOeos5Ke4820gTygWp_CTW1FE4"
+    "@permaweb/stampjs": "^0.0.10"
   }
 }

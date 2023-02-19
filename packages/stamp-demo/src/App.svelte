@@ -12,6 +12,8 @@
     stamps.count("oHB-hYNKHOSqWrxJjroXZatSEmmFYpdKpoGTXNqvSo8").then((c) => {
       count = c.total;
     });
+    const result = stamps.filter(["prop", "stamps"]);
+    console.log(result);
   });
 
   async function doStamp() {
@@ -20,6 +22,7 @@
     count = (await stamps.count("oHB-hYNKHOSqWrxJjroXZatSEmmFYpdKpoGTXNqvSo8"))
       .total;
   }
+
 </script>
 
 <div>
