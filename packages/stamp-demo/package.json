@@ -20,6 +20,6 @@
     "vite": "^4.1.0"
   },
   "dependencies": {
-    "@permaweb/stampjs": "^0.0.10"
+    "@permaweb/stampjs": "^0.0.11"
   }
 }

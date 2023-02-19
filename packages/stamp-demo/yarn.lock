@@ -151,10 +151,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@permaweb/stampjs@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@permaweb/stampjs/-/stampjs-0.0.10.tgz#62b90ffe7d765d91090804e7a508a35e185b5346"
-  integrity sha512-bK1B5hvo4CjYmVbaR7/2lJXEtzD85hKep/NVvXUHAXU7q1SNDAP/laEI/cbzApBn6plrkkeLYq4tBS6JzZWRug==
+"@permaweb/stampjs@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@permaweb/stampjs/-/stampjs-0.0.11.tgz#1dc275054d8ae64260a81abaa79274ce9acec41a"
+  integrity sha512-/jHspNz9QOTcm6gMgvZGsL755bcPmRDydDa2mQiLZU4VI10SuXJC/uE+hGy0duKZjBoteCZfzVlMU1vqf6wb6Q==
   dependencies:
     fpjson-lang "^0.1.3"
     ramda "^0.28.0"

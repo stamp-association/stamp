@@ -7,7 +7,13 @@ The STAMP JS SDK is how developers can integrate the STAMPs protocol in their ap
 ## Install
 
 ```sh
-npm i https://stampjs-v006_stamps.g8way.io
+npm i https://stampjs-v0011_stamps.g8way.io
+```
+
+or
+
+```sh
+npm i @permaweb/stampjs
 ```
 
 ## Usage
