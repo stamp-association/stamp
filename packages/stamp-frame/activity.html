@@ -7,11 +7,22 @@
   <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.3/dist/full.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/arweave@1.13.1/bundles/web.bundle.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400&display=swap');
+
+    .hero {
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .bg-base-100 {
+      background-color: #fcfcfc
+    }
+  </style>
 </head>
 
 <body data-theme="corporate">
-  <div class="hero max-h-screen bg-base-100 items-start ">
-    <div class="hero-content flex-col">
+  <div class="hero min-h-screen bg-base-100 items-start">
+    <div class="hero-content flex-col w-full">
       <h1 class="text-2xl flex items-center">
         <span>Stamp Frame - Activity</span>
         <button class="btn btn-ghost mask mask-circle" id="back">
@@ -22,12 +33,12 @@
 
         </button>
       </h1>
-      <div id="timeline" class="overflow-x-auto"></div>
+      <div id="timeline" class="overflow-x-auto w-fill"></div>
     </div>
   </div>
 </body>
 <script type="module">
-  import { take, takeLast } from 'https://esm.sh/ramda'
+  import { take, takeLast, join, uniqBy, prop } from 'https://esm.sh/ramda'
   import { fromUnixTime, formatDistanceToNowStrict } from 'https://cdn.skypack.dev/date-fns'
   const arweave = window.Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
   document.getElementById('back').addEventListener('click', () => {
@@ -66,10 +77,11 @@
         timestamp: node.block?.timestamp,
         height: node.block?.height
       })))
+      .then(uniqBy(prop('owner')))
       .then(stamps => stamps.map(template))
+      .then(join(''))
     const el = document.getElementById('timeline')
-    el.innerHTML = `
-<table class="table table-zebra w-full">
+    el.innerHTML = `<table class="table table-zebra w-full">
   <thead>
     <tr>
       <th>ID</th>
@@ -82,6 +94,7 @@
     ${stamps}
   </tbody>
 </table>`
+
   })
 
   function template(stamp) {

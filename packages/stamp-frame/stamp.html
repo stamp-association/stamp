@@ -7,6 +7,39 @@
   <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.3/dist/full.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/arweave@1.13.1/bundles/web.bundle.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400&display=swap');
+
+    .hero {
+      background-color: #fcfcfcfc;
+      font-family: Roboto Mono, monospace;
+    }
+
+    .document {
+      font-family: Roboto Mono, monospace;
+
+    }
+
+    #stamp {
+      font-family: Roboto Mono, monospace;
+      color: #fcfcfcfc;
+      background-color: #ff8500;
+      border: 1px solid black;
+      border-radius: 5px;
+    }
+
+    #stamp:hover {
+      font-family: Roboto Mono, monospace;
+      color: black;
+      background-color: #fcfcfcfc;
+      border: 1px solid black;
+    }
+
+    #activity {
+
+      border-radius: 5px;
+    }
+  </style>
 </head>
 
 <body data-theme="corporate">
@@ -88,12 +121,11 @@
       }`
       const variables = { datas: [tx] }
       const count = await arweave.api.post('graphql', { query, variables })
-        .then(x => (console.log(x), x))
         .then(r => r.data?.data?.transactions?.edges)
         .then(edges => edges.map(e => e.node.owner.address))
         .then(uniq)
         .then(length)
-      document.getElementById('count') = count
+      document.getElementById('count').innerHTML = count
 
     }
   </script>

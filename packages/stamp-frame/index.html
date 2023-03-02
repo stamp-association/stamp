@@ -6,21 +6,64 @@
   <title>Stamp Frame</title>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.3/dist/full.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module" defer src="index.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400&display=swap');
+
+    .hero {
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .bg-base-100 {
+      background-color: #fcfcfc
+    }
+
+    .btn {
+      font-family: Roboto Mono, monospace;
+      color: #fcfcfcfc;
+      background-color: #ff8500;
+      border: 1px solid black;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 
 <body data-theme="corporate">
-  <div class="hero max-h-screen bg-base-100 items-start ">
-    <div class="hero-content">
-      <h1 class="text-2xl">Stamp Frame</h1>
-      <form>
-        <div class="form-control">
-          <input name="tx" class="input input-bordered w-[350px]" placeholder="enter tx to stamp" />
-        </div>
-        <button type="submit" class="btn btn-outline btn-sm">GO</button>
-      </form>
+  <div class="hero min-h-screen bg-base-100 items-start ">
+    <div class="hero-content flex-col">
+      <div class="flex space-x-8 items-center">
+        <h1 class="text-2xl">Stamp Frame</h1>
+        <form class="flex space-x-2 items-center">
+          <div class="form-control">
+            <input name="tx" class="input input-bordered w-[350px]" placeholder="enter tx to stamp" />
+          </div>
+          <button type="submit"
+            class="btn btn-outline btn-sm bg-[#ff8500] hover:bg-[#fcfcfc] hover:text-black">GO</button>
+        </form>
+      </div>
+      <div class="mt-16 flex flex-col space-y-8">
+        <a class="link text-xl" href="stamp.html?tx=qyAI9xZfI6gbp4UixqtSMWiIY3F0L2QB-yniVTExESY">
+          The Framework for evolving Arweave
+        </a>
+        <a class="link text-xl" href="stamp.html?tx=USgq2y1QhCyGnjCuDJ-47x8BN0N-XiiKh6k8zmsu4yo">Understanding the
+          Framework for
+          Evolving
+          Arweave</a>
+      </div>
     </div>
+
   </div>
+
+  <script>
+    document.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault()
+      const tx = e.target.tx.value
+      if (tx.length === 43) {
+        window.location.href = window.location.origin + '/stamp.html?tx=' + e.target.tx.value
+      } else {
+        alert('Value entered is not a valid TX!')
+      }
+    })
+  </script>
 </body>
 
 </html>
