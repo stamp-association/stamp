@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Stamp Frame - STAMP TX</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.3/dist/full.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.twind.style/ext,line-clamp,forms,typography" crossorigin></script>
+  <script src="https://unpkg.com/arweave@1.13.1/bundles/web.bundle.min.js"></script>
+</head>
+
+<body data-theme="corporate">
+  <div class="hero max-h-screen bg-base-100 items-start h-[1200px] w-full ">
+    <div class="hero-content flex flex-col w-full h-full ">
+      <div class="flex justify-center items-center space-x-8">
+        <div>Stamps: 0</div>
+        <div class="space-x-2">
+          <button id="stamp" class="btn btn-outline btn-sm">STAMP</button>
+          <button id="activity" class="btn btn-outline btn-sm">ACTIVITY</button>
+        </div>
+      </div>
+      <iframe style="width:100%" class=" w-full h-full" id="frame">
+
+      </iframe>
+    </div>
+  </div>
+  <script type="module">
+    import { ArweaveWebWallet } from 'https://esm.sh/arweave-wallet-connector'
+    const arweave = window.Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
+    window.addEventListener('DOMContentLoaded', () => {
+      const [_, tx] = window.location.search.match(/^\?tx\=(.*)/)
+      const el = document.getElementById('frame')
+      el.src = 'https://arweave.net/' + tx
+    })
+    document.getElementById('stamp').addEventListener('click', async () => {
+      const [_, data] = window.location.search.match(/^\?tx\=(.*)/)
+      const tx = await arweave.createTransaction({
+        data: JSON.stringify(
+          {
+            data,
+            timestamp: new Date().toISOString()
+          }
+        )
+      })
+      tx.addTag('Protocol-Name', 'Stamp')
+      tx.addTag('Data-Source', data)
+
+      if (!window.arweaveWallet) {
+        const wallet = new ArweaveWebWallet({
+          name: 'Stamper Frame'
+        })
+        wallet.setUrl('arweave.app')
+        await wallet.connect()
+      } else {
+        await window.arweaveWallet.connect([
+          'SIGN_TRANACTION',
+          'DISPATCH'
+        ])
+      }
+      await window.arweaveWallet.dispatch(tx)
+      alert('STAMPED!')
+    })
+
+  </script>
+</body>
+
+</html>

@@ -2,7 +2,7 @@ import { AddPair, CancelOrder, CreateOrder, Halt } from "@verto/flex";
 import { map, assoc, propEq } from 'ramda'
 import { mintRewards, pstAllocation, divideQty, rewardCredits } from './utils.js'
 
-const functions = { evolve, stamp, reward, transfer, balance, originCount, stampCountByAsset, stampsByAsset, stampsByAddress }
+const functions = { evolve, stamp, reward, register, transfer, balance, originCount, stampCountByAsset, stampsByAsset, stampsByAddress }
 
 const REWARD = 1000_000_000_000_000
 const VOUCH_DAO = '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk'
@@ -45,6 +45,22 @@ export async function handle(
 
 }
 
+async function register(state, action) {
+  let balances = {}
+
+  if (!state.registry) {
+    state.registry = {}
+  }
+  const pst = SmartWeave.transaction.tags.find(t => t.name === 'PST')
+  if (pst) {
+    balances = JSON.parse(pst.value)
+  } else {
+    balances = { [SmartWeave.transaction.owner]: 1 }
+  }
+  state.registry[SmartWeave.transaction.id] = balances
+  return { state }
+}
+
 async function reward(state, action) {
   const caller = action.caller;
   ContractAssert(action.input.timestamp, 'Timestamp is required for reward processing.')
@@ -82,13 +98,19 @@ async function reward(state, action) {
           console.log('could not allocate reward to ' + asset)
           return null
         }
-
-        const x = await SmartWeave.contracts.readContractState(asset)
-        // apply balances
-        if (x.balances && Object.keys(x.balances).length > 0) {
-          const r = pstAllocation(x.balances, coins)
+        // allows users to stamp assets with no contract
+        if (state.registry[asset]) {
+          const r = pstAllocation(state.registry[asset], coins)
           delete r[undefined]
           return r
+        } else {
+          const x = await SmartWeave.contracts.readContractState(asset)
+          // apply balances
+          if (x.balances && Object.keys(x.balances).length > 0) {
+            const r = pstAllocation(x.balances, coins)
+            delete r[undefined]
+            return r
+          }
         }
         console.log('could not allocate reward to ' + asset)
         return null
