@@ -63,8 +63,8 @@
       .then(ns => ns.map(node => ({
         id: node.id,
         owner: node.owner.address,
-        timestamp: node.block.timestamp,
-        height: node.block.height
+        timestamp: node.block?.timestamp,
+        height: node.block?.height
       })))
       .then(stamps => stamps.map(template))
     const el = document.getElementById('timeline')
@@ -110,8 +110,8 @@
     </a>
     </div>
   </td>
-  <td>${formatDistanceToNowStrict(fromUnixTime(stamp.timestamp))}</td>
-  <td>${stamp.height}</td>
+  <td>${stamp.timestamp ? formatDistanceToNowStrict(fromUnixTime(stamp.timestamp)) : 'pending'}</td>
+  <td>${stamp.height ? stamp.height : 'pending'}</td>
 </tr >
     `
   }

@@ -13,7 +13,7 @@
   <div class="hero max-h-screen bg-base-100 items-start h-[1200px] w-full ">
     <div class="hero-content flex flex-col w-full h-full ">
       <div class="flex justify-center items-center space-x-8">
-        <div>Stamps: 0</div>
+        <div>Stamps: <span id="count">0</span></div>
         <div class="space-x-2">
           <button id="stamp" class="btn btn-outline btn-sm">STAMP</button>
           <button id="activity" class="btn btn-outline btn-sm">ACTIVITY</button>
@@ -25,12 +25,14 @@
     </div>
   </div>
   <script type="module">
+    import { uniq, length } from 'https://esm.sh/ramda'
     import { ArweaveWebWallet } from 'https://esm.sh/arweave-wallet-connector'
     const arweave = window.Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
     window.addEventListener('DOMContentLoaded', () => {
       const [_, tx] = window.location.search.match(/^\?tx\=(.*)/)
       const el = document.getElementById('frame')
       el.src = 'https://arweave.net/' + tx
+      getStampCount(tx)
     })
     document.getElementById('activity').addEventListener('click', () => {
       const [_, tx] = window.location.search.match(/^\?tx\=(.*)/)
@@ -62,9 +64,35 @@
         ])
       }
       await window.arweaveWallet.dispatch(tx)
-      alert('STAMPED!')
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      await getStampCount(tx)
+      //alert('STAMPED!')
     })
 
+    async function getStampCount(tx) {
+      const query = `query($datas: [String!]!) {
+	transactions(first:100, tags:[
+    {name:"Data-Source", values: $datas},
+    {name:"Protocol-Name", values:["Stamp"]}
+  ]) {
+    edges {
+      node {
+        owner {
+          address
+        }
+      }
+    }
+  }
+}`
+      const variables = { datas: [tx] }
+      const count = await arweave.api.post('graphql', { query, variables })
+        .then(x => (console.log(x), x))
+        .then(r => r.data?.data?.transactions?.edges)
+        .then(edges => edges.map(e => e.node.owner.address))
+        .then(uniq)
+        .then(length)
+      document.getElementById('count').innerHTML = count
+    }
   </script>
 </body>
 
