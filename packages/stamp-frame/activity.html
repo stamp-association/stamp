@@ -43,7 +43,8 @@
   const arweave = window.Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
   document.getElementById('back').addEventListener('click', () => {
     const [_, tx] = window.location.search.match(/^\?tx\=(.*)/)
-    window.location.href = window.location.origin + '/stamp.html?tx=' + tx
+    const path = window.location.pathname.replace('activity.html', 'stamp.html')
+    window.location.href = window.location.origin + `/${path}?tx=${tx}`
   })
   window.addEventListener('DOMContentLoaded', async () => {
     const [_, tx] = window.location.search.match(/^\?tx\=(.*)/)

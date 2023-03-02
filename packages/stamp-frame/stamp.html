@@ -69,7 +69,8 @@
     })
     document.getElementById('activity').addEventListener('click', () => {
       const [_, tx] = window.location.search.match(/^\?tx\=(.*)/)
-      window.location.href = window.location.origin + '/activity.html?tx=' + tx
+      const path = window.location.pathname.replace('stamp.html', 'activity.html')
+      window.location.href = window.location.origin + `/${path}?tx=${tx}`
     })
     document.getElementById('stamp').addEventListener('click', async () => {
       const [_, data] = window.location.search.match(/^\?tx\=(.*)/)
