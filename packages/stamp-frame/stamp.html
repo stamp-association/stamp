@@ -70,6 +70,7 @@
   <script type="module">
     import { uniq, length } from 'https://esm.sh/ramda'
     import { ArweaveWebWallet } from 'https://esm.sh/arweave-wallet-connector'
+
     const arweave = window.Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
     window.addEventListener('DOMContentLoaded', () => {
       const [_, tx] = window.location.search.match(/^\?tx\=(.*)/)
