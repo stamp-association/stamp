@@ -59,31 +59,33 @@
         await wallet.connect()
       } else {
         await window.arweaveWallet.connect([
-          'SIGN_TRANACTION',
           'DISPATCH'
-        ])
+        ], {
+          name: 'stamp-frame'
+        })
       }
       await window.arweaveWallet.dispatch(tx)
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      await getStampCount(tx)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const count = document.getElementById('count')
+      count.innerHTML = Number(count.innerHTML) + 1
       //alert('STAMPED!')
     })
 
     async function getStampCount(tx) {
       const query = `query($datas: [String!]!) {
-	transactions(first:100, tags:[
-    {name:"Data-Source", values: $datas},
-    {name:"Protocol-Name", values:["Stamp"]}
-  ]) {
-    edges {
-      node {
-        owner {
-          address
+      	transactions(first:100, tags:[
+          {name:"Data-Source", values: $datas},
+          {name:"Protocol-Name", values:["Stamp"]}
+        ]) {
+          edges {
+            node {
+              owner {
+                address
+              }
+            }
+          }
         }
-      }
-    }
-  }
-}`
+      }`
       const variables = { datas: [tx] }
       const count = await arweave.api.post('graphql', { query, variables })
         .then(x => (console.log(x), x))
@@ -91,7 +93,8 @@
         .then(edges => edges.map(e => e.node.owner.address))
         .then(uniq)
         .then(length)
-      document.getElementById('count').innerHTML = count
+      document.getElementById('count') = count
+
     }
   </script>
 </body>
