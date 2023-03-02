@@ -69,7 +69,7 @@
   </div>
   <script type="module">
     import { uniq, length } from 'https://esm.sh/ramda'
-    import { ArweaveWebWallet } from 'https://esm.sh/arweave-wallet-connector'
+    import { ArweaveWebWallet } from 'https://esm.sh/arweave-wallet-connector@0.0.31'
 
     const arweave = window.Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
     window.addEventListener('DOMContentLoaded', () => {
@@ -84,6 +84,21 @@
       window.location.href = window.location.origin + `${path}?tx=${tx}`
     })
     document.getElementById('stamp').addEventListener('click', async () => {
+      if (!window.arweaveWallet) {
+        const wallet = new ArweaveWebWallet({
+          name: 'Stamper Frame'
+        })
+        wallet.setUrl('arweave.app')
+        await wallet.connect()
+
+      } else {
+        await window.arweaveWallet.connect([
+          'DISPATCH'
+        ], {
+          name: 'stamp-frame'
+        })
+      }
+      await new Promise(resolve => setTimeout(resolve, 1500))
       const [_, data] = window.location.search.match(/^\?tx\=(.*)/)
       const tx = await arweave.createTransaction({
         data: JSON.stringify(
@@ -96,19 +111,7 @@
       tx.addTag('Protocol-Name', 'Stamp')
       tx.addTag('Data-Source', data)
 
-      if (!window.arweaveWallet) {
-        const wallet = new ArweaveWebWallet({
-          name: 'Stamper Frame'
-        })
-        wallet.setUrl('arweave.app')
-        await wallet.connect()
-      } else {
-        await window.arweaveWallet.connect([
-          'DISPATCH'
-        ], {
-          name: 'stamp-frame'
-        })
-      }
+
       await window.arweaveWallet.dispatch(tx)
       await new Promise((resolve) => setTimeout(resolve, 1000))
       const count = document.getElementById('count')
