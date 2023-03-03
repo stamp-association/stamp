@@ -88,7 +88,7 @@ export default {
    */
   init: function ({
     warp,
-    dre = 'https://dre-1.warp.cc',
+    dre = 'https://cache-1.permaweb.tools',
     address, // TODO: future to allow vpst to drive developer incentives
     percent // TODO: future configurable percent for dev token perks
   }) {
