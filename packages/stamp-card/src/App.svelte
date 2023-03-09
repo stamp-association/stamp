@@ -6,70 +6,86 @@
   const tx = _searchParams.get("tx");
   const prop = (k) => (o) => o[k];
   const path = (ks) => (o) => ks.reduce((a, v) => a[v], o);
-  const arweave = window.Arweave.init(
-    import.meta.env.DEV
-      ? { host: "arweave.net", port: 443, protocol: "https" }
-      : {}
-  );
-
+  // const arweave = window.Arweave.init(
+  //   import.meta.env.DEV
+  //     ? { host: "arweave.net", port: 443, protocol: "https" }
+  //     : {}
+  // );
+  // TODO: remove dependency on arweave.net
+  const arweave = window.Arweave.init({
+    host: "arweave.net",
+    port: 443,
+    protocol: "https",
+  });
   const formatId = (id) => `${take(5, id)}...${takeLast(5, id)}`;
 
   function fetchCard() {
-    return arweave.api
-      .post("graphql", {
-        query: buildQuery(),
-        variables: { tx },
-      })
-      .then(path(["data", "data", "transaction"]))
-      .then((node) => ({
-        id: node.id,
-        owner: node.owner.address,
-        height: node.block.height,
-        ts: node.block.timestamp,
-        tags: node.tags,
-      }))
-      .then((x) => (console.log("card", x), x))
-      .then((card) =>
-        arweave.api
-          .post("graphql", {
-            query: buildQuery(),
-            variables: {
-              tx: card.tags.find((t) => t.name === "Data-Source").value,
-            },
-          })
-          .then(prop("data"))
-          .then(path(["data", "transaction"]))
-          .then((node) => ({
-            ...card,
-            asset: node.id,
-            title: node.tags.find((t) => t.name === "Title").value,
-          }))
-          .then((x) => (console.log("asset", x), x))
-      )
-      .then((card) =>
-        arweave.api
-          .post("graphql", {
-            query: buildArProfileQuery(),
-            variables: {
-              owners: [card.owner],
-            },
-          })
+    return (
+      arweave.api
+        .post("graphql", {
+          query: buildQuery(),
+          variables: { tx },
+        })
+        .then(path(["data", "data", "transaction"]))
+        .then((node) => ({
+          id: node.id,
+          owner: node.owner.address,
+          height: node.block.height,
+          ts: node.block.timestamp,
+          tags: node.tags,
+          avatar: "yCZMJWHprkdOHTtep2Y_uXzc_c9bmSpPvBzb8KyObWA",
+          handle: "anon",
+          bio: "a human that wants a better web",
+        }))
+        //.then((x) => (console.log("card", x), x))
+        .then((card) =>
+          arweave.api
+            .post("graphql", {
+              query: buildQuery(),
+              variables: {
+                tx: card.tags.find((t) => t.name === "Data-Source").value,
+              },
+            })
+            .then(prop("data"))
+            .then(path(["data", "transaction"]))
+            .then((node) => ({
+              ...card,
+              asset: node.id,
+              title: node.tags.find((t) => t.name === "Title").value,
+            }))
+            //.then((x) => (console.log("asset", x), x))
+            .catch((e) => ({
+              ...card,
+              asset: "XXXXXXXXXXXXXXXXXXXXX",
+              title: "No Title",
+            }))
+        )
+        .then((card) =>
+          arweave.api
+            .post("graphql", {
+              query: buildArProfileQuery(),
+              variables: {
+                owners: [card.owner],
+              },
+            })
 
-          .then(prop("data"))
-          .then((x) => (console.log(x), x))
-          .then(path(["data", "transactions", "edges"]))
-          .then((edges) => edges[0].node)
-          .then((n) => arweave.api.get(n.id))
-          .then(prop("data"))
-          .then(JSON.parse.bind(JSON))
-          .then((profile) => ({
-            ...card,
-            handle: profile.handle,
-            bio: profile.bio,
-            avatar: profile.avatar,
-          }))
-      )
-      .then((x) => (console.log(x), x));
+            .then(prop("data"))
+            //.then((x) => (console.log(x), x))
+            .then(path(["data", "transactions", "edges"]))
+            .then((edges) => edges[0].node)
+            .then((n) => arweave.api.get(n.id))
+            .then(prop("data"))
+            .then(JSON.parse.bind(JSON))
+            .then((profile) => ({
+              ...card,
+              handle: profile.handle,
+              bio: profile.bio,
+              avatar: profile.avatar,
+            }))
+            .catch((e) => card)
+        )
+    );
+    //.then((x) => (console.log(x), x));
   }
 
   function buildQuery() {
@@ -161,5 +177,11 @@ transactions(first: 1, owners: $owners, tags: {name: "Protocol-Name", values: ["
         </div>
       </dl>
     </a>
+  {:catch}
+    <div
+      class="grid items-center min-h-screen text-3xl text-orange-400 font-mono"
+    >
+      Stamp Card Not Found!
+    </div>
   {/await}
 </div>
