@@ -1,5 +1,5 @@
 <script>
-  import { take, takeLast } from "ramda";
+  import { take, takeLast, propEq } from "ramda";
   import { format, fromUnixTime } from "date-fns";
 
   const _searchParams = new URLSearchParams(location.search);
@@ -28,9 +28,10 @@
         })
         .then(path(["data", "data", "transaction"]))
         .then((node) => ({
-          id: node.id,
-          owner: node.owner.address,
-          height: node.block.height,
+          id: node.tags.find(propEq("name", "Sequencer-Tx-Id")).value,
+          owner: node.tags.find(propEq("name", "Sequencer-Owner")).value,
+          height: node.tags.find(propEq("name", "Sequencer-Block-Height"))
+            .value,
           ts: node.block.timestamp,
           tags: node.tags,
           avatar: "yCZMJWHprkdOHTtep2Y_uXzc_c9bmSpPvBzb8KyObWA",
@@ -80,7 +81,7 @@
               ...card,
               handle: profile.handle,
               bio: profile.bio,
-              avatar: profile.avatar,
+              avatar: profile.avatar.replace("ar://", ""),
             }))
             .catch((e) => card)
         )
