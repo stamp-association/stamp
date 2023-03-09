@@ -124,7 +124,12 @@ export default {
 
       input.subdomain = getSubdomain(window.location.hostname)
 
-      tags = [{ name: 'App-Protocol', value: 'Stamp' }, ...tags]
+      tags = [
+        { name: 'Protocol-Name', value: 'Stamp' },
+        { name: 'Data-Source', value: transactionId },
+        { name: 'Render-With', value: 'card_stamps' },
+        ...tags
+      ]
 
       return warp.contract(STAMP).connect('use_wallet')
         .setEvaluationOptions({
