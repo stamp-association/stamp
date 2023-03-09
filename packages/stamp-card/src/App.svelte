@@ -1,4 +1,7 @@
 <script>
+  import { take, takeLast } from "ramda";
+  import { format, fromUnixTime } from "date-fns";
+
   const _searchParams = new URLSearchParams(location.search);
   const tx = _searchParams.get("tx");
   const prop = (k) => (o) => o[k];
@@ -9,6 +12,8 @@
       : {}
   );
 
+  const formatId = (id) => `${take(5, id)}...${takeLast(5, id)}`;
+
   function fetchCard() {
     return arweave.api
       .post("graphql", {
@@ -16,6 +21,14 @@
         variables: { tx },
       })
       .then(path(["data", "data", "transaction"]))
+      .then((node) => ({
+        id: node.id,
+        owner: node.owner.address,
+        height: node.block.height,
+        ts: node.block.timestamp,
+        tags: node.tags,
+      }))
+      .then((x) => (console.log("card", x), x))
       .then((card) =>
         arweave.api
           .post("graphql", {
@@ -25,14 +38,36 @@
             },
           })
           .then(prop("data"))
-          .then(path[("data", "transaction")])
-          //.then((results) => results[0])
+          .then(path(["data", "transaction"]))
+          .then((node) => ({
+            ...card,
+            asset: node.id,
+            title: node.tags.find((t) => t.name === "Title").value,
+          }))
+          .then((x) => (console.log("asset", x), x))
+      )
+      .then((card) =>
+        arweave.api
+          .post("graphql", {
+            query: buildArProfileQuery(),
+            variables: {
+              owners: [card.owner],
+            },
+          })
 
-          // .then((t) => ({
-          //   ...card,
-          //   title: t.tags.find((_tag) => _tag.name === "Title").value,
-          // }))
+          .then(prop("data"))
           .then((x) => (console.log(x), x))
+          .then(path(["data", "transactions", "edges"]))
+          .then((edges) => edges[0].node)
+          .then((n) => arweave.api.get(n.id))
+          .then(prop("data"))
+          .then(JSON.parse.bind(JSON))
+          .then((profile) => ({
+            ...card,
+            handle: profile.handle,
+            bio: profile.bio,
+            avatar: profile.avatar,
+          }))
       )
       .then((x) => (console.log(x), x));
   }
@@ -48,6 +83,18 @@ transaction(id: $tx) {
   }
   block {
     height
+    timestamp
+  }
+}}`;
+  }
+
+  function buildArProfileQuery() {
+    return `query($owners: [String!]!) {
+transactions(first: 1, owners: $owners, tags: {name: "Protocol-Name", values: ["Account-0.3"]}) {
+  edges {
+    node {
+      id
+    }
   }
 }}`;
   }
@@ -73,19 +120,19 @@ transaction(id: $tx) {
       <div class="sm:flex sm:justify-between sm:gap-4">
         <div>
           <h3 class="text-orange-400 text-lg font-bold font-mono sm:text-xl">
-            Rakis
+            {card.handle}
             <span class="mt-1 text-xs font-thin font-sans text-white-400">
-              (vh-NT...9G2JI)
+              ({formatId(card.owner)})
             </span>
           </h3>
 
-          <p class="max-w-[40ch] text-sm text-white-400">Permaweb Developer</p>
+          <p class="max-w-[40ch] text-sm text-white-400">{card.bio}</p>
         </div>
 
         <div class="hidden sm:block sm:shrink-0">
           <img
-            alt="Rakis"
-            src="https://arweave.net:443/fYmFNZbRCbPhBWqmOJLNiJFoLFiFchIBSZNI6jRwWaI"
+            alt={card.handle}
+            src="https://arweave.net/{card.avatar}"
             class="h-16 w-16 rounded-lg object-cover shadow-sm"
           />
         </div>
@@ -93,20 +140,24 @@ transaction(id: $tx) {
 
       <div class="mt-4">
         <p class="max-w-[40ch] text-xl text-white-400">
-          Framework for Evolving Arweave
+          {card.title}
         </p>
-        <p class="text-white-400 text-xs font-light">(qyAI9...9G2JI)</p>
+        <p class="text-white-400 text-xs font-light">
+          ({formatId(card.asset)})
+        </p>
       </div>
 
       <dl class="mt-6 flex gap-4 sm:gap-6 font-sans">
         <div class="flex flex-col">
           <dt class="text-sm font-medium text-white-400">Stamped:</dt>
-          <dd class="text-xs text-orange-400">March 9, 2023</dd>
+          <dd class="text-xs text-orange-400">
+            {format(fromUnixTime(card.ts), "MMM dd, yyyy")}
+          </dd>
         </div>
 
         <div class="flex flex-col">
           <dt class="text-sm font-medium text-white-400">Height:</dt>
-          <dd class="text-xs text-orange-400">1134137</dd>
+          <dd class="text-xs text-orange-400">{card.height}</dd>
         </div>
       </dl>
     </a>

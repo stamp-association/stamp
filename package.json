@@ -17,6 +17,7 @@
     "@verto/flex": "^0.1.15",
     "arlocal": "^1.1.16",
     "arweave": "^1.11.4",
+    "date-fns": "^2.29.3",
     "node-fetch": "^3.2.10",
     "replace-in-file": "^6.3.5",
     "smartweave": "^0.4.49",
