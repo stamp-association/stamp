@@ -88,7 +88,7 @@ export default {
    */
   init: function ({
     warp,
-    dre = 'https://cache-1.permaweb.tools',
+    dre = 'https://cache-2.permaweb.tools',
     address, // TODO: future to allow vpst to drive developer incentives
     percent // TODO: future configurable percent for dev token perks
   }) {
@@ -107,7 +107,9 @@ export default {
       }
 
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true }).then(c => c.setEvaluationOptions({
+          allowBigInt: true,
+        }).readState())
       } catch (e) {
         throw new Error('DRE is not defined correctly! ERROR:', e.message)
       }

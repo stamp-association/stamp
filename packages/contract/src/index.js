@@ -212,7 +212,7 @@ async function stamp(state, action) {
     const ANT = arns.records[subdomain]
     if (ANT) {
       // readstate of ArNS TEST
-      const ant = await SmartWeave.contracts.readContractState(ANT)
+      const ant = await SmartWeave.contracts.readContractState(ANT.contractTxId)
       // find ANT Record
       const antOwner = ant.owner
       // need to verify the transaction id is in ANT Contract
