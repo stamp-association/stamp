@@ -1,5 +1,5 @@
 <script>
-  import { take, takeLast, propEq } from "ramda";
+  import { assoc, compose, take, takeLast, propEq, find, reduce } from "ramda";
   import { format, fromUnixTime } from "date-fns";
 
   const _searchParams = new URLSearchParams(location.search);
@@ -26,25 +26,34 @@
           query: buildQuery(),
           variables: { tx },
         })
+
         .then(path(["data", "data", "transaction"]))
-        .then((node) => ({
-          id: node.tags.find(propEq("name", "Sequencer-Tx-Id")).value,
-          owner: node.tags.find(propEq("name", "Sequencer-Owner")).value,
-          height: node.tags.find(propEq("name", "Sequencer-Block-Height"))
-            .value,
-          ts: node.block.timestamp,
-          tags: node.tags,
-          avatar: "yCZMJWHprkdOHTtep2Y_uXzc_c9bmSpPvBzb8KyObWA",
-          handle: "anon",
-          bio: "a human that wants a better web",
-        }))
+        .then(
+          compose(
+            reduce((acc, { name, value }) => assoc(name, value, acc), {}),
+            path(["tags"])
+          )
+        )
+        .then((tags) => {
+          return {
+            id: tags["Sequencer-Tx-Id"],
+            owner: tags["Sequencer-Owner"],
+            height: tags["Sequencer-Block-Height"],
+            ts: tags["Sequencer-Block-Timestamp"],
+            tags,
+            avatar: "yCZMJWHprkdOHTtep2Y_uXzc_c9bmSpPvBzb8KyObWA",
+            handle: "anon",
+            bio: "a human that wants a better web",
+          };
+        })
+        //.catch((e) => (console.log(e), Promise.reject(e)))
         //.then((x) => (console.log("card", x), x))
         .then((card) =>
           arweave.api
             .post("graphql", {
               query: buildQuery(),
               variables: {
-                tx: card.tags.find((t) => t.name === "Data-Source").value,
+                tx: card.tags["Data-Source"],
               },
             })
             .then(prop("data"))
@@ -115,7 +124,6 @@ transactions(first: 1, owners: $owners, tags: {name: "Protocol-Name", values: ["
   }
 }}`;
   }
-
 </script>
 
 <div class="flex items-center justify-center min-h-screen">
