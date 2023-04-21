@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>STAMP Renderer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Render any permapage and make it stampable" />
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.5/dist/full.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.twind.style" crossorigin></script>
+  <script type="module">
+    import Stamps from 'https://unpkg.com/@permaweb/stampjs@0.0.15/dist/index.js'
+    import { WarpFactory } from 'https://unpkg.com/warp-contracts@1.4.1/bundles/web.bundle.min.js'
+    import { ArweaveWebWallet } from 'https://unpkg.com/arweave-wallet-connector'
+
+    const stamps = Stamps.init({ warp: WarpFactory.forMainnet() })
+    const el = document.getElementById('frame')
+    let tx = (new URLSearchParams(window.location.search)).get('tx')
+
+    async function main(tx) {
+      if (!tx) {
+        document.getElementById('renderer-prompt').checked = true
+        return
+      }
+      el.src = `https://g8way.io/${tx}`
+      const count = await stamps.count(tx)
+      document.getElementById('stamp-count').innerHTML = count.total
+    }
+
+    document.getElementById('stamp-btn').addEventListener('click', async () => {
+      try {
+        if (window.arweaveWallet) {
+          await window.arweaveWallet.connect(['ACCESS_ADDRESS', 'DISPATCH'], { name: 'STAMPS' })
+        } else {
+          const wallet = new ArweaveWebWallet({
+            name: 'STAMPS'
+          })
+
+          wallet.setUrl('arweave.app')
+          await wallet.connect()
+        }
+        const addr = await window.arweaveWallet.getActiveAddress()
+        const hasStamped = await stamps.hasStamped(addr, tx)
+        if (!hasStamped) {
+          await stamps.stamp(tx)
+          const count = await stamps.count(tx)
+          document.getElementById('stamp-count').innerHTML = count.total
+        } else {
+          document.getElementById('my-modal').checked = true
+        }
+      } catch (e) {
+        document.getElementById('stamp-alert-msg').innerHTML = e.message;
+        document.getElementById('my-modal').checked = true
+      }
+    })
+
+    document.getElementById('renderer-prompt').addEventListener('change', () => {
+      const input = document.getElementById('tx')
+      tx = input.value
+      input.value = ''
+      window.location.href = `${window.location.origin}/?tx=${tx}`
+    })
+
+    main(tx)
+  </script>
+</head>
+
+<body data-theme="light" class="relative min-h-screen">
+  <iframe id="frame" class="w-full h-full min-h-screen"></iframe>
+  <div class="border-black grid items-center text-sm text-center w-24 h-24 absolute bottom-4 right-4 rounded">
+
+    <div class="indicator">
+      <span id="stamp-count" class="indicator-item badge badge-neutral">...</span>
+      <button id="stamp-btn" class="btn" style="background-color: #ff8500">stamp</button>
+    </div>
+  </div>
+
+  <!-- Put this part before </body> tag -->
+  <input type="checkbox" id="my-modal" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Stamp Asset Alert</h3>
+      <p class="py-4" id="stamp-alert-msg">Already Stamped!</p>
+      <div class="modal-action">
+        <label for="my-modal" class="btn">Close</label>
+      </div>
+    </div>
+  </div>
+  <!-- Put this part before </body> tag -->
+  <input type="checkbox" id="renderer-prompt" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Enter TX_ID to STAMP</h3>
+      <div class="form-control">
+        <label for="tx">TX_ID</label>
+        <input type="text" class="input input-bordered" id="tx" />
+      </div>
+      <div class="modal-action">
+        <label for="renderer-prompt" class="btn">OK</label>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
