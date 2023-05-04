@@ -1,6 +1,8 @@
 import { transfer } from './write/transfer.js'
 import { balance } from './read/balance.js'
 import { stamp } from './write/stamp.js'
+import { reward } from './cron/reward.js'
+import { register } from './write/register.js'
 
 
 export async function handle(state, action) {
@@ -16,10 +18,15 @@ export async function handle(state, action) {
     tags: SmartWeave?.transaction?.tags
   }
 
-  // check for rewards
+  // check for rewards on write interactions
+  if (action.input.function !== 'balance') {
+    state = await reward(env)(state, action).toPromise().catch(handleError)
+  }
 
   // handle function
   switch (action?.input?.function) {
+    case 'register':
+      return register(env)(state, action).fold(handleError, handleSuccess)
     case 'stamp':
       return stamp(env)(state, action).toPromise().catch(handleError)
     case 'balance':

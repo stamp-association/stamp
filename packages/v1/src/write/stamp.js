@@ -44,6 +44,5 @@ function isVouched(read) {
 function update({ state, action }) {
   const queue = state.stamps[action.input.tx] || []
   state.stamps[action.input.tx] = uniq([...queue, action.caller])
-
   return Resolved({ state })
 }

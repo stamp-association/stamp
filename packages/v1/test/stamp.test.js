@@ -11,16 +11,16 @@ const TOM = createKey('X')
 const JUSTIN = createKey('Y')
 
 
-test('stamp as vouched user', async () => {
-  class ContractError extends Error {
-    constructor(msg) {
-      super(msg)
-      this.name = 'ContractError'
-    }
+class ContractError extends Error {
+  constructor(msg) {
+    super(msg)
+    this.name = 'ContractError'
   }
+}
 
-  globalThis.ContractError = ContractError
+globalThis.ContractError = ContractError
 
+test('stamp as vouched user', async () => {
   globalThis.SmartWeave = {
     contracts: {
       readContractState: contractId => contractId === CONTRACT
@@ -38,7 +38,7 @@ test('stamp as vouched user', async () => {
       tags: [{ name: 'Data-Source', value: CONTRACT2 }]
     },
     block: {
-      height: 10000000,
+      height: 1111000,
       timestamp: Date.now()
     }
   }
@@ -68,15 +68,6 @@ test('stamp as vouched user', async () => {
 })
 
 test('additional stamp as vouched user', async () => {
-  class ContractError extends Error {
-    constructor(msg) {
-      super(msg)
-      this.name = 'ContractError'
-    }
-  }
-
-  globalThis.ContractError = ContractError
-
   globalThis.SmartWeave = {
     contracts: {
       readContractState: contractId => contractId === CONTRACT
@@ -93,7 +84,7 @@ test('additional stamp as vouched user', async () => {
       tags: [{ name: 'Data-Source', value: CONTRACT2 }]
     },
     block: {
-      height: 10000000,
+      height: 1111000,
       timestamp: Date.now()
     }
   }
@@ -118,21 +109,14 @@ test('additional stamp as vouched user', async () => {
   }
 
   const result = await handle(state, action)
+
   assert.equal(result.state.stamps[CONTRACT2][1], TOM)
-  //assert.ok(true)
 
   globalThis.SmartWeave = {}
 })
 
 test('stamp as non vouched user', async () => {
-  class ContractError extends Error {
-    constructor(msg) {
-      super(msg)
-      this.name = 'ContractError'
-    }
-  }
 
-  globalThis.ContractError = ContractError
 
   globalThis.SmartWeave = {
     contracts: {
@@ -150,7 +134,7 @@ test('stamp as non vouched user', async () => {
       tags: [{ name: 'Data-Source', value: CONTRACT2 }]
     },
     block: {
-      height: 10000000,
+      height: 1111000,
       timestamp: Date.now()
     }
   }
@@ -183,8 +167,55 @@ test('stamp as non vouched user', async () => {
   globalThis.SmartWeave = {}
 })
 
-test('tx must be valid', () => {
+test('stamp with no Data-Source', async () => {
 
+  globalThis.SmartWeave = {
+    contracts: {
+      readContractState: contractId => contractId === CONTRACT
+        ? Promise.reject('Not Found')
+        : Promise.resolve({
+          vouched: {
+            [JUSTIN]: [{ service: createKey('M') }]
+          }
+        })
+    },
+    transaction: {
+      id: createKey('z'),
+      owner: JUSTIN,
+      tags: []
+    },
+    block: {
+      height: 1111000,
+      timestamp: Date.now()
+    }
+  }
+
+  const { handle } = await import('../src/index.js')
+  const state = {
+    balances: {},
+    stamps: {
+      [CONTRACT2]: [TOM]
+    },
+    assets: {},
+    vouchDAO: createKey('V'),
+    lastReward: 1111000,
+    pairs: []
+  }
+
+  const action = {
+    caller: JUSTIN,
+    input: {
+      function: 'stamp'
+    }
+  }
+
+  try {
+    await handle(state, action)
+  } catch (e) {
+    assert.equal(e.message, 'Data-Source Tag must be set to a transaction')
+  }
+
+  globalThis.SmartWeave = {}
 })
 
 test.run()
