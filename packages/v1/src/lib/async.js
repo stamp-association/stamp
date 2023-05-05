@@ -1,3 +1,5 @@
+import { array } from "./array.js";
+
 /**
  * @callback Function
  * @param {unknown} x
@@ -34,8 +36,11 @@
  * @returns {{fork: Fork, toPromise: Promise<unknown>, map: Map, bimap: BiFunction, chain: Chain, bichain: BiChainFn, fold: Fold}}
  */
 const Async = (fork) => ({
+  ["@@type"]: "Async",
   fork,
   toPromise: () => new Promise((resolve, reject) => fork(reject, resolve)),
+  ap: (other) =>
+    Async((rej, res) => fork(rej, (f) => other.fork(rej, (x) => res(f(x))))),
   map: (fn) => Async((rej, res) => fork(rej, (x) => res(fn(x)))),
   bimap: (f, g) =>
     Async((rej, res) =>
@@ -64,18 +69,34 @@ const Async = (fork) => ({
 export const of = (x) => Async((rej, res) => res(x));
 export const Resolved = (x) => Async((rej, res) => res(x));
 export const Rejected = (x) => Async((rej, res) => rej(x));
+
+export const all = (xs) => {
+  if (
+    !(
+      Boolean(xs.reduce) &&
+      xs.reduce((a, x) => a && x["@@type"] === "Async", true)
+    )
+  ) {
+    throw new Error("Async.all: Argument must be foldable of asyncs");
+  }
+  if (Array.isArray(xs)) {
+    return array.sequence(of, xs);
+  }
+};
+
 export const fromPromise =
   (f) =>
-    (...args) =>
-      Async((rej, res) =>
-        f(...args)
-          .then(res)
-          .catch(rej)
-      );
+  (...args) =>
+    Async((rej, res) =>
+      f(...args)
+        .then(res)
+        .catch(rej)
+    );
 
 export default {
   of,
   fromPromise,
   Resolved,
   Rejected,
+  all,
 };
