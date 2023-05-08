@@ -11,10 +11,46 @@ export function stamp({ readState, tags }) {
     of({ state, action })
       .map(addDataSource)
       .chain(validate)
-      // TODO: handle super stamps
-
       .chain(isVouched(read))
+      .chain(handleSuperStamps)
       .chain(update);
+}
+
+function handleSuperStamps({ state, action }) {
+  // no qty specified
+  if (!action.input.qty) {
+    return Resolved({ state, action });
+  }
+  // balance not available
+  if (!state.balances[action.caller]) {
+    return Resolved({ state, action });
+  }
+  // not enough balance to transfer
+  if (state.balances[action.caller] < action.input.qty) {
+    return Resolved({ state, action });
+  }
+
+  const [superQty, credits] = divideQty(qty);
+
+  if (!state.supers) {
+    state.supers = {};
+  }
+
+  state.supers[`${action.input.tx}:${action.caller}`] = {
+    asset: action.input.tx,
+    qty: superQty,
+  };
+
+  if (!state.credits) {
+    state.credits = {};
+  }
+
+  state.credits[`${action.input.tx}:${action.caller}`] = {
+    asset: action.input.tx,
+    qty: credits,
+  };
+
+  return Resolved({ state, action });
 }
 
 function validate({ state, action }) {
@@ -48,4 +84,11 @@ function update({ state, action }) {
       state
     ),
   });
+}
+
+function divideQty(n) {
+  if (n < 1) {
+    return [0, 0];
+  }
+  return [Math.floor(n * 0.8), Math.floor(n * 0.2)];
 }
