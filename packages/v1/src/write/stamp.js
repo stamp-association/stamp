@@ -11,8 +11,6 @@ export function stamp({ readState, tags }) {
     of({ state, action })
       .map(addDataSource)
       .chain(validate)
-      // TODO: handle super stamps
-
       .chain(isVouched(read))
       .chain(update);
 }
@@ -47,5 +45,6 @@ function update({ state, action }) {
       { asset: action.input.tx, address: action.caller },
       state
     ),
+    action,
   });
 }
