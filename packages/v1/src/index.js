@@ -6,6 +6,10 @@ import { credit } from "./cron/credit.js";
 import { register } from "./write/register.js";
 import { superStamps } from "./write/super-stamps.js";
 import { evolve } from "./write/evolve.js";
+import { allow } from "./write/allow.js";
+import { claim } from "./write/claim.js";
+
+const EVOLVABLE = 1241679;
 
 export async function handle(state, action) {
   const env = {
@@ -21,6 +25,7 @@ export async function handle(state, action) {
     id: SmartWeave?.transaction?.id,
     owner: SmartWeave?.transaction?.owner,
     tags: SmartWeave?.transaction?.tags,
+    contractId: SmartWeave?.contract?.id,
   };
 
   if (action.input.function !== "balance") {
@@ -43,6 +48,12 @@ export async function handle(state, action) {
       return balance(state, action).fold(handleError, handleSuccess);
     case "transfer":
       return transfer(state, action).fold(handleError, handleSuccess);
+    case "evolve":
+      return env.height < EVOLVABLE ? evolve(state, action) : { state };
+    case "allow":
+      return allow(env)(state, action).fold(handleError, handleSuccess);
+    case "claim":
+      return claim(state, action).fold(handleError, handleSuccess);
     default:
       throw new ContractError("no function defined!");
   }
