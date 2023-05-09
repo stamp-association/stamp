@@ -3,6 +3,7 @@ import { balance } from "./read/balance.js";
 import { stamp } from "./write/stamp.js";
 import { reward } from "./cron/reward.js";
 import { register } from "./write/register.js";
+import { superStamps } from "./write/super-stamps.js";
 
 export async function handle(state, action) {
   const env = {
@@ -30,7 +31,10 @@ export async function handle(state, action) {
     case "register":
       return register(env)(state, action).fold(handleError, handleSuccess);
     case "stamp":
-      return stamp(env)(state, action).toPromise().catch(handleError);
+      return stamp(env)(state, action)
+        .chain(superStamps(env))
+        .toPromise()
+        .catch(handleError);
     case "balance":
       return balance(state, action).fold(handleError, handleSuccess);
     case "transfer":
