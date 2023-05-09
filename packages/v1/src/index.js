@@ -2,8 +2,10 @@ import { transfer } from "./write/transfer.js";
 import { balance } from "./read/balance.js";
 import { stamp } from "./write/stamp.js";
 import { reward } from "./cron/reward.js";
+import { credit } from "./cron/credit.js";
 import { register } from "./write/register.js";
 import { superStamps } from "./write/super-stamps.js";
+import { evolve } from "./write/evolve.js";
 
 export async function handle(state, action) {
   const env = {
@@ -21,9 +23,11 @@ export async function handle(state, action) {
     tags: SmartWeave?.transaction?.tags,
   };
 
-  // check for rewards on write interactions
   if (action.input.function !== "balance") {
+    // check for rewards on write interactions
     state = await reward(env)(state, action).toPromise().catch(handleError);
+    // check for credits on write interactions
+    state = credit(env)(state, action);
   }
 
   // handle function
