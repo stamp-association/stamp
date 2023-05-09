@@ -49,7 +49,7 @@ test("super stamp registered asset", async () => {
   const { handle } = await import("../src/index.js");
   const state = {
     balances: {
-      [JUSTIN]: 2 * 1e12,
+      [JUSTIN]: 2 * 1e6,
     },
     stamps: {},
     assets: {
@@ -68,13 +68,13 @@ test("super stamp registered asset", async () => {
     caller: JUSTIN,
     input: {
       function: "stamp",
-      qty: 1 * 1e12,
+      qty: 1 * 1e6,
     },
   };
 
   const result = await handle(state, action);
 
-  assert.equal(result.state.balances[TOM], 800000000000);
+  assert.equal(result.state.balances[TOM], 800000);
   assert.equal(result.state.stamps[`${CONTRACT2}:${JUSTIN}`].address, JUSTIN);
   assert.ok(true);
 

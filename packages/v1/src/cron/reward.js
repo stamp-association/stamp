@@ -17,7 +17,8 @@ import {
 import { mint } from "../lib/mint.js";
 import { allocate } from "../lib/allocate.js";
 
-const REWARD = 1000_000_000_000_000;
+const REWARD = 1000_000_000;
+const SUPPLY = 7665000 * 1e6;
 
 // reward sponsors of stamped assets
 export function reward(env) {

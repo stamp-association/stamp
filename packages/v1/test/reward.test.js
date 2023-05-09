@@ -74,10 +74,10 @@ test("handle rewards", async () => {
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
   //console.log(JSON.stringify(result, null, 2))
-  assert.equal(view(lensPath(["state", "balances", TOM]), result), 500 * 1e12);
+  assert.equal(view(lensPath(["state", "balances", TOM]), result), 500 * 1e6);
   assert.equal(
     view(lensPath(["state", "balances", JUSTIN]), result),
-    500 * 1e12
+    500 * 1e6
   );
   assert.ok(true);
 });

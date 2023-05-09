@@ -23,8 +23,7 @@ function validate({ state, action }) {
   if (state.claimable[idx].qty !== action.input.qty) {
     return Left("claimable qty is not equal to claim qty.");
   }
-  console.log(state.claimable[idx]);
-  console.log(action.caller);
+
   if (state.claimable[idx].to !== action.caller) {
     return Left("claim is not addressed to caller.");
   }
