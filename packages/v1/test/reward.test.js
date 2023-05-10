@@ -43,6 +43,9 @@ test("handle rewards", async () => {
       owner: TOM,
       tags: [{ name: "Data-Source", value: createKey("D") }],
     },
+    contract: {
+      id: createKey("S"),
+    },
   };
   const state = {
     balances: {},
@@ -73,11 +76,10 @@ test("handle rewards", async () => {
   };
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
-  //console.log(JSON.stringify(result, null, 2))
-  assert.equal(view(lensPath(["state", "balances", TOM]), result), 500 * 1e6);
+  assert.equal(view(lensPath(["state", "balances", TOM]), result), 250 * 1e6);
   assert.equal(
     view(lensPath(["state", "balances", JUSTIN]), result),
-    500 * 1e6
+    250 * 1e6
   );
   assert.ok(true);
 });

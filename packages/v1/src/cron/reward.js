@@ -39,7 +39,7 @@ export function reward(env) {
       // distributeRegisteredAssets
       .map(allocateRegisteredAssets)
       // distributeAtomicAssets
-      .chain(allocateAtomicAssets(readState))
+      .chain(allocateAtomicAssets(readState, env.contractId))
       // update balances
       .map(updateBalances)
       // clear stamps queue
@@ -133,13 +133,18 @@ function allocateRegisteredAssets(context) {
   );
 }
 
-function allocateAtomicAssets(readState) {
+function allocateAtomicAssets(readState, contractId) {
   return ({ state, action, rewards }) =>
     all(
       compose(
         map(([asset, reward]) =>
           is(Number, reward)
             ? readState(asset)
+                .map((assetState) => {
+                  return assetState.balances
+                    ? allocate(balances, reward)
+                    : allocate({ [assetState.owner || contractId]: 1 }, reward);
+                })
                 .map(({ balances }) => allocate(balances, reward))
                 .map((r) => [asset, r])
                 .bichain(
@@ -147,7 +152,7 @@ function allocateAtomicAssets(readState) {
                     Resolved([
                       asset,
                       {
-                        ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"]: reward,
+                        [contractId]: reward,
                       },
                     ]),
                   Resolved
