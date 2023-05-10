@@ -1,0 +1,13 @@
+{
+  "name": "STAMP Protocol V1",
+  "ticker": "$STAMP",
+  "claimable": [],
+  "credits": {},
+  "canEvolve": true,
+  "settings": [
+    [
+      "isTradeable",
+      true
+    ]
+  ]
+}
