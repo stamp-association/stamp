@@ -13,21 +13,25 @@ import {
   is,
   reduce,
   flatten,
+  sum,
 } from "ramda";
 import { mint } from "../lib/mint.js";
 import { allocate } from "../lib/allocate.js";
 
-const REWARD = 1000_000_000_000_000;
+const REWARD = 1000_000_000;
+const SUPPLY = 7665000 * 1e6;
 
 // reward sponsors of stamped assets
 export function reward(env) {
   const readState = fromPromise(env.readState);
   return (state, action) =>
     of({ state, action })
+      // make sure there is enough supply
+      .chain(setReward(env.contractId))
       // check last block height from this current block height
-      .chain(({ state, action }) =>
+      .chain(({ state, action, reward }) =>
         state.lastReward + 720 < env.height
-          ? Resolved({ state, action })
+          ? Resolved({ state, action, reward })
           : Rejected(state)
       )
       .map(mintRewardsForStamps)
@@ -35,7 +39,7 @@ export function reward(env) {
       // distributeRegisteredAssets
       .map(allocateRegisteredAssets)
       // distributeAtomicAssets
-      .chain(allocateAtomicAssets(readState))
+      .chain(allocateAtomicAssets(readState, env.contractId))
       // update balances
       .map(updateBalances)
       // clear stamps queue
@@ -47,6 +51,40 @@ export function reward(env) {
         (_) => Resolved(state),
         ({ state, action }) => Resolved(state)
       );
+}
+
+function setReward(contractId) {
+  return ({ state, action }) => {
+    const S100 = 100 * 1e6;
+    const S250 = 250 * 1e6;
+    const S500 = 500 * 1e6;
+    const S750 = 750 * 1e6;
+    const S1000 = 1000 * 1e6;
+
+    const current = sum(values(state.balances)) || 0;
+    if (current >= SUPPLY) {
+      if (!state.balances[contractId]) {
+        state.balances[contractId] = 0;
+      }
+      // when reward supply is complete use contract balance as
+      // reward treasury
+      if (state.balances[contractId] > S100) {
+        state.balances[contractId] -= S100;
+        return Resolved({ state, action, reward: S100 });
+      }
+      return Rejected(state);
+    }
+    if (current > Math.floor(SUPPLY, 0.75)) {
+      return Resolved({ state, action, reward: S250 });
+    }
+    if (current > Math.floor(SUPPLY, 0.5)) {
+      return Resolved({ state, action, reward: S500 });
+    }
+    if (current > Math.floor(SUPPLY, 0.25)) {
+      return Resolved({ state, action, reward: S750 });
+    }
+    return Resolved({ state, action, reward: S1000 });
+  };
 }
 
 function updateBalances(context) {
@@ -70,10 +108,10 @@ function updateBalances(context) {
   );
 }
 
-function mintRewardsForStamps({ state, action }) {
+function mintRewardsForStamps({ state, action, reward }) {
   return compose(
     (rewards) => ({ state, action, rewards }),
-    (s) => mint(s, REWARD),
+    (s) => mint(s, reward),
     values,
     prop("stamps")
   )(state);
@@ -95,13 +133,18 @@ function allocateRegisteredAssets(context) {
   );
 }
 
-function allocateAtomicAssets(readState) {
+function allocateAtomicAssets(readState, contractId) {
   return ({ state, action, rewards }) =>
     all(
       compose(
         map(([asset, reward]) =>
           is(Number, reward)
             ? readState(asset)
+                .map((assetState) => {
+                  return assetState.balances
+                    ? allocate(balances, reward)
+                    : allocate({ [assetState.owner || contractId]: 1 }, reward);
+                })
                 .map(({ balances }) => allocate(balances, reward))
                 .map((r) => [asset, r])
                 .bichain(
@@ -109,7 +152,7 @@ function allocateAtomicAssets(readState) {
                     Resolved([
                       asset,
                       {
-                        ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"]: reward,
+                        [contractId]: reward,
                       },
                     ]),
                   Resolved

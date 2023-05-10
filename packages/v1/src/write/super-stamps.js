@@ -3,13 +3,13 @@ import { allocate } from "../lib/allocate.js";
 
 const ANNUAL_BLOCKS = 720 * 365;
 
-export function superStamps({ readState, height }) {
+export function superStamps({ readState, height, contractId }) {
   return ({ state, action }) => {
     return of({ state, action })
       .chain(isSuperStamp)
       .chain(getBalances(readState))
       .map(calculateRewards)
-      .map(transferRewards)
+      .map(transferRewards(contractId))
       .map(updateCredits(height))
       .bichain(handleNoSuperRejection(state), Resolved);
   };
@@ -40,23 +40,31 @@ function updateCredits(height) {
   };
 }
 
-function transferRewards({ state, action, balances, rewards, credits }) {
-  // allocate rewards to balances
-  const results = allocate(balances, rewards);
-  // update balances
-  Object.keys(results).forEach((k) => {
-    if (!state.balances[k]) {
-      state.balances[k] = 0;
-    }
-    state.balances[k] += results[k];
-  });
+function transferRewards(contractId) {
+  return ({ state, action, balances, rewards, credits, fee }) => {
+    // allocate rewards to balances
+    const results = allocate(balances, rewards);
+    // update balances
+    Object.keys(results).forEach((k) => {
+      if (!state.balances[k]) {
+        state.balances[k] = 0;
+      }
+      state.balances[k] += results[k];
+    });
 
-  return { state, action, balances, credits };
+    // update fee
+    if (!state.balances[contractId]) {
+      state.balances[contractId] = 0;
+    }
+    state.balances[contractId] += fee;
+
+    return { state, action, balances, credits };
+  };
 }
 
 function calculateRewards({ state, action, balances }) {
-  const [rewards, credits] = divideQty(action.input.qty);
-  return { state, action, balances, rewards, credits };
+  const [rewards, credits, fee] = divideQty(action.input.qty);
+  return { state, action, balances, rewards, credits, fee };
 }
 
 function getBalances(readState) {
@@ -141,7 +149,7 @@ function handleSuperStamps({ state, action }) {
 
 function divideQty(n) {
   if (n < 1) {
-    return [0, 0];
+    return [0, 0, 0];
   }
-  return [Math.floor(n * 0.8), Math.floor(n * 0.2)];
+  return [Math.floor(n * 0.8), Math.floor(n * 0.18), Math.floor(n * 0.02)];
 }

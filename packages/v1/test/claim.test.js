@@ -27,12 +27,12 @@ test("claim claimable trx", async () => {
   };
   const state = {
     balances: {
-      [TOM]: 10 * 1e12,
+      [TOM]: 10 * 1e6,
     },
     claimable: [
       {
         txID: createKey("O"),
-        qty: 1 * 1e12,
+        qty: 1 * 1e6,
         to: JUSTIN,
         from: TOM,
       },
@@ -42,7 +42,7 @@ test("claim claimable trx", async () => {
     caller: JUSTIN,
     input: {
       function: "claim",
-      qty: 1 * 1e12,
+      qty: 1 * 1e6,
       txID: createKey("O"),
     },
   };
@@ -51,7 +51,7 @@ test("claim claimable trx", async () => {
   const result = await handle(state, action);
 
   assert.equal(result.state.claimable, []);
-  assert.equal(result.state.balances[JUSTIN], 1 * 1e12);
+  assert.equal(result.state.balances[JUSTIN], 1 * 1e6);
 
   assert.ok(true);
 

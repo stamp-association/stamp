@@ -18,8 +18,6 @@ export async function handle(state, action) {
       SmartWeave.contracts.readContractState.bind(SmartWeave.contracts)(
         contractId
       ),
-    //write: (contractId, input) => SmartWeave.contracts.write.bind(SmartWeave.contracts)(contractId, input),
-    //viewState: (contractId, input) => SmartWeave.contracts.viewContractState.bind(SmartWeave.contracts)(contractId, input),
     height: SmartWeave?.block?.height,
     timestamp: SmartWeave?.block?.timestamp,
     id: SmartWeave?.transaction?.id,
@@ -57,8 +55,6 @@ export async function handle(state, action) {
     default:
       throw new ContractError("no function defined!");
   }
-
-  throw new ContractError("can not find function!");
 }
 
 function handleError(msg) {
