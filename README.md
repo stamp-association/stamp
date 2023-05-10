@@ -1,61 +1,17 @@
-# Stamp Protocol (Test)
+# STAMP 
 
-The STAMP Protocol is a decentralized protocol to allow consumers of any asset on the permaweb to attribute value, if the consumer is VOUCHED, then that attribution of value counts towards token rewards to be distributed to the asset holders.
+STAMP is a protocol that allows for any user on the permaweb to generate a proof of attribution or "Like" for any asset on the permaweb. If that asset is an "atomic asset" or "registered" with the STAMP contract, the sponsors of that asset will receive rewards in $STAMP tokens.
 
-## Developer Integration
-
-## Install
-
-```sh
-npm i https://stampjs-v0011_stamps.g8way.io
-```
-
-or
-
-```sh
-npm i @permaweb/stampjs
-```
-
-## Usage
-
-```js
-import Stamps from '@permaweb/stamps'
-import { WarpFactory } from 'warp-contracts'
-
-const warp = WarpFactory.forMainnet()
-const stamps = Stamps.init({ warp })
-
-const result = await stamps.stamp(assetId, qty)
-const { count, vouched, super } = await stamps.count()
-```
-
-## Client API
-
-Stamps.init
+| Name | Description |
+| ---- | ----------- |
+| Signature | Sign Transaction with your private key |
+| Timestamp | Record the timestamp of transaction |
+| And |  |
+| Metadata | Attach metadata to connect to STAMP Rewards Contract |
+| Protocol | Common Pattern that works on the Permaweb |
 
 
+$STAMP is a tradeable token contract that implements the [Foreign Call Protocol 2.0 (FCP)](https://specs.g8way.io/?tx=iXHbTuV7kUR6hQGwNjdnYFxxp5HBIG1b3YI2yy7ws_M) 
 
-> TEST Purposes only
 
-## Features
-
-* PST 
-* embedded Order Book
-
-This means that owners of the StampCoin can choose to sell any of their StampCoin for bAR. And holders of bAR can choose to purchase any listed StampCoin with their bAR. More to come here.
-
-* stamp
-
-Any `vouch-for` wallet can create a stamp for any arweave transaction. This feature would be part of any decentralized App that chooses to display the arweave transaction, this includes Atomic NFTs, dApps, and other data assets that exist on the blockweave.
-
-* reward
-
-This is the mechanism that distributes rewards to all of the creators that have the most stamped assets in the community. The reward system will run until 10% of the coin supply has been distributed. The reward function can only be run by the coin creator.
-
-## Deploy
-
-```
-yarn build
-yarn deploy [wallet.json]
-```
-
+- [Documentation](https://stamps.g8way.io)

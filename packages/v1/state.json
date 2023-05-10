@@ -9,5 +9,6 @@
       "isTradeable",
       true
     ]
-  ]
+  ],
+  "divisibility": 6
 }
