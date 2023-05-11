@@ -1,16 +1,19 @@
-import { of, Resolved, Rejected, fromPromise } from "../lib/async.js";
+import { of, Resolved, Rejected, fromPromise, all } from "../lib/async.js";
 import { allocate } from "../lib/allocate.js";
+import { toPairs, map } from "ramda";
 
 const ANNUAL_BLOCKS = 720 * 365;
 
-export function superStamps({ readState, height, contractId }) {
+export function superStamps(env) {
+  const get = fromPromise(env.get);
+  const put = fromPromise(env.put);
   return ({ state, action }) => {
     return of({ state, action })
-      .chain(isSuperStamp)
-      .chain(getBalances(readState))
+      .chain(isSuperStamp(get))
+      .chain(getBalances(env.readState))
       .map(calculateRewards)
-      .map(transferRewards(contractId))
-      .map(updateCredits(height))
+      .chain(transferRewards(env.contractId, get, put))
+      .map(updateCredits(env.height))
       .bichain(handleNoSuperRejection(state), Resolved);
   };
 }
@@ -40,25 +43,15 @@ function updateCredits(height) {
   };
 }
 
-function transferRewards(contractId) {
+function transferRewards(contractId, get, put) {
+  const updateBalance = ([address, reward]) =>
+    get(address).chain((balance = 0) => put(address, balance + reward));
+
   return ({ state, action, balances, rewards, credits, fee }) => {
-    // allocate rewards to balances
-    const results = allocate(balances, rewards);
-    // update balances
-    Object.keys(results).forEach((k) => {
-      if (!state.balances[k]) {
-        state.balances[k] = 0;
-      }
-      state.balances[k] += results[k];
-    });
-
-    // update fee
-    if (!state.balances[contractId]) {
-      state.balances[contractId] = 0;
-    }
-    state.balances[contractId] += fee;
-
-    return { state, action, balances, credits };
+    return of(allocate(balances, rewards))
+      .chain((results) => all(map(updateBalance, toPairs(results))))
+      .chain((_) => updateBalance([contractId, fee]))
+      .map((_) => ({ state, action, balances, credits }));
   };
 }
 
@@ -86,20 +79,19 @@ function getBalances(readState) {
   };
 }
 
-function isSuperStamp({ state, action }) {
-  // no qty specified
-  if (!action.input.qty) {
-    return Rejected("NOT_SUPER_STAMP");
-  }
-  // balance not available
-  if (!state.balances[action.caller]) {
-    return Rejected("NOT_SUPER_STAMP");
-  }
-  // not enough balance to transfer
-  if (state.balances[action.caller] < action.input.qty) {
-    return Rejected("NOT_SUPER_STAMP");
-  }
-  return Resolved({ state, action });
+function isSuperStamp(get) {
+  return ({ state, action }) => {
+    // no qty specified
+    if (!action.input.qty) {
+      return Rejected("NOT_SUPER_STAMP");
+    }
+    // not enough balance to transfer
+    return get(action.caller).chain((balance = 0) =>
+      balance < action.input.qty
+        ? Rejected("NOT_SUPER_STAMP")
+        : Resolved({ state, action })
+    );
+  };
 }
 
 function handleNoSuperRejection(state) {

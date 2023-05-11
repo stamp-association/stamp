@@ -24,6 +24,8 @@ export async function handle(state, action) {
     owner: SmartWeave?.transaction?.owner,
     tags: SmartWeave?.transaction?.tags,
     contractId: SmartWeave?.contract?.id,
+    get: (k) => SmartWeave.kv.get.bind(SmartWeave.kv)(k),
+    put: (k, v) => SmartWeave.kv.put.bind(SmartWeave.kv)(k, v),
   };
 
   if (action.input.function !== "balance") {
@@ -43,15 +45,15 @@ export async function handle(state, action) {
         .toPromise()
         .catch(handleError);
     case "balance":
-      return balance(state, action).fold(handleError, handleSuccess);
+      return balance(env)(state, action).toPromise().catch(handleError);
     case "transfer":
-      return transfer(state, action).fold(handleError, handleSuccess);
+      return transfer(env)(state, action).toPromise().catch(handleError);
     case "evolve":
       return env.height < EVOLVABLE ? evolve(state, action) : { state };
     case "allow":
-      return allow(env)(state, action).fold(handleError, handleSuccess);
+      return allow(env)(state, action).toPromise().catch(handleError);
     case "claim":
-      return claim(state, action).fold(handleError, handleSuccess);
+      return claim(env)(state, action).toPromise().catch(handleError);
     default:
       throw new ContractError("no function defined!");
   }

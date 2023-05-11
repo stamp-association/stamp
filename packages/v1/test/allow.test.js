@@ -17,6 +17,7 @@ const TOM = createKey("X");
 const DEX = createKey("Y");
 
 test("add balance to claimable state", async () => {
+  const map = new Map();
   globalThis.SmartWeave = {
     transaction: {
       id: createKey("Z"),
@@ -24,12 +25,14 @@ test("add balance to claimable state", async () => {
     contract: {
       id: createKey("S"),
     },
-  };
-  const state = {
-    balances: {
-      [TOM]: 10 * 1e12,
+    kv: {
+      get: (k) => Promise.resolve(map.get(k)),
+      put: (k, v) => Promise.resolve(map.set(k, v)),
     },
   };
+  map.set(TOM, 10 * 1e12);
+
+  const state = {};
   const action = {
     caller: TOM,
     input: {
@@ -42,6 +45,7 @@ test("add balance to claimable state", async () => {
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
 
+  assert.equal(map.get(TOM), 9 * 1e12);
   assert.equal(result.state.claimable[0].qty, 1000000000000);
   assert.ok(true);
 
