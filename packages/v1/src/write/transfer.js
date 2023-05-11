@@ -1,49 +1,57 @@
-import { of, Left, Right } from "../lib/either.js";
+import { of, Rejected, Resolved, fromPromise } from "../lib/async.js";
 
-export function transfer(state, action) {
-  return of({ state, action }).chain(validate).map(trade);
-}
-
-function trade({ state, action }) {
-  const targetBalance = state.balances[action.input.target]
-    ? state.balances[action.input.target]
-    : 0;
-  return {
-    state: {
-      ...state,
-      balances: {
-        ...state.balances,
-        [action.caller]: state.balances[action.caller] - action.input.qty,
-        [action.input.target]: targetBalance + action.input.qty,
-      },
-    },
+export function transfer(env) {
+  const get = fromPromise(env.get);
+  const put = fromPromise(env.put);
+  return (state, action) => {
+    return of({ state, action })
+      .chain(validate(get))
+      .chain(subtractCallerBalance(get, put))
+      .chain(addTargetBalance(get, put))
+      .map(({ state, action }) => ({ state }));
   };
 }
 
-function validate({ state, action }) {
-  if (!action.caller || action.caller.length !== 43) {
-    return Left("Caller is not valid");
-  }
+function subtractCallerBalance(get, put) {
+  return ({ state, action }) => {
+    return get(action.caller)
+      .chain((balance = 0) => put(action.caller, balance - action.input.qty))
+      .map((_) => ({ state, action }));
+  };
+}
 
-  if (!action.input.qty || typeof action.input.qty !== "number") {
-    return Left("qty is not defined or is not a number");
-  }
+function addTargetBalance(get, put) {
+  return ({ state, action }) => {
+    return get(action.input.target)
+      .chain((balance = 0) =>
+        put(action.input.target, balance + action.input.qty)
+      )
+      .map((_) => ({ state, action }));
+  };
+}
 
-  if (!action.input.target || action.input.target.length !== 43) {
-    return Left("target is not valid");
-  }
+function validate(get) {
+  return ({ state, action }) => {
+    if (!action.caller || action.caller.length !== 43) {
+      return Rejected("Caller is not valid");
+    }
 
-  if (action.caller === action.input.target) {
-    return Left("target cannot be caller");
-  }
+    if (!action.input.qty || typeof action.input.qty !== "number") {
+      return Rejected("qty is not defined or is not a number");
+    }
 
-  if (
-    !state.balances[action.caller] ||
-    typeof state.balances[action.caller] !== "number" ||
-    state.balances[action.caller] < action.input.qty
-  ) {
-    return Left("not enough balance to transfer");
-  }
+    if (!action.input.target || action.input.target.length !== 43) {
+      return Rejected("target is not valid");
+    }
 
-  return Right({ state, action });
+    if (action.caller === action.input.target) {
+      return Rejected("target cannot be caller");
+    }
+
+    return get(action.caller).chain((v = 0) =>
+      v < action.input.qty
+        ? Rejected("not enough balance to transfer")
+        : Resolved({ state, action })
+    );
+  };
 }

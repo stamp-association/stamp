@@ -2,8 +2,6 @@ import { test } from "uvu";
 import * as assert from "uvu/assert";
 import { path, times, always } from "ramda";
 
-import { handle } from "../src/index.js";
-
 class ContractError extends Error {
   constructor(msg) {
     super(msg);
@@ -21,46 +19,85 @@ test.skip("should throw function not found", async () => {
 });
 
 test("should transfer ownership", async () => {
+  const map = new Map();
+  globalThis.SmartWeave = {
+    kv: {
+      get: (k) => Promise.resolve(map.get(k)),
+      put: (k, v) => Promise.resolve(map.set(k, v)),
+    },
+  };
   const STAMP = 1 * 1e12;
-  const result = await [
+  map.set(TOM, 5 * STAMP);
+  const { handle } = await import("../src/index.js");
+  const result = await handle(
+    {},
     {
       caller: TOM,
       input: { function: "transfer", qty: 5 * STAMP, target: JUSTIN },
-    },
-  ].reduce(handle, { balances: { [TOM]: 5 * STAMP } });
-  assert.equal(path(["state", "balances", JUSTIN], result), 5 * STAMP);
+    }
+  );
+  assert.equal(map.get(JUSTIN), 5 * STAMP);
 });
 
 test("should transfer half", async () => {
+  const map = new Map();
+  globalThis.SmartWeave = {
+    kv: {
+      get: (k) => Promise.resolve(map.get(k)),
+      put: (k, v) => Promise.resolve(map.set(k, v)),
+    },
+  };
   const STAMP = 1 * 1e12;
-  const result = await [
+  map.set(TOM, 4 * STAMP);
+  const { handle } = await import("../src/index.js");
+  const result = await handle(
+    {},
     {
       caller: TOM,
       input: { function: "transfer", qty: 2 * STAMP, target: JUSTIN },
-    },
-  ].reduce(handle, { balances: { [TOM]: 4 * STAMP } });
-  assert.equal(path(["state", "balances", JUSTIN], result), 2 * STAMP);
+    }
+  );
+  assert.equal(map.get(JUSTIN), 2 * STAMP);
 });
 
 test("should not transfer if caller has no balance", async () => {
+  const map = new Map();
+  globalThis.SmartWeave = {
+    kv: {
+      get: (k) => Promise.resolve(map.get(k)),
+      put: (k, v) => Promise.resolve(map.set(k, v)),
+    },
+  };
   const STAMP = 1 * 1e12;
+  //map.set(TOM, 4 * STAMP)
+  const { handle } = await import("../src/index.js");
+
   try {
-    await [
+    await handle(
+      {},
       {
         caller: TOM,
         input: { function: "transfer", qty: 2 * STAMP, target: JUSTIN },
-      },
-    ].reduce(handle, { balances: {} });
+      }
+    );
   } catch (e) {
     assert.equal(e.message, "not enough balance to transfer");
   }
 });
 
 test("caller can not be target", async () => {
+  const map = new Map();
+  globalThis.SmartWeave = {
+    kv: {
+      get: (k) => Promise.resolve(map.get(k)),
+      put: (k, v) => Promise.resolve(map.set(k, v)),
+    },
+  };
   const STAMP = 1 * 1e12;
+  const { handle } = await import("../src/index.js");
   try {
     await handle(
-      { balances: {} },
+      {},
       {
         caller: TOM,
         input: { function: "transfer", qty: 2 * STAMP, target: TOM },
@@ -72,7 +109,15 @@ test("caller can not be target", async () => {
 });
 
 test("qty must be an integer", async () => {
+  const map = new Map();
+  globalThis.SmartWeave = {
+    kv: {
+      get: (k) => Promise.resolve(map.get(k)),
+      put: (k, v) => Promise.resolve(map.set(k, v)),
+    },
+  };
   const STAMP = 1 * 1e12;
+  const { handle } = await import("../src/index.js");
   try {
     await handle(
       {},
@@ -85,15 +130,5 @@ test("qty must be an integer", async () => {
     assert.equal(e.message, "qty is not defined or is not a number");
   }
 });
-
-// test('qty can be big number', async () => {
-//   const STAMP = 1 * 1e12
-//   //const 1M_STAMPS = 1000000 * STAMP
-//   try {
-//     await handle({ balances: {} }, { caller: TOM, input: { function: 'transfer', target: JUSTIN, qty: STAMP } })
-//   } catch (e) {
-//     assert.equal(e.message, 'qty is not defined or is not a number')
-//   }
-// })
 
 test.run();
