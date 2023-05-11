@@ -42,7 +42,7 @@ test("process credits", async () => {
   // state
   const state = {
     balances: {
-      [JUSTIN]: 2 * 1e6,
+      [JUSTIN]: 2 * 1e12,
     },
     stamps: {},
     assets: {
@@ -59,7 +59,7 @@ test("process credits", async () => {
       1110999: [
         {
           holder: TOM,
-          qty: 1 * 1e6,
+          qty: 1 * 1e12,
           asset: CONTRACT,
         },
       ],
@@ -75,7 +75,7 @@ test("process credits", async () => {
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
   // assert
-  assert.equal(result.state.balances[TOM], 1 * 1e6);
+  assert.equal(result.state.balances[TOM], 1 * 1e12);
   assert.equal(result.state.credits, {});
   assert.ok(true);
 

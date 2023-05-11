@@ -15,7 +15,7 @@ class ContractError extends Error {
 
 globalThis.ContractError = ContractError;
 
-test("handle rewards", async () => {
+test("handle rewards first cycle", async () => {
   globalThis.SmartWeave = {
     contracts: {
       readContractState: (id) =>
@@ -35,7 +35,7 @@ test("handle rewards", async () => {
           : Promise.reject("Not Found: " + id),
     },
     block: {
-      height: 2000,
+      height: 1178473 + 1051000,
       timestamp: Date.now(),
     },
     transaction: {
@@ -66,7 +66,7 @@ test("handle rewards", async () => {
       [createKey("D")]: { balances: { [TOM]: 1 } },
     },
     vouchDAO: createKey("V"),
-    lastReward: 1000,
+    lastReward: 1178473 + 1051000 - 740,
   };
   const action = {
     input: {
@@ -76,10 +76,157 @@ test("handle rewards", async () => {
   };
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
-  assert.equal(view(lensPath(["state", "balances", TOM]), result), 250 * 1e6);
+  assert.equal(
+    view(lensPath(["state", "balances", TOM]), result),
+    30850000000000
+  );
   assert.equal(
     view(lensPath(["state", "balances", JUSTIN]), result),
-    250 * 1e6
+    30850000000000
+  );
+  assert.ok(true);
+});
+
+test("handle rewards cycle 2", async () => {
+  globalThis.SmartWeave = {
+    contracts: {
+      readContractState: (id) =>
+        id === createKey("V")
+          ? Promise.resolve({
+              vouched: {
+                [TOM]: [
+                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+                ],
+                [JUSTIN]: [
+                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+                ],
+              },
+            })
+          : id === createKey("A")
+          ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
+          : Promise.reject("Not Found: " + id),
+    },
+    block: {
+      height: 1178473 + 1051200 + 1,
+      timestamp: Date.now(),
+    },
+    transaction: {
+      id: createKey("M"),
+      owner: TOM,
+      tags: [{ name: "Data-Source", value: createKey("D") }],
+    },
+    contract: {
+      id: createKey("S"),
+    },
+  };
+  const state = {
+    balances: {},
+    stamps: {
+      [`${createKey("C")}:${TOM}`]: { asset: createKey("C"), address: TOM },
+      [`${createKey("C")}:${JUSTIN}`]: {
+        asset: createKey("C"),
+        address: JUSTIN,
+      },
+      [`${createKey("A")}:${TOM}`]: { asset: createKey("A"), address: TOM },
+      [`${createKey("F")}:${JUSTIN}`]: {
+        asset: createKey("F"),
+        address: JUSTIN,
+      },
+    },
+    assets: {
+      [createKey("C")]: { balances: { [TOM]: 5, [JUSTIN]: 5 } },
+      [createKey("D")]: { balances: { [TOM]: 1 } },
+    },
+    vouchDAO: createKey("V"),
+    lastReward: 1178473 + 1051200 - 740,
+  };
+  const action = {
+    input: {
+      function: "stamp",
+    },
+    caller: TOM,
+  };
+  const { handle } = await import("../src/index.js");
+  const result = await handle(state, action);
+  assert.equal(
+    view(lensPath(["state", "balances", TOM]), result),
+    15425000000000
+  );
+  assert.equal(
+    view(lensPath(["state", "balances", JUSTIN]), result),
+    15425000000000
+  );
+  assert.ok(true);
+});
+
+test("handle rewards cycle 3", async () => {
+  globalThis.SmartWeave = {
+    contracts: {
+      readContractState: (id) =>
+        id === createKey("V")
+          ? Promise.resolve({
+              vouched: {
+                [TOM]: [
+                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+                ],
+                [JUSTIN]: [
+                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+                ],
+              },
+            })
+          : id === createKey("A")
+          ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
+          : Promise.reject("Not Found: " + id),
+    },
+    block: {
+      height: 1178473 + 1051200 * 2 + 1,
+      timestamp: Date.now(),
+    },
+    transaction: {
+      id: createKey("M"),
+      owner: TOM,
+      tags: [{ name: "Data-Source", value: createKey("D") }],
+    },
+    contract: {
+      id: createKey("S"),
+    },
+  };
+  const state = {
+    balances: {},
+    stamps: {
+      [`${createKey("C")}:${TOM}`]: { asset: createKey("C"), address: TOM },
+      [`${createKey("C")}:${JUSTIN}`]: {
+        asset: createKey("C"),
+        address: JUSTIN,
+      },
+      [`${createKey("A")}:${TOM}`]: { asset: createKey("A"), address: TOM },
+      [`${createKey("F")}:${JUSTIN}`]: {
+        asset: createKey("F"),
+        address: JUSTIN,
+      },
+    },
+    assets: {
+      [createKey("C")]: { balances: { [TOM]: 5, [JUSTIN]: 5 } },
+      [createKey("D")]: { balances: { [TOM]: 1 } },
+    },
+    vouchDAO: createKey("V"),
+    lastReward: 1178473 + 1051200 * 2 - 740,
+  };
+  const action = {
+    input: {
+      function: "stamp",
+    },
+    caller: TOM,
+  };
+  const { handle } = await import("../src/index.js");
+  const result = await handle(state, action);
+  assert.equal(
+    view(lensPath(["state", "balances", TOM]), result),
+    7712500000000
+  );
+  assert.equal(
+    view(lensPath(["state", "balances", JUSTIN]), result),
+    7712500000000
   );
   assert.ok(true);
 });

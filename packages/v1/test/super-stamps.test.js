@@ -52,7 +52,7 @@ test("super stamp registered asset", async () => {
   const { handle } = await import("../src/index.js");
   const state = {
     balances: {
-      [JUSTIN]: 2 * 1e6,
+      [JUSTIN]: 2 * 1e12,
     },
     stamps: {},
     assets: {
@@ -71,15 +71,15 @@ test("super stamp registered asset", async () => {
     caller: JUSTIN,
     input: {
       function: "stamp",
-      qty: 1 * 1e6,
+      qty: 1 * 1e12,
     },
   };
 
   const result = await handle(state, action);
 
-  assert.equal(result.state.balances[TOM], 800000);
+  assert.equal(result.state.balances[TOM], 800000000000);
   assert.equal(result.state.stamps[`${CONTRACT2}:${JUSTIN}`].address, JUSTIN);
-  assert.equal(result.state.balances[createKey("S")], 20000);
+  assert.equal(result.state.balances[createKey("S")], 20000000000);
   assert.ok(true);
 
   globalThis.SmartWeave = {};
@@ -136,7 +136,7 @@ test("super stamp atomic asset", async () => {
   const { handle } = await import("../src/index.js");
   const state = {
     balances: {
-      [JUSTIN]: 2 * 1e6,
+      [JUSTIN]: 2 * 1e12,
     },
     stamps: {},
     assets: {},
@@ -149,17 +149,17 @@ test("super stamp atomic asset", async () => {
     caller: JUSTIN,
     input: {
       function: "stamp",
-      qty: 1 * 1e6,
+      qty: 1 * 1e12,
     },
   };
 
   const result = await handle(state, action);
 
-  assert.equal(result.state.balances[TOM], 400000);
-  assert.equal(result.state.balances[JUSTIN], 2400000);
+  assert.equal(result.state.balances[TOM], 400000000000);
+  assert.equal(result.state.balances[JUSTIN], 2400000000000);
 
   assert.equal(result.state.stamps[`${CONTRACT2}:${JUSTIN}`].address, JUSTIN);
-  assert.equal(result.state.balances[createKey("S")], 20000);
+  assert.equal(result.state.balances[createKey("S")], 20000000000);
   assert.ok(true);
 
   globalThis.SmartWeave = {};
