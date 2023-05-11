@@ -27,14 +27,14 @@ test("add balance to claimable state", async () => {
   };
   const state = {
     balances: {
-      [TOM]: 10 * 1e6,
+      [TOM]: 10 * 1e12,
     },
   };
   const action = {
     caller: TOM,
     input: {
       function: "allow",
-      qty: 1 * 1e6,
+      qty: 1 * 1e12,
       target: DEX,
     },
   };
@@ -42,7 +42,7 @@ test("add balance to claimable state", async () => {
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
 
-  assert.equal(result.state.claimable[0].qty, 1000000);
+  assert.equal(result.state.claimable[0].qty, 1000000000000);
   assert.ok(true);
 
   globalThis.SmartWeave = {};

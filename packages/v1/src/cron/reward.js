@@ -18,8 +18,11 @@ import {
 import { mint } from "../lib/mint.js";
 import { allocate } from "../lib/allocate.js";
 
-const REWARD = 1000_000_000;
-const SUPPLY = 7665000 * 1e6;
+//const REWARD = 1000_000_000;
+const TOTAL_SUPPLY = 480000 * 1e12;
+const HALVING_SUPPLY = 360328 * 1e12;
+const ORIGIN_HEIGHT = 1178473;
+const CYCLE_INTERVAL = 1051200;
 
 // reward sponsors of stamped assets
 export function reward(env) {
@@ -27,7 +30,7 @@ export function reward(env) {
   return (state, action) =>
     of({ state, action })
       // make sure there is enough supply
-      .chain(setReward(env.contractId))
+      .chain(setReward(env.height))
       // check last block height from this current block height
       .chain(({ state, action, reward }) =>
         state.lastReward + 720 < env.height
@@ -53,16 +56,13 @@ export function reward(env) {
       );
 }
 
-function setReward(contractId) {
+function setReward(height) {
   return ({ state, action }) => {
-    const S100 = 100 * 1e6;
-    const S250 = 250 * 1e6;
-    const S500 = 500 * 1e6;
-    const S750 = 750 * 1e6;
-    const S1000 = 1000 * 1e6;
+    const S100 = 1 * 1e12;
 
     const current = sum(values(state.balances)) || 0;
-    if (current >= SUPPLY) {
+
+    if (current >= HALVING_SUPPLY) {
       if (!state.balances[contractId]) {
         state.balances[contractId] = 0;
       }
@@ -74,16 +74,13 @@ function setReward(contractId) {
       }
       return Rejected(state);
     }
-    if (current > Math.floor(SUPPLY, 0.75)) {
-      return Resolved({ state, action, reward: S250 });
-    }
-    if (current > Math.floor(SUPPLY, 0.5)) {
-      return Resolved({ state, action, reward: S500 });
-    }
-    if (current > Math.floor(SUPPLY, 0.25)) {
-      return Resolved({ state, action, reward: S750 });
-    }
-    return Resolved({ state, action, reward: S1000 });
+    const reward = getReward(
+      HALVING_SUPPLY,
+      CYCLE_INTERVAL,
+      height,
+      ORIGIN_HEIGHT
+    );
+    return Resolved({ state, action, reward });
   };
 }
 
@@ -162,4 +159,18 @@ function allocateAtomicAssets(readState, contractId) {
         toPairs
       )(rewards)
     ).map((pairs) => ({ state, action, rewards: fromPairs(pairs) }));
+}
+
+function getReward(supply, interval, currentHeight, originHeight) {
+  const blockHeight = currentHeight - originHeight;
+  const currentCycle = Math.floor(blockHeight / interval) + 1;
+  const divisor = Math.pow(2, currentCycle);
+  const reward = Math.floor(supply / divisor) / 4 / 365;
+  // Debug
+  // console.log({ supply, interval, currentHeight, originHeight })
+  // console.log('blockHeight', blockHeight)
+  // console.log('current cycle', currentCycle)
+  // console.log('divisor', divisor)
+  // console.log('reward', reward)
+  return reward;
 }

@@ -21,7 +21,7 @@ test.skip("should throw function not found", async () => {
 });
 
 test("should transfer ownership", async () => {
-  const STAMP = 1 * 1e6;
+  const STAMP = 1 * 1e12;
   const result = await [
     {
       caller: TOM,
@@ -32,7 +32,7 @@ test("should transfer ownership", async () => {
 });
 
 test("should transfer half", async () => {
-  const STAMP = 1 * 1e6;
+  const STAMP = 1 * 1e12;
   const result = await [
     {
       caller: TOM,
@@ -43,7 +43,7 @@ test("should transfer half", async () => {
 });
 
 test("should not transfer if caller has no balance", async () => {
-  const STAMP = 1 * 1e6;
+  const STAMP = 1 * 1e12;
   try {
     await [
       {
@@ -57,7 +57,7 @@ test("should not transfer if caller has no balance", async () => {
 });
 
 test("caller can not be target", async () => {
-  const STAMP = 1 * 1e6;
+  const STAMP = 1 * 1e12;
   try {
     await handle(
       { balances: {} },
@@ -72,7 +72,7 @@ test("caller can not be target", async () => {
 });
 
 test("qty must be an integer", async () => {
-  const STAMP = 1 * 1e6;
+  const STAMP = 1 * 1e12;
   try {
     await handle(
       {},
