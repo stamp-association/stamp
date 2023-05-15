@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="corporate">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
+      rel="icon"
+      type="image/x-icon"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Launcher</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@2.51.6/dist/full.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body>
+    <main class="hero min-h-screen">
+      <div class="hero-content flex-col">
+        <h1 class="text-4xl font-mono">$STAMP Launcher</h1>
+        <form id="launchform" class="mt-16 space-y-8 w-full md:w-[600px]">
+          <div class="form-control">
+            <label class="label">Seed Phrase</label>
+            <textarea
+              id="passphrase"
+              class="textarea textarea-bordered w-full"
+              placeholder="enter 12 word seed phrase"
+            ></textarea>
+          </div>
+          <div>
+            <button class="btn">Deploy</button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <input type="checkbox" id="my-modal" class="modal-toggle" />
+    <div class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">Congratulations!</h3>
+        <p class="py-4">You have launched the STAMP Contract!</p>
+        <div class="modal-action">
+          <label for="my-modal" class="btn">Yay!</label>
+        </div>
+      </div>
+    </div>
+
+    <input type="checkbox" id="busy" class="modal-toggle" />
+    <div class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">Deploying STAMP...</h3>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        WarpFactory,
+        SourceType,
+      } from "https://unpkg.com/warp-contracts@1.4.7/bundles/web.bundle.min.js";
+      import {
+        DeployPlugin,
+        ArweaveSigner,
+      } from "https://unpkg.com/warp-contracts-plugin-deploy@1.0.8/bundles/web.bundle.min.js";
+      import { getKeyPairFromMnemonic } from "https://esm.sh/human-crypto-keys@0.1.4/lib/index.js";
+
+      const warp = WarpFactory.forMainnet().use(new DeployPlugin());
+
+      document
+        .getElementById("launchform")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          document.getElementById("busy").checked = true;
+          const passphrase = document.getElementById("passphrase").value;
+          const { jwk } = await seedToJWK(passphrase);
+          console.log(jwk);
+
+          const signer = new ArweaveSigner(jwk);
+
+          const old = await fetch(
+            "https://cache-2.permaweb.tools/contract?id=61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI"
+          ).then((res) => res.json());
+          const src = await fetch("./contract.js").then((res) => res.text());
+          const initState = JSON.stringify({
+            name: "test",
+            ticker: "test",
+            claimable: [],
+            credits: {},
+            canEvolve: true,
+            settings: [["isTradeable", true]],
+            initialBalances: old.state.balances,
+          });
+
+          const result = await warp.deploy({
+            wallet: signer,
+            src,
+            initState,
+            evaluationManifest: {
+              evaluationOptions: {
+                sourceType: SourceType.WARP_SEQUENCER,
+                useKVStorage: true,
+                useConstructor: true,
+                unsafeClient: "skip",
+                allowBigInt: true,
+              },
+            },
+          });
+
+          console.log(result);
+
+          document.getElementById("busy").checked = false;
+          document.getElementById("my-modal").checked = true;
+        });
+
+      async function pkcs8ToJwk(key) {
+        const imported = await window.crypto.subtle.importKey(
+          "pkcs8",
+          key,
+          { name: "RSA-PSS", hash: "SHA-256" },
+          true,
+          ["sign"]
+        );
+        const jwk = await window.crypto.subtle.exportKey("jwk", imported);
+        delete jwk.key_ops;
+        delete jwk.alg;
+        return jwk;
+      }
+
+      async function seedToJWK(passphrase) {
+        let keyPair = await getKeyPairFromMnemonic(
+          passphrase,
+          { id: "rsa", modulusLength: 4096 },
+          { privateKeyFormat: "pkcs8-der" }
+        );
+        const jwk = await pkcs8ToJwk(keyPair.privateKey);
+        return { jwk };
+      }
+    </script>
+  </body>
+</html>

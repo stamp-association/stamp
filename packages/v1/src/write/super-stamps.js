@@ -14,7 +14,7 @@ export function superStamps(env) {
       .map(calculateRewards)
       .chain(transferRewards(env.contractId, get, put))
       .map(updateCredits(env.height))
-      .bichain(handleNoSuperRejection(state), Resolved);
+      .bichain(noSuperRejection(state), Resolved);
   };
 }
 
@@ -94,7 +94,7 @@ function isSuperStamp(get) {
   };
 }
 
-function handleNoSuperRejection(state) {
+function noSuperRejection(state) {
   return (msg) => {
     if (typeof msg === "string" && msg === "NOT_SUPER_STAMP") {
       return Resolved({ state });
