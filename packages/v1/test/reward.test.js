@@ -21,18 +21,18 @@ test("handle rewards first cycle", async () => {
       readContractState: (id) =>
         id === createKey("V")
           ? Promise.resolve({
-              vouched: {
-                [TOM]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-                [JUSTIN]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-              },
-            })
+            vouched: {
+              [TOM]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+              [JUSTIN]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+            },
+          })
           : id === createKey("A")
-          ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
-          : Promise.reject("Not Found: " + id),
+            ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
+            : Promise.reject("Not Found: " + id),
     },
     block: {
       height: 1178473 + 1051000,
@@ -78,11 +78,11 @@ test("handle rewards first cycle", async () => {
   const result = await handle(state, action);
   assert.equal(
     view(lensPath(["state", "balances", TOM]), result),
-    30850000000000
+    62421411038087
   );
   assert.equal(
     view(lensPath(["state", "balances", JUSTIN]), result),
-    30850000000000
+    62421411038087
   );
   assert.ok(true);
 });
@@ -93,18 +93,18 @@ test("handle rewards cycle 2", async () => {
       readContractState: (id) =>
         id === createKey("V")
           ? Promise.resolve({
-              vouched: {
-                [TOM]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-                [JUSTIN]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-              },
-            })
+            vouched: {
+              [TOM]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+              [JUSTIN]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+            },
+          })
           : id === createKey("A")
-          ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
-          : Promise.reject("Not Found: " + id),
+            ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
+            : Promise.reject("Not Found: " + id),
     },
     block: {
       height: 1178473 + 1051200 + 1,
@@ -150,11 +150,11 @@ test("handle rewards cycle 2", async () => {
   const result = await handle(state, action);
   assert.equal(
     view(lensPath(["state", "balances", TOM]), result),
-    15425000000000
+    31210705519044
   );
   assert.equal(
     view(lensPath(["state", "balances", JUSTIN]), result),
-    15425000000000
+    31210705519044
   );
   assert.ok(true);
 });
@@ -165,18 +165,18 @@ test("handle rewards cycle 3", async () => {
       readContractState: (id) =>
         id === createKey("V")
           ? Promise.resolve({
-              vouched: {
-                [TOM]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-                [JUSTIN]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-              },
-            })
+            vouched: {
+              [TOM]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+              [JUSTIN]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+            },
+          })
           : id === createKey("A")
-          ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
-          : Promise.reject("Not Found: " + id),
+            ? Promise.resolve({ balances: { [JUSTIN]: 1 } })
+            : Promise.reject("Not Found: " + id),
     },
     block: {
       height: 1178473 + 1051200 * 2 + 1,
@@ -222,11 +222,11 @@ test("handle rewards cycle 3", async () => {
   const result = await handle(state, action);
   assert.equal(
     view(lensPath(["state", "balances", TOM]), result),
-    7712500000000
+    15605352759522
   );
   assert.equal(
     view(lensPath(["state", "balances", JUSTIN]), result),
-    7712500000000
+    15605352759522
   );
   assert.ok(true);
 });

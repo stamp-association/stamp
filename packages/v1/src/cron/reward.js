@@ -19,8 +19,8 @@ import { mint } from "../lib/mint.js";
 import { allocate } from "../lib/allocate.js";
 
 //const REWARD = 1000_000_000;
-const TOTAL_SUPPLY = 480000 * 1e12;
-const HALVING_SUPPLY = 360328 * 1e12;
+const TOTAL_SUPPLY = 435000 * 1e12;
+const HALVING_SUPPLY = 315328 * 1e12;
 const ORIGIN_HEIGHT = 1178473;
 const CYCLE_INTERVAL = 1051200;
 
@@ -137,23 +137,23 @@ function allocateAtomicAssets(readState, contractId) {
         map(([asset, reward]) =>
           is(Number, reward)
             ? readState(asset)
-                .map((assetState) => {
-                  return assetState.balances
-                    ? allocate(balances, reward)
-                    : allocate({ [assetState.owner || contractId]: 1 }, reward);
-                })
-                .map(({ balances }) => allocate(balances, reward))
-                .map((r) => [asset, r])
-                .bichain(
-                  (e) =>
-                    Resolved([
-                      asset,
-                      {
-                        [contractId]: reward,
-                      },
-                    ]),
-                  Resolved
-                )
+              .map((assetState) => {
+                return assetState.balances
+                  ? allocate(balances, reward)
+                  : allocate({ [assetState.owner || contractId]: 1 }, reward);
+              })
+              .map(({ balances }) => allocate(balances, reward))
+              .map((r) => [asset, r])
+              .bichain(
+                (e) =>
+                  Resolved([
+                    asset,
+                    {
+                      [contractId]: reward,
+                    },
+                  ]),
+                Resolved
+              )
             : Resolved([asset, reward])
         ),
         toPairs
@@ -165,7 +165,7 @@ function getReward(supply, interval, currentHeight, originHeight) {
   const blockHeight = currentHeight - originHeight;
   const currentCycle = Math.floor(blockHeight / interval) + 1;
   const divisor = Math.pow(2, currentCycle);
-  const reward = Math.floor(supply / divisor) / 4 / 365;
+  const reward = Math.floor(Math.floor(supply / divisor) / 1.73 / 365);
   // Debug
   // console.log({ supply, interval, currentHeight, originHeight })
   // console.log('blockHeight', blockHeight)

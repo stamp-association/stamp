@@ -1544,8 +1544,8 @@ function allocate(balances2, reward2) {
 }
 
 // src/cron/reward.js
-var TOTAL_SUPPLY = 48e4 * 1e12;
-var HALVING_SUPPLY = 360328 * 1e12;
+var TOTAL_SUPPLY = 435e3 * 1e12;
+var HALVING_SUPPLY = 315328 * 1e12;
 var ORIGIN_HEIGHT = 1178473;
 var CYCLE_INTERVAL = 1051200;
 function reward(env) {
@@ -1644,7 +1644,7 @@ function getReward(supply, interval, currentHeight, originHeight) {
   const blockHeight = currentHeight - originHeight;
   const currentCycle = Math.floor(blockHeight / interval) + 1;
   const divisor = Math.pow(2, currentCycle);
-  const reward2 = Math.floor(supply / divisor) / 4 / 365;
+  const reward2 = Math.floor(Math.floor(supply / divisor) / 1.73 / 365);
   return reward2;
 }
 
@@ -1901,9 +1901,9 @@ var EVOLVABLE = 1241679;
 export async function handle(state, action) {
   if (action.input.function === "__init") {
     const balances2 = action.input.args.initialBalances;
-    await Promise.all(Object.keys(balances2).map(
-      (k) => SmartWeave.kv.put(k, balances2[k])
-    ));
+    await Promise.all(
+      Object.keys(balances2).map((k) => SmartWeave.kv.put(k, balances2[k]))
+    );
     return { state: omit_default(["initialBalances"], action.input.args) };
   }
   const env = {
