@@ -5,10 +5,12 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "esbuild": "^0.17.18",
+    "esbuild": "^0.17.19",
+    "replace-in-file": "^6.3.5",
     "uvu": "^0.5.6"
   },
   "scripts": {
+    "build": "node build.js",
     "test": "uvu test"
   },
   "dependencies": {
