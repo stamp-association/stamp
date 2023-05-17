@@ -1,15 +1,15 @@
-import { getSubdomain } from './utils.js'
-import _fpjson from 'fpjson-lang'
+import { getSubdomain } from "./utils.js";
+import _fpjson from "fpjson-lang";
 
-const fpjson = typeof _fpjson === 'function' ? _fpjson : _fpjson.default
+const fpjson = typeof _fpjson === "function" ? _fpjson : _fpjson.default;
 
-const STAMP = '61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI'
+const STAMP = "61vg8n54MGSC9ZHfSVAtQp4WjNb20TaThu6bkQ86pPI";
 
-const propEq = (k, v) => o => o[k] === v
-const prop = (k) => o => o[k]
-const filter = (f) => ls => ls.filter(f)
-const length = (ls) => ls.length
-const path = (props) => o => props.reduce((a, v) => prop(v)(a), o)
+const propEq = (k, v) => (o) => o[k] === v;
+const prop = (k) => (o) => o[k];
+const filter = (f) => (ls) => ls.filter(f);
+const length = (ls) => ls.length;
+const path = (props) => (o) => props.reduce((a, v) => prop(v)(a), o);
 
 /**
  * @typedef {Object} Env
@@ -53,13 +53,13 @@ const path = (props) => o => props.reduce((a, v) => prop(v)(a), o)
  * @returns {Promise<CountResult[]}
  */
 
-/** 
+/**
  * @callback Balance
  * @param {string} addr - wallet address
  * @returns {Promise<number>}
  */
 
-/** 
+/**
  * @callback OriginCount
  * @param {string} subdomain - subdomain origin
  * @returns {Promise<number>}
@@ -88,59 +88,68 @@ export default {
    */
   init: function ({
     warp,
-    dre = 'https://cache-2.permaweb.tools',
+    dre = "https://cache-2.permaweb.tools",
     address, // TODO: future to allow vpst to drive developer incentives
-    percent // TODO: future configurable percent for dev token perks
+    percent, // TODO: future configurable percent for dev token perks
   }) {
     if (!warp || !warp.contract) {
-      throw new Error('warp instance is required for stampjs')
+      throw new Error("warp instance is required for stampjs");
     }
     /**
      * @type {Stamp} stamp
      */
     async function stamp(transactionId, qty = 0, tags = []) {
       if (transactionId.length !== 43) {
-        throw new Error('Error: Invalid Atomic Token identifier!')
+        throw new Error("Error: Invalid Atomic Token identifier!");
       }
-      if (typeof qty !== 'number') {
-        throw new Error('Error: qty must be a integer!')
+      if (typeof qty !== "number") {
+        throw new Error("Error: qty must be a integer!");
       }
 
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true }).then(c => c.setEvaluationOptions({
-          allowBigInt: true,
-        }).readState())
+        await warp
+          .contract(STAMP)
+          .syncState(dre + "/contract", { validity: true })
+          .then((c) =>
+            c
+              .setEvaluationOptions({
+                allowBigInt: true,
+              })
+              .readState()
+          );
       } catch (e) {
-        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+        throw new Error("DRE is not defined correctly! ERROR:", e.message);
       }
 
       const input = {
-        function: 'stamp',
+        function: "stamp",
         transactionId,
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      };
 
       if (qty > 0) {
-        input.qty = Number(Math.floor(qty).toFixed(0)) * 1e12
+        input.qty = Number(Math.floor(qty).toFixed(0)) * 1e12;
       }
 
-      input.subdomain = getSubdomain(window.location.hostname)
+      input.subdomain = getSubdomain(window.location.hostname);
 
       tags = [
-        { name: 'Protocol-Name', value: 'Stamp' },
-        { name: 'Data-Source', value: transactionId },
-        { name: 'Render-With', value: 'card_stamps' },
-        ...tags
-      ]
+        { name: "Protocol-Name", value: "Stamp" },
+        { name: "Data-Source", value: transactionId },
+        { name: "Render-With", value: "card_stamps" },
+        ...tags,
+      ];
 
-      return warp.contract(STAMP).connect('use_wallet')
+      return warp
+        .contract(STAMP)
+        .connect("use_wallet")
         .setEvaluationOptions({
           allowBigInt: true,
         })
         .writeInteraction(input, {
           strict: true,
-          tags
-        })
+          tags,
+        });
     }
 
     /**
@@ -148,21 +157,27 @@ export default {
      */
     async function hasStamped(address, transactionId) {
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+        await warp
+          .contract(STAMP)
+          .syncState(dre + "/contract", { validity: true });
       } catch (e) {
-        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+        throw new Error("DRE is not defined correctly! ERROR:", e.message);
       }
-      return warp.contract(STAMP)
+      return warp
+        .contract(STAMP)
         .setEvaluationOptions({
           allowBigInt: true,
-          internalWrites: true
+          internalWrites: true,
         })
         .readState()
-        .then(prop('cachedValue')).then(prop('state')).then(prop('stamps')).then(Object.values)
-        .then(filter(propEq('asset', transactionId)))
-        .then(filter(propEq('address', address)))
+        .then(prop("cachedValue"))
+        .then(prop("state"))
+        .then(prop("stamps"))
+        .then(Object.values)
+        .then(filter(propEq("asset", transactionId)))
+        .then(filter(propEq("address", address)))
         .then(length)
-        .then(l => l === 1)
+        .then((l) => l === 1);
     }
 
     /**
@@ -170,63 +185,81 @@ export default {
      */
     async function count(transactionId) {
       if (transactionId.length !== 43) {
-        throw new Error('Invalid Atomic Token identifier!')
+        throw new Error("Invalid Atomic Token identifier!");
       }
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+        await warp
+          .contract(STAMP)
+          .syncState(dre + "/contract", { validity: true });
       } catch (e) {
-        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+        throw new Error("DRE is not defined correctly! ERROR:", e.message);
       }
-      return warp.contract(STAMP)
+      return warp
+        .contract(STAMP)
         .setEvaluationOptions({
           allowBigInt: true,
-          internalWrites: true
+          internalWrites: true,
         })
         .readState()
-        .then(prop('cachedValue')).then(prop('state')).then(prop('stamps')).then(Object.values)
-        .then(filter(propEq('asset', transactionId)))
-        .then(as => {
+        .then(prop("cachedValue"))
+        .then(prop("state"))
+        .then(prop("stamps"))
+        .then(Object.values)
+        .then(filter(propEq("asset", transactionId)))
+        .then((as) => {
           return {
             total: as.length,
-            vouched: as.filter(propEq('vouched', true)).length,
-            super: as.filter(propEq('super', true)).length
-          }
-        })
+            vouched: as.filter(propEq("vouched", true)).length,
+            super: as.filter(propEq("super", true)).length,
+          };
+        });
     }
 
     /**
      * @type {Counts} counts
      */
     async function counts(assets) {
-      assets.forEach(transactionId => {
+      assets.forEach((transactionId) => {
         if (transactionId.length !== 43) {
-          throw new Error('Invalid Atomic Token identifier!')
+          throw new Error("Invalid Atomic Token identifier!");
         }
-      })
+      });
 
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+        await warp
+          .contract(STAMP)
+          .syncState(dre + "/contract", { validity: true });
       } catch (e) {
-        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+        throw new Error("DRE is not defined correctly! ERROR:", e.message);
       }
-      return warp.contract(STAMP)
+      return warp
+        .contract(STAMP)
         .setEvaluationOptions({
           allowBigInt: true,
-          internalWrites: true
+          internalWrites: true,
         })
         .readState()
-        .then(prop('cachedValue')).then(prop('state')).then(prop('stamps')).then(Object.values)
-        .then(stamps => stamps.reduce((a, stamp) => {
-          if (assets.includes(stamp.asset)) {
-            const _value = a[stamp.asset] || { total: 0, vouched: 0, super: 0 }
-            a[stamp.asset] = {
-              total: _value.total + 1,
-              vouched: stamp.vouched ? _value.vouched + 1 : _value.vouched,
-              super: stamp.super ? _value.super + 1 : _value.super
+        .then(prop("cachedValue"))
+        .then(prop("state"))
+        .then(prop("stamps"))
+        .then(Object.values)
+        .then((stamps) =>
+          stamps.reduce((a, stamp) => {
+            if (assets.includes(stamp.asset)) {
+              const _value = a[stamp.asset] || {
+                total: 0,
+                vouched: 0,
+                super: 0,
+              };
+              a[stamp.asset] = {
+                total: _value.total + 1,
+                vouched: stamp.vouched ? _value.vouched + 1 : _value.vouched,
+                super: stamp.super ? _value.super + 1 : _value.super,
+              };
             }
-          }
-          return a
-        }, {}))
+            return a;
+          }, {})
+        );
     }
 
     /**
@@ -234,22 +267,25 @@ export default {
      */
     async function balance(addr) {
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+        await warp
+          .contract(STAMP)
+          .syncState(dre + "/contract", { validity: true });
       } catch (e) {
-        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+        throw new Error("DRE is not defined correctly! ERROR:", e.message);
       }
-      return warp.contract(STAMP)
+      return warp
+        .contract(STAMP)
         .setEvaluationOptions({
           allowBigInt: true,
-          internalWrites: true
+          internalWrites: true,
         })
         .viewState({
-          function: 'balance',
-          target: addr
+          function: "balance",
+          target: addr,
         })
-        .then(prop('result'))
-        .then(prop('balance'))
-        .then(n => n / 1e12)
+        .then(prop("result"))
+        .then(prop("balance"))
+        .then((n) => n / 1e12);
     }
 
     /**
@@ -257,44 +293,49 @@ export default {
      */
     async function originCount(subdomain) {
       if (!subdomain) {
-        throw new Error('subdomain is required!')
+        throw new Error("subdomain is required!");
       }
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+        await warp
+          .contract(STAMP)
+          .syncState(dre + "/contract", { validity: true });
       } catch (e) {
-        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+        throw new Error("DRE is not defined correctly! ERROR:", e.message);
       }
 
-      return warp.contract(STAMP)
+      return warp
+        .contract(STAMP)
         .setEvaluationOptions({
           allowBigInt: true,
-          internalWrites: true
+          internalWrites: true,
         })
         .viewState({
-          function: 'originCount',
-          subdomain
+          function: "originCount",
+          subdomain,
         })
-        .then(prop('result'))
+        .then(prop("result"));
     }
 
     /**
      * @type {FilterFn} filter
      */
     async function ap(logic) {
-
       try {
-        await warp.contract(STAMP).syncState(dre + '/contract', { validity: true })
+        await warp
+          .contract(STAMP)
+          .syncState(dre + "/contract", { validity: true });
       } catch (e) {
-        throw new Error('DRE is not defined correctly! ERROR:', e.message)
+        throw new Error("DRE is not defined correctly! ERROR:", e.message);
       }
-      return warp.contract(STAMP)
+      return warp
+        .contract(STAMP)
         .setEvaluationOptions({
           allowBigInt: true,
-          internalWrites: true
-        }).readState()
-        .then(path(['cachedValue', 'state']))
-        .then(state => fpjson([logic, state]))
-
+          internalWrites: true,
+        })
+        .readState()
+        .then(path(["cachedValue", "state"]))
+        .then((state) => fpjson([logic, state]));
     }
 
     return Object.freeze({
@@ -304,7 +345,7 @@ export default {
       counts,
       balance,
       originCount,
-      filter: ap
-    })
-  }
-}
+      filter: ap,
+    });
+  },
+};

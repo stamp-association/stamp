@@ -1,5 +1,6 @@
-import { query } from './arweave.js'
+import { query, vouchServices } from "./arweave.js";
 
 export default {
-  query
-}
+  query,
+  vouchServices,
+};

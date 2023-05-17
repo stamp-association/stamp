@@ -1,38 +1,38 @@
-import { test } from 'uvu'
-import * as assert from 'uvu/assert'
-import { WarpFactory, LoggerFactory } from 'warp-contracts/mjs'
-import Arweave from 'arweave'
-import Stamps from '../src/index.js'
+import { test } from "uvu";
+import * as assert from "uvu/assert";
+import { WarpFactory, LoggerFactory } from "warp-contracts/mjs";
+import Arweave from "arweave";
+import Stamps from "../src/index.js";
 
-LoggerFactory.INST.logLevel('fatal');
-const arweave = Arweave.init({})
-const warp = WarpFactory.forMainnet()
-const stamps = Stamps.init({ warp })
+LoggerFactory.INST.logLevel("fatal");
+const arweave = Arweave.init({});
+const warp = WarpFactory.forMainnet();
+const stamps = Stamps.init({ warp });
 
 global.arweaveWallet = {
   sign: async (tx) => {
-    const jwk = await arweave.wallets.generate()
-    await arweave.transactions.sign(tx, jwk)
-    return tx
-  }
-}
+    const jwk = await arweave.wallets.generate();
+    await arweave.transactions.sign(tx, jwk);
+    return tx;
+  },
+};
 
-globalThis.window = { location: { hostname: 'tom.g8way.io' } }
+globalThis.window = { location: { hostname: "tom.g8way.io" } };
 
-test('init stampjs', () => {
-  const _stamps = Stamps.init({ warp })
-  assert.ok(_stamps.stamp)
-})
+test("init stampjs", () => {
+  const _stamps = Stamps.init({ warp });
+  assert.ok(_stamps.stamp);
+});
 
-test('init stampjs - warp is required!', () => {
+test("init stampjs - warp is required!", () => {
   try {
-    const _stamps = Stamps.init({})
-    assert.ok(false)
+    const _stamps = Stamps.init({});
+    assert.ok(false);
   } catch (e) {
-    assert.equal(e.message, 'warp instance is required for stampjs')
-    assert.ok(true)
+    assert.equal(e.message, "warp instance is required for stampjs");
+    assert.ok(true);
   }
-})
+});
 /*
 test('stamp asset', async () => {
   const result = await stamps.stamp('KhZ7qIAxOr4nMHT2Jh6kKjrrK_17aGFbXRaO7X6FI5o')
@@ -90,15 +90,16 @@ test('check if user has stamped', async () => {
 })
 */
 
-test('filter fn should return stamps', async () => {
-  const result = await stamps.filter(['compose',
-    ['length'],
-    ['filter', ['propEq', 'flagged', false]],
-    ['values'],
-    ['prop', 'stamps']
-  ])
+test("filter fn should return stamps", async () => {
+  const result = await stamps.filter([
+    "compose",
+    ["length"],
+    ["filter", ["propEq", "flagged", false]],
+    ["values"],
+    ["prop", "stamps"],
+  ]);
 
-  assert.ok(result > 1)
-})
+  assert.ok(result > 1);
+});
 
-test.run()
+test.run();
