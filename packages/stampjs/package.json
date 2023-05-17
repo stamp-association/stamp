@@ -25,6 +25,7 @@
     "MIT"
   ],
   "dependencies": {
+    "ar-gql": "^1.2.1",
     "fpjson-lang": "^0.1.3",
     "ramda": "^0.28.0"
   }

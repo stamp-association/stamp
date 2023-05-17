@@ -1,16 +1,12 @@
 # STAMPS JS
 
-STAMPS JS is the SDK for the STAMP Protocol version 0.2 
+> Browser only library
+
+STAMPS JS is the SDK for the STAMP Protocol 
 
 The STAMP JS SDK is how developers can integrate the STAMPs protocol in their applications.
 
 ## Install
-
-```sh
-npm i https://stampjs-v0011_stamps.g8way.io
-```
-
-or
 
 ```sh
 npm i @permaweb/stampjs

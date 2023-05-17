@@ -1,9 +1,9 @@
-export const query = ({ query, variables }) => {
-  return fetch(gateway('graphql'), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ query, variables })
-  }).then(res => res.json())
+import { arGql } from 'ar-gql'
+
+const { all } = arGql(gateway('graphql'))
+
+export const query = ({ query, variables }) => all(query, variables)
+
+function gateway(path) {
+  return `https://arweave.net/${path}`
 }
