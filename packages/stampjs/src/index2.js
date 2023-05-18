@@ -25,6 +25,7 @@ export default {
       ),
       getState: services.getState(dre),
       dispatch: services.dispatch,
+      getAddress: services.getAddress,
     };
     return {
       //register: (tx) => register(tx).fold(handleError, handleSuccess),

@@ -4,6 +4,13 @@ import Arweave from "arweave";
 const arweave = Arweave.init({});
 const argql = arGql(gateway("graphql"));
 
+export async function getAddress() {
+  if (!window.arweaveWallet) {
+    return Promise.reject("Wallet not found!");
+  }
+  return window.arweaveWallet.getActiveAddress();
+}
+
 export async function dispatch(txId, tags) {
   const tx = await arweave.createTransaction({ data: txId });
   tags.forEach((t) => tx.addTag(t.name, t.value));

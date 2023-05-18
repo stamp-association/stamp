@@ -16,7 +16,7 @@ const { of, fromPromise } = Async;
 
 export function count(env, tx) {
   const query = fromPromise(env.query);
-  const services = fromPromise(env.vouchedServices);
+  const services = fromPromise(env.vouchServices);
 
   return of(tx)
     .map((tx) => ({ query: buildQuery(), variables: { txs: [tx] } }))

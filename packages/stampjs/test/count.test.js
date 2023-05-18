@@ -13,15 +13,15 @@ test("ok", async () => {
     env,
     "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs"
   ).toPromise();
-  assert.equal(result.total, 2);
-  assert.equal(result.vouched, 2);
+  assert.equal(result.total, 3);
+  assert.equal(result.vouched, 3);
   assert.ok(true);
 });
 
 test("ok", async () => {
   const env = {
     query: svcs.query,
-    vouchedServices: svcs.vouchServices,
+    vouchServices: svcs.vouchServices,
   };
   const result = await count(
     env,

@@ -29,6 +29,11 @@ test("ok", async () => {
       "ojTjHgoDUTzDMtXn-JVn2rIMgvpcvA8QdNfyCEoUanE"
     ),
     getState: svcs.getState("https://dre-1.warp.cc/contract"),
+    vouchServices: svcs.vouchServices,
+    query: svcs.query,
+    getAddress: () =>
+      Promise.resolve("vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"),
+    dispatch: () => Promise.resolve({ ok: true }),
   };
 
   const result = await stamp(
