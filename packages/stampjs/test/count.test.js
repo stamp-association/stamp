@@ -13,8 +13,8 @@ test("ok", async () => {
     env,
     "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs"
   ).toPromise();
-  assert.equal(result.total, 2)
-  assert.equal(result.vouched, 2)
+  assert.equal(result.total, 2);
+  assert.equal(result.vouched, 2);
   assert.ok(true);
 });
 
@@ -27,8 +27,8 @@ test("ok", async () => {
     env,
     "jhBgQKolMWzzxf92jS78W00ra3v88Gf2YToEJa9T9Kw"
   ).toPromise();
-  assert.equal(result.total, 5)
-  assert.equal(result.vouched, 2)
+  assert.equal(result.total, 5);
+  assert.equal(result.vouched, 2);
   assert.ok(true);
 });
 
