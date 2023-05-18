@@ -4,12 +4,25 @@ import { stamp } from "./lib/stamp.js";
 import { count } from "./lib/count.js";
 import { counts } from "./lib/counts.js";
 
+import services from './svcs/index.js'
+
 export default {
-  init: {
-    register: (tx) => register(tx).fold(handleError, handleSuccess),
-    stamp: (tx, qty, tags) => stamp(tx, qty, tags).toPromise(),
-    count: (txID) => count(txID).toPromise(),
-    counts: (txIDs) => counts(txIDs).toPromise(),
-    hasStamped: (tx) => hasStamped(tx).toPromise(),
+  init: function (warp, options = {
+    dre: 'https://dre-1.warp.cc/contract',
+    contract: 'no85rSPaj6zpKExVV_A1WSsJFoGdES_xEMxVIfMzt3M',
+    jwk: 'use_wallet'
+  }) {
+    const env = {
+      query: services.query,
+      vouchServices: services.vouchServices,
+      writeInteraction: services.writeInteraction(warp, options.contract, options.jwk)
+    }
+    return {
+      //register: (tx) => register(tx).fold(handleError, handleSuccess),
+      stamp: (tx, qty, tags) => stamp(env, tx, qty, tags).toPromise(),
+      count: (txID) => count(env, txID).toPromise(),
+      //counts: (txIDs) => counts(txIDs).toPromise(),
+      //hasStamped: (tx) => hasStamped(tx).toPromise(),
+    }
   },
 };
