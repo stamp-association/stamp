@@ -31,7 +31,7 @@ export default {
       //register: (tx) => register(tx).fold(handleError, handleSuccess),
       stamp: (tx, qty, tags) => stamp(env, tx, qty, tags).toPromise(),
       count: (txID) => count(env, txID).toPromise(),
-      //counts: (txIDs) => counts(txIDs).toPromise(),
+      counts: (txIDs) => counts(env, txIDs).toPromise(),
       //hasStamped: (tx) => hasStamped(tx).toPromise(),
     };
   },

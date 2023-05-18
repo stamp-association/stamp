@@ -7,7 +7,7 @@ import svcs from "../src/svcs/index.js";
 test("ok", async () => {
   const env = {
     query: svcs.query,
-    vouchedServices: svcs.vouchServices,
+    vouchServices: svcs.vouchServices,
   };
   const result = await count(
     env,
