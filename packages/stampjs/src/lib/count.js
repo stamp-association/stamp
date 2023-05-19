@@ -1,4 +1,4 @@
-import Async from "hyper-async";
+import { of, fromPromise } from "../adts/async.js";
 import {
   compose,
   map,
@@ -11,8 +11,6 @@ import {
   find,
   uniqBy,
 } from "ramda";
-
-const { of, fromPromise } = Async;
 
 export function count(env, tx) {
   const query = fromPromise(env.query);

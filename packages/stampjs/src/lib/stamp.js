@@ -1,14 +1,6 @@
-import Async from "hyper-async";
-import { or, has, always } from "ramda";
+import { of, fromPromise, Rejected, Resolved } from "../adts/async.js";
+import { or, has } from "ramda";
 
-const { of, fromPromise, Rejected, Resolved } = Async;
-
-/*
- * check and see if tx is atomic asset
- * and user is vouched
- * if is then stamp with interaction
- * else stamp as a bundle transaction
- */
 export function stamp(env, tx, qty = 0, tags = {}) {
   const writeInteraction = fromPromise(env.writeInteraction);
   const getState = fromPromise(env.getState);

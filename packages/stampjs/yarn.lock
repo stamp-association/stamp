@@ -1610,11 +1610,6 @@ humanize-ms@^1.2.1:
   dependencies:
     ms "^2.0.0"
 
-hyper-async@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/hyper-async/-/hyper-async-1.1.0.tgz#50af280d03db2a50957e71d6bdbb96744a1375db"
-  integrity sha512-PoqaZFy4dx7Ceq8GwTKfD/5mluns3V8D1tL9J8gVIJYR9Ty9986xd71bjCfRiiiurLiitTgR6FMWFqDc4VxTnQ==
-
 iconv-lite@^0.4.24:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"

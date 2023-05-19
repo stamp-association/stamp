@@ -1,4 +1,5 @@
-import Async from "hyper-async";
+import { of, fromPromise } from "../adts/async.js";
+
 import {
   map,
   includes,
@@ -12,8 +13,6 @@ import {
   find,
   propEq,
 } from "ramda";
-
-const { of, fromPromise, Rejected } = Async;
 
 export function counts(env, txIDs) {
   const query = fromPromise(env.query);

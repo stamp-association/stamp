@@ -26,7 +26,6 @@
   ],
   "dependencies": {
     "ar-gql": "^1.2.1",
-    "hyper-async": "^1.1.0",
     "ramda": "^0.29.0"
   }
 }
