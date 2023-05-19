@@ -10,6 +10,7 @@ import services from "./svcs/index.js";
 /**
  * @typedef {Object} Env
  * @property {any} warp
+ * @property {any} arweave
  * @property {string} [dre]
  * @property {string} [contract]
  * @property {string} [jwk]
@@ -63,6 +64,7 @@ export default {
    */
   init: function ({
     warp,
+    arweave,
     dre = "https://dre-1.warp.cc/contract",
     contract = "no85rSPaj6zpKExVV_A1WSsJFoGdES_xEMxVIfMzt3M",
     jwk = "use_wallet",
@@ -72,7 +74,7 @@ export default {
       vouchServices: services.vouchServices,
       writeInteraction: services.writeInteraction(warp, contract, jwk),
       getState: services.getState(dre),
-      dispatch: services.dispatch,
+      dispatch: services.dispatch(arweave),
       getAddress: services.getAddress,
     };
     return {
@@ -80,7 +82,7 @@ export default {
       stamp: (tx, qty, tags) => stamp(env, tx, qty, tags).toPromise(),
       count: (txID) => count(env, txID).toPromise(),
       counts: (txIDs) => counts(env, txIDs).toPromise(),
-      hasStamped: (tx) => hasStamped(tx).toPromise(),
+      hasStamped: (tx) => hasStamped(env, tx).toPromise(),
     };
   },
 };

@@ -13,5 +13,6 @@ export function getState(dre) {
   return (tx) =>
     fetch(`${dre}/?id=${tx}`)
       .then((res) => res.json())
-      .then(prop("state"));
+      .then(prop("state"))
+      .catch((_) => {});
 }

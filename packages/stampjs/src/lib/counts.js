@@ -67,7 +67,7 @@ function transform(node) {
     {}
   );
   return {
-    owner: tags["Sequencer-Owner"],
+    owner: tags["Sequencer-Owner"] || node.owner.address,
     height: tags["Sequencer-Block-Height"],
     source: tags["Data-Source"],
   };
@@ -90,6 +90,7 @@ function buildQuery() {
         cursor
         node {
           id
+          owner { address }
           tags {
             name
             value

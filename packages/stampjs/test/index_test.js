@@ -21,6 +21,7 @@ globalThis.window = { location: { hostname: "tom.g8way.io" } };
 
 test("init stampjs", () => {
   const _stamps = Stamps.init({ warp });
+
   assert.ok(_stamps.stamp);
 });
 

@@ -1,7 +1,5 @@
 import { arGql } from "ar-gql";
-import Arweave from "arweave";
 
-const arweave = Arweave.init({});
 const argql = arGql(gateway("graphql"));
 
 export async function getAddress() {
@@ -11,13 +9,15 @@ export async function getAddress() {
   return window.arweaveWallet.getActiveAddress();
 }
 
-export async function dispatch(txId, tags) {
-  const tx = await arweave.createTransaction({ data: txId });
-  tags.forEach((t) => tx.addTag(t.name, t.value));
-  if (!window.arweaveWallet) {
-    return Promise.reject("Wallet not found!");
-  }
-  return window.arweaveWallet.dispatch(tx);
+export function dispatch(arweave) {
+  return async (txId, tags) => {
+    const tx = await arweave.createTransaction({ data: "STAMP" });
+    tags.forEach((t) => tx.addTag(t.name, t.value));
+    if (!window.arweaveWallet) {
+      return Promise.reject("Wallet not found!");
+    }
+    return window.arweaveWallet.dispatch(tx);
+  };
 }
 
 export const query = ({ query, variables }) => {
