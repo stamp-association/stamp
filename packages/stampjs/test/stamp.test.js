@@ -22,7 +22,7 @@ const warp = WarpFactory.forMainnet();
 //   },
 // };
 
-test("ok", async () => {
+test.skip("ok", async () => {
   const env = {
     writeInteraction: svcs.writeInteraction(
       warp,

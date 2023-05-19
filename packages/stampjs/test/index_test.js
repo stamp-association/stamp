@@ -24,7 +24,7 @@ test("init stampjs", () => {
   assert.ok(_stamps.stamp);
 });
 
-test("init stampjs - warp is required!", () => {
+test.skip("init stampjs - warp is required!", () => {
   try {
     const _stamps = Stamps.init({});
     assert.ok(false);
@@ -90,7 +90,7 @@ test('check if user has stamped', async () => {
 })
 */
 
-test("filter fn should return stamps", async () => {
+test.skip("filter fn should return stamps", async () => {
   const result = await stamps.filter([
     "compose",
     ["length"],

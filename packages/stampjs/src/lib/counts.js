@@ -35,7 +35,6 @@ export function counts(env, txIDs) {
             },
           })
         )
-
         .map(transformVouched)
 
         .map((vouched) =>
