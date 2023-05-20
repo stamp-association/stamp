@@ -19,62 +19,42 @@ test.skip("should throw function not found", async () => {
 });
 
 test("should transfer ownership", async () => {
-  const map = new Map();
-  globalThis.SmartWeave = {
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
-  };
   const STAMP = 1 * 1e12;
-  map.set(TOM, 5 * STAMP);
   const { handle } = await import("../src/index.js");
   const result = await handle(
-    {},
+    {
+      balances: { [TOM]: 5 * STAMP },
+    },
     {
       caller: TOM,
       input: { function: "transfer", qty: 5 * STAMP, target: JUSTIN },
     }
   );
-  assert.equal(map.get(JUSTIN), 5 * STAMP);
+  assert.equal(result.state.balances[JUSTIN], 5 * STAMP);
 });
 
 test("should transfer half", async () => {
-  const map = new Map();
-  globalThis.SmartWeave = {
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
-  };
   const STAMP = 1 * 1e12;
-  map.set(TOM, 4 * STAMP);
   const { handle } = await import("../src/index.js");
   const result = await handle(
-    {},
+    {
+      balances: { [TOM]: 4 * STAMP },
+    },
     {
       caller: TOM,
       input: { function: "transfer", qty: 2 * STAMP, target: JUSTIN },
     }
   );
-  assert.equal(map.get(JUSTIN), 2 * STAMP);
+  assert.equal(result.state.balances[JUSTIN], 2 * STAMP);
 });
 
 test("should not transfer if caller has no balance", async () => {
-  const map = new Map();
-  globalThis.SmartWeave = {
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
-  };
   const STAMP = 1 * 1e12;
-  //map.set(TOM, 4 * STAMP)
   const { handle } = await import("../src/index.js");
 
   try {
     await handle(
-      {},
+      { balances: {} },
       {
         caller: TOM,
         input: { function: "transfer", qty: 2 * STAMP, target: JUSTIN },
@@ -86,18 +66,11 @@ test("should not transfer if caller has no balance", async () => {
 });
 
 test("caller can not be target", async () => {
-  const map = new Map();
-  globalThis.SmartWeave = {
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
-  };
   const STAMP = 1 * 1e12;
   const { handle } = await import("../src/index.js");
   try {
     await handle(
-      {},
+      { balances: {} },
       {
         caller: TOM,
         input: { function: "transfer", qty: 2 * STAMP, target: TOM },
@@ -109,18 +82,11 @@ test("caller can not be target", async () => {
 });
 
 test("qty must be an integer", async () => {
-  const map = new Map();
-  globalThis.SmartWeave = {
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
-  };
   const STAMP = 1 * 1e12;
   const { handle } = await import("../src/index.js");
   try {
     await handle(
-      {},
+      { balances: {} },
       {
         caller: TOM,
         input: { function: "transfer", target: JUSTIN, qty: "10000" },

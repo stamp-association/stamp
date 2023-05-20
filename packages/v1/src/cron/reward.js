@@ -38,7 +38,6 @@ export function reward(env) {
           : Rejected(state)
       )
       .map(mintRewardsForStamps)
-
       // distributeRegisteredAssets
       .map(allocateRegisteredAssets)
       // distributeAtomicAssets
@@ -46,12 +45,28 @@ export function reward(env) {
       // update balances
       .map(updateBalances)
       // clear stamps queue
-      .map(set(lensPath(["state", "stamps"]), {}))
+      .map(({ state, action }) => {
+        if (!state.stampHistory) {
+          state.stampHistory = {}
+        }
+        Object.keys(state.stamps).forEach(k => {
+          state.stampHistory[k] = 1
+        })
+        state.stamps = {};
+
+        return { state, action };
+      })
       // set lastReward Height
-      .map(set(lensPath(["state", "lastReward"]), env.height))
+      .map(({ state, action }) => {
+        state.lastReward = env.height;
+        return { state, action };
+      })
       // return new state
       .bichain(
-        (_) => Resolved(state),
+        (_) => {
+          //console.log('ERROR:', _)
+          return Resolved(state);
+        },
         ({ state, action }) => Resolved(state)
       );
 }
@@ -89,20 +104,13 @@ function updateBalances(context) {
     reduce((a, v) => [...a, ...toPairs(v)], []),
     values
   )(context.rewards);
-
-  return over(
-    lensPath(["state", "balances"]),
-    (balances) => {
-      rewardList.forEach(([address, reward]) => {
-        if (!balances[address]) {
-          balances[address] = 0;
-        }
-        balances[address] += reward;
-      });
-      return balances;
-    },
-    context
-  );
+  rewardList.forEach(([address, reward]) => {
+    if (!context.state.balances[address]) {
+      context.state.balances[address] = 0;
+    }
+    context.state.balances[address] += reward;
+  });
+  return context;
 }
 
 function mintRewardsForStamps({ state, action, reward }) {
@@ -115,6 +123,9 @@ function mintRewardsForStamps({ state, action, reward }) {
 }
 
 function allocateRegisteredAssets(context) {
+  if (!context.state.assets) {
+    context.state.assets = {};
+  }
   return over(
     lensProp("rewards"),
     compose(
@@ -136,24 +147,22 @@ function allocateAtomicAssets(readState, contractId) {
       compose(
         map(([asset, reward]) =>
           is(Number, reward)
-            ? readState(asset)
+            ? of(asset)
+              .chain(readState)
               .map((assetState) => {
                 return assetState.balances
-                  ? allocate(balances, reward)
+                  ? allocate(assetState.balances, reward)
                   : allocate({ [assetState.owner || contractId]: 1 }, reward);
               })
-              .map(({ balances }) => allocate(balances, reward))
               .map((r) => [asset, r])
-              .bichain(
-                (e) =>
-                  Resolved([
-                    asset,
-                    {
-                      [contractId]: reward,
-                    },
-                  ]),
-                Resolved
-              )
+              .bichain((e) => {
+                return Resolved([
+                  asset,
+                  {
+                    [contractId]: reward,
+                  },
+                ]);
+              }, Resolved)
             : Resolved([asset, reward])
         ),
         toPairs

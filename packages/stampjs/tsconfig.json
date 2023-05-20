@@ -10,5 +10,8 @@
     "emitDeclarationOnly": true,
     "outDir": "dist",
     "declarationMap": true
-  }
+  },
+  "exclude": [
+    "node_modules/async-hyper/dist/index.d.ts"
+  ]
 }

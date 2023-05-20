@@ -1,12 +1,17 @@
 import { of, Rejected, Resolved, fromPromise } from "../lib/async.js";
 import { findIndex, propEq, reject } from "ramda";
 
-export function claim(env) {
-  const get = fromPromise(env.get);
-  const put = fromPromise(env.put);
-  return (state, action) => {
-    return of({ state, action }).chain(validate).chain(processClaim(get, put));
-  };
+export function claim(state, action) {
+  return of({ state, action })
+    .chain(validate)
+    .map(({ state, action, idx }) => {
+      if (!state.balances[action.caller]) {
+        state.balances[action.caller] = 0;
+      }
+      state.balances[action.caller] += action.input.qty;
+      state.claimable.splice(idx, 1);
+      return { state };
+    });
 }
 
 function validate({ state, action }) {
@@ -33,20 +38,4 @@ function validate({ state, action }) {
   }
 
   return Resolved({ state, action, idx });
-}
-
-function processClaim(get, put) {
-  return ({ state, action, idx }) => {
-    return get(action.caller)
-      .chain((balance = 0) =>
-        put(action.caller, balance + state.claimable[idx].qty)
-      )
-      .map((_) => {
-        state.claimable = reject(
-          propEq(action.input.txID, "txID"),
-          state.claimable
-        );
-        return { state };
-      });
-  };
 }

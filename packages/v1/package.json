@@ -14,6 +14,8 @@
     "test": "uvu test"
   },
   "dependencies": {
-    "ramda": "^0.29.0"
+    "arbundles": "^0.9.6",
+    "ramda": "^0.29.0",
+    "warp-contracts-plugin-deploy": "^1.0.8"
   }
 }

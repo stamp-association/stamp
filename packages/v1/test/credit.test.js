@@ -74,6 +74,7 @@ test("process credits", async () => {
   };
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
+  console.log(result.state);
   // assert
   assert.equal(result.state.balances[TOM], 1 * 1e12);
   assert.equal(result.state.credits, {});

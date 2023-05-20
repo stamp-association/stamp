@@ -2,18 +2,24 @@ import { of, Rejected, Resolved, fromPromise } from "../lib/async.js";
 import { set, lensPath } from "ramda";
 
 export function balance(env) {
-  const get = fromPromise(env.get);
+  //const get = fromPromise(env.get);
   return (state, action) => {
     return of({ state, action })
       .chain(validate)
-      .chain(({ state, action }) =>
-        get(action.input.target).map((v = 0) => ({
-          result: {
-            target: action.input.target,
-            balance: v,
-          },
-        }))
-      );
+      .map(({ state, action }) => ({
+        result: {
+          target: action.input.target,
+          balance: state.balances[action.input.target] || 0,
+        },
+      }));
+    // .chain(({ state, action }) =>
+    //   get(action.input.target).map((v = 0) => ({
+    //     result: {
+    //       target: action.input.target,
+    //       balance: v,
+    //     },
+    //   }))
+    // );
   };
 }
 

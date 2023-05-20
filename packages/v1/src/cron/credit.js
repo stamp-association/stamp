@@ -1,13 +1,4 @@
-import {
-  filter,
-  reduce,
-  assoc,
-  keys,
-  compose,
-  over,
-  lensProp,
-  lte,
-} from "ramda";
+import { filter, reduce, assoc, keys, compose, lte } from "ramda";
 
 // handle processing credits a year later
 export function credit({ height }) {
@@ -28,15 +19,11 @@ export function credit({ height }) {
         });
       });
 
-    return compose(
-      over(
-        lensProp("credits"),
-        compose(
-          reduce((a, v) => assoc(v, state.credits[v], a), {}),
-          filter(lte(height)),
-          keys
-        )
-      )
-    )(state);
+    state.credits = compose(
+      reduce((a, v) => assoc(v, state.credits[v], a), {}),
+      filter(lte(height)),
+      keys
+    )(state.credits);
+    return state;
   };
 }

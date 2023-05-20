@@ -25,13 +25,12 @@ test("claim claimable trx", async () => {
     contract: {
       id: createKey("S"),
     },
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
   };
-  map.set(TOM, 10 * 1e12);
+  //map.set(TOM, 10 * 1e12);
   const state = {
+    balances: {
+      [TOM]: 10 * 1e12,
+    },
     claimable: [
       {
         txID: createKey("O"),
@@ -53,7 +52,7 @@ test("claim claimable trx", async () => {
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
 
-  assert.equal(map.get(JUSTIN), 1 * 1e12);
+  assert.equal(result.state.balances[JUSTIN], 1 * 1e12);
   assert.equal(result.state.claimable, []);
   assert.ok(true);
 

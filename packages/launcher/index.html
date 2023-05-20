@@ -85,6 +85,7 @@
         ).then((res) => res.json());
         const src = await fetch("./contract.js").then((res) => res.text());
         const initState = JSON.stringify({
+          assets: {},
           name: "STAMP Protocol",
           ticker: "$STAMP",
           creator,
@@ -93,15 +94,17 @@
           canEvolve: true,
           evolve: null,
           stamps: {},
-          version: 'V1',
+          version: 'v1.1',
           settings: [
             ["isTradeable", true],
             ["organization", "STAMP Protocol Association"],
             ["website", "https://stamps.g8way.io"],
           ],
-          initialBalances: old.state.balances,
+          balances: old.state.balances,
           vouchDAO: '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk',
-          lastReward: 1179709
+          lastReward: 1179709,
+          stampHistory: {},
+          stampHxClear: 1180000 + (720 * 182) // 6 months
         });
 
         const result = await warp.deploy({
@@ -111,8 +114,8 @@
           evaluationManifest: {
             evaluationOptions: {
               sourceType: SourceType.WARP_SEQUENCER,
-              useKVStorage: true,
-              useConstructor: true,
+              //useKVStorage: true,
+              //useConstructor: true,
               unsafeClient: "skip",
               allowBigInt: true,
             },
