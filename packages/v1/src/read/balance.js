@@ -9,9 +9,9 @@ export function balance(env) {
       .map(({ state, action }) => ({
         result: {
           target: action.input.target,
-          balance: state.balances[action.input.target] || 0
-        }
-      }))
+          balance: state.balances[action.input.target] || 0,
+        },
+      }));
     // .chain(({ state, action }) =>
     //   get(action.input.target).map((v = 0) => ({
     //     result: {

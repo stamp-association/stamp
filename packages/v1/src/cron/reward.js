@@ -40,7 +40,8 @@ export function reward(env) {
       .map(mintRewardsForStamps)
 
       // distributeRegisteredAssets
-      //.map(allocateRegisteredAssets)
+      .map(allocateRegisteredAssets)
+      .map((x) => (console.log({ x }), x))
       // distributeAtomicAssets
       .chain(allocateAtomicAssets(readState, env.contractId))
       // update balances
@@ -91,11 +92,11 @@ function updateBalances(context) {
   )(context.rewards);
   rewardList.forEach(([address, reward]) => {
     if (!context.state.balances[address]) {
-      context.state.balances[address] = 0
+      context.state.balances[address] = 0;
     }
-    context.state.balances[address] += reward
-  })
-  return context
+    context.state.balances[address] += reward;
+  });
+  return context;
 }
 
 function mintRewardsForStamps({ state, action, reward }) {
@@ -130,33 +131,30 @@ function allocateAtomicAssets(readState, contractId) {
         map(([asset, reward]) =>
           is(Number, reward)
             ? readState(asset)
-              .map(x => (console.log('state: ', x), x))
-              .map((assetState) => {
-                return assetState.balances
-                  ? allocate(assetState.balances, reward)
-                  : allocate({ [assetState.owner || contractId]: 1 }, reward);
-              })
-              .map(x => (console.log('rewards: ', x), x))
-              //.map(({ balances }) => allocate(balances, reward))
-              .map((r) => [asset, r])
-              .bichain(
-                (e) => {
+                .map((x) => (console.log("state: ", x), x))
+                .map((assetState) => {
+                  console.log({ assetState });
+                  return assetState.balances
+                    ? allocate(assetState.balances, reward)
+                    : allocate({ [assetState.owner || contractId]: 1 }, reward);
+                })
+                .map((x) => (console.log("rewards: ", x), x))
+                //.map(({ balances }) => allocate(balances, reward))
+                .map((r) => [asset, r])
+                .bichain((e) => {
                   return Resolved([
                     asset,
                     {
                       [contractId]: reward,
                     },
-                  ])
-                }
-                ,
-                Resolved
-              )
+                  ]);
+                }, Resolved)
             : Resolved([asset, reward])
         ),
         toPairs
       )(rewards)
     )
-      .map(x => (console.log('pairs: ', x), x))
+      .map((x) => (console.log("pairs: ", x), x))
       .map((pairs) => ({ state, action, rewards: fromPairs(pairs) }));
 }
 

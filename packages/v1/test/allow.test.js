@@ -25,14 +25,12 @@ test("add balance to claimable state", async () => {
     contract: {
       id: createKey("S"),
     },
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
+  };
+  const state = {
+    balances: {
+      [TOM]: 10 * 1e12,
     },
   };
-  map.set(TOM, 10 * 1e12);
-
-  const state = {};
   const action = {
     caller: TOM,
     input: {
@@ -45,7 +43,7 @@ test("add balance to claimable state", async () => {
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
 
-  assert.equal(map.get(TOM), 9 * 1e12);
+  assert.equal(result.state.balances[TOM], 9 * 1e12);
   assert.equal(result.state.claimable[0].qty, 1000000000000);
   assert.ok(true);
 

@@ -23,15 +23,16 @@ export async function handle(state, action) {
 
   const env = {
     vouchContract: state.vouchDAO,
-    readState: contractTx => SmartWeave.contracts.readContractState(contractTx).catch(_ => ({ balances: {} })),
+    readState: (contractTx) =>
+      SmartWeave.contracts
+        .readContractState(contractTx)
+        .catch((_) => Promise.reject("Not Found.")),
     height: SmartWeave?.block?.height,
     timestamp: SmartWeave?.block?.timestamp,
     id: SmartWeave?.transaction?.id,
     owner: SmartWeave?.transaction?.owner,
     tags: SmartWeave?.transaction?.tags,
     contractId: SmartWeave?.contract?.id,
-    get: (k) => SmartWeave.kv.get.bind(SmartWeave.kv)(k),
-    put: (k, v) => SmartWeave.kv.put.bind(SmartWeave.kv)(k, v),
   };
 
   if (action.input.function === "stamp") {
@@ -53,13 +54,13 @@ export async function handle(state, action) {
     case "balance":
       return balance(env)(state, action).toPromise().catch(handleError);
     case "transfer":
-      return transfer(env)(state, action).toPromise().catch(handleError);
+      return transfer(state, action).toPromise().catch(handleError);
     case "evolve":
       return env.height < EVOLVABLE ? evolve(state, action) : { state };
     case "allow":
       return allow(env)(state, action).toPromise().catch(handleError);
     case "claim":
-      return claim(env)(state, action).toPromise().catch(handleError);
+      return claim(state, action).toPromise().catch(handleError);
     default:
       throw new ContractError("no function defined!");
   }

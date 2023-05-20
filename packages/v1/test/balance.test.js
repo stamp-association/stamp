@@ -29,8 +29,8 @@ test("should return balance for TOM", async () => {
   const { result } = await handle(
     {
       balances: {
-        [TOM]: 1000 * STAMP
-      }
+        [TOM]: 1000 * STAMP,
+      },
     },
     { caller: TOM, input: { function: "balance" } }
   );
@@ -54,8 +54,8 @@ test("should return balance for JUSTIN", async () => {
     {
       balances: {
         [TOM]: 1000 * STAMP,
-        [JUSTIN]: 500 * STAMP
-      }
+        [JUSTIN]: 500 * STAMP,
+      },
     },
     { caller: TOM, input: { target: JUSTIN, function: "balance" } }
   );
@@ -76,8 +76,8 @@ test("should return balance 0 for JUSTIN", async () => {
   const { result } = await handle(
     {
       balances: {
-        [TOM]: 1000 * STAMP
-      }
+        [TOM]: 1000 * STAMP,
+      },
     },
     { caller: TOM, input: { target: JUSTIN, function: "balance" } }
   );

@@ -1,18 +1,29 @@
 import { of, Resolved, Rejected, fromPromise, all } from "../lib/async.js";
 import { allocate } from "../lib/allocate.js";
-import { toPairs, map } from "ramda";
 
 const ANNUAL_BLOCKS = 720 * 365;
 
 export function superStamps(env) {
-  const get = fromPromise(env.get);
-  const put = fromPromise(env.put);
   return ({ state, action }) => {
     return of({ state, action })
-      .chain(isSuperStamp(get))
+      .chain(isSuperStamp)
       .chain(getBalances(env.readState))
       .map(calculateRewards)
-      .chain(transferRewards(env.contractId, get, put))
+      .map(({ state, action, balances, rewards, credits, fee }) => {
+        const results = allocate(balances, rewards);
+        // update tip
+        Object.keys(results).forEach((k) => {
+          if (!state.balances[k]) {
+            state.balances[k] = 0;
+          }
+          state.balances[k] += results[k];
+        });
+        if (!state.balances[env.contractId]) {
+          state.balances[env.contractId] = 0;
+        }
+        state.balances[env.contractId] += fee;
+        return { state, action, balances, credits };
+      })
       .map(updateCredits(env.height))
       .bichain(noSuperRejection(state), Resolved);
   };
@@ -43,18 +54,6 @@ function updateCredits(height) {
   };
 }
 
-function transferRewards(contractId, get, put) {
-  const updateBalance = ([address, reward]) =>
-    get(address).chain((balance = 0) => put(address, balance + reward));
-
-  return ({ state, action, balances, rewards, credits, fee }) => {
-    return of(allocate(balances, rewards))
-      .chain((results) => all(map(updateBalance, toPairs(results))))
-      .chain((_) => updateBalance([contractId, fee]))
-      .map((_) => ({ state, action, balances, credits }));
-  };
-}
-
 function calculateRewards({ state, action, balances }) {
   const [rewards, credits, fee] = divideQty(action.input.qty);
   return { state, action, balances, rewards, credits, fee };
@@ -79,19 +78,18 @@ function getBalances(readState) {
   };
 }
 
-function isSuperStamp(get) {
-  return ({ state, action }) => {
-    // no qty specified
-    if (!action.input.qty) {
-      return Rejected("NOT_SUPER_STAMP");
-    }
-    // not enough balance to transfer
-    return get(action.caller).chain((balance = 0) =>
-      balance < action.input.qty
-        ? Rejected("NOT_SUPER_STAMP")
-        : Resolved({ state, action })
-    );
-  };
+function isSuperStamp({ state, action }) {
+  // no qty specified
+  if (!action.input.qty) {
+    return Rejected("NOT_SUPER_STAMP");
+  }
+  if (!state.balances[action.caller]) {
+    state.balances[action.caller] = 0;
+  }
+  if (state.balances[action.caller] < action.input.qty) {
+    return Rejected("NOT_SUPER_STAMP");
+  }
+  return Resolved({ state, action });
 }
 
 function noSuperRejection(state) {
@@ -101,42 +99,6 @@ function noSuperRejection(state) {
     }
     return Rejected(msg);
   };
-}
-function handleSuperStamps({ state, action }) {
-  // no qty specified
-  if (!action.input.qty) {
-    return Resolved({ state, action });
-  }
-  // balance not available
-  if (!state.balances[action.caller]) {
-    return Resolved({ state, action });
-  }
-  // not enough balance to transfer
-  if (state.balances[action.caller] < action.input.qty) {
-    return Resolved({ state, action });
-  }
-
-  const [superQty, credits] = divideQty(qty);
-
-  if (!state.supers) {
-    state.supers = {};
-  }
-
-  state.supers[`${action.input.tx}:${action.caller}`] = {
-    asset: action.input.tx,
-    qty: superQty,
-  };
-
-  if (!state.credits) {
-    state.credits = {};
-  }
-
-  state.credits[`${action.input.tx}:${action.caller}`] = {
-    asset: action.input.tx,
-    qty: credits,
-  };
-
-  return Resolved({ state, action });
 }
 
 function divideQty(n) {

@@ -19,7 +19,6 @@ class ContractError extends Error {
 globalThis.ContractError = ContractError;
 
 test("super stamp registered asset", async () => {
-  const map = new Map();
   globalThis.SmartWeave = {
     contracts: {
       readContractState: (contractId) =>
@@ -48,14 +47,13 @@ test("super stamp registered asset", async () => {
     contract: {
       id: createKey("S"),
     },
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
   };
-  map.set(JUSTIN, 2 * 1e12);
+  //map.set(JUSTIN, 2 * 1e12);
   const { handle } = await import("../src/index.js");
   const state = {
+    balances: {
+      [JUSTIN]: 2 * 1e12,
+    },
     stamps: {},
     assets: {
       [CONTRACT2]: {
@@ -78,8 +76,8 @@ test("super stamp registered asset", async () => {
   };
 
   const result = await handle(state, action);
-  assert.equal(map.get(TOM), 800000000000);
-  assert.equal(map.get(createKey("S")), 20000000000);
+  assert.equal(result.state.balances[TOM], 800000000000);
+  assert.equal(result.state.balances[createKey("S")], 20000000000);
   assert.equal(result.state.stamps[`${CONTRACT2}:${JUSTIN}`].address, JUSTIN);
   assert.ok(true);
 
@@ -87,7 +85,6 @@ test("super stamp registered asset", async () => {
 });
 
 test("super stamp atomic asset", async () => {
-  const map = new Map();
   globalThis.SmartWeave = {
     contracts: {
       readContractState: (contractId) => {
@@ -133,15 +130,13 @@ test("super stamp atomic asset", async () => {
       height: 1111000,
       timestamp: Date.now(),
     },
-    kv: {
-      get: (k) => Promise.resolve(map.get(k)),
-      put: (k, v) => Promise.resolve(map.set(k, v)),
-    },
   };
-  map.set(JUSTIN, 2 * 1e12);
 
   const { handle } = await import("../src/index.js");
   const state = {
+    balances: {
+      [JUSTIN]: 2 * 1e12,
+    },
     stamps: {},
     assets: {},
     vouchDAO: createKey("V"),
@@ -159,11 +154,11 @@ test("super stamp atomic asset", async () => {
 
   const result = await handle(state, action);
 
-  assert.equal(map.get(TOM), 400000000000);
-  assert.equal(map.get(JUSTIN), 2400000000000);
+  assert.equal(result.state.balances[TOM], 400000000000);
+  assert.equal(result.state.balances[JUSTIN], 2400000000000);
 
   assert.equal(result.state.stamps[`${CONTRACT2}:${JUSTIN}`].address, JUSTIN);
-  assert.equal(map.get(createKey("S")), 20000000000);
+  assert.equal(result.state.balances[createKey("S")], 20000000000);
   assert.ok(true);
 
   globalThis.SmartWeave = {};
