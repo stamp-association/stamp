@@ -87,23 +87,14 @@
         const initState = JSON.stringify({
           assets: {},
           name: "test",
-          ticker: "test-stamp",
+          ticker: "test-stamp-2",
           creator,
           claimable: [],
           credits: {},
           canEvolve: true,
           evolve: null,
-          stamps: {
-            'Jtxi0ylRthPKnVld7NWWpun3ffHu3lFc1cTgifxqnT4:vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI': {
-              asset: 'Jtxi0ylRthPKnVld7NWWpun3ffHu3lFc1cTgifxqnT4',
-              address: 'vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI'
-            },
-            'M8wS5AwiXZRRpCdJheKO5fKZM_FhoCEtd_gQDBtAZcA:vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI': {
-              asset: 'M8wS5AwiXZRRpCdJheKO5fKZM_FhoCEtd_gQDBtAZcA',
-              address: 'vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI'
-            }
-          },
-          version: 'test',
+          stamps: {},
+          version: 'v1.1',
           settings: [
             ["isTradeable", true],
             ["organization", "STAMP Protocol Association"],
@@ -113,7 +104,7 @@
           vouchDAO: '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk',
           lastReward: 1179709,
           stampHistory: {},
-          stampHxClear: 1180000 * 720 * 182 // 6 months
+          stampHxClear: 1180000 + (720 * 182) // 6 months
         });
 
         const result = await warp.deploy({
