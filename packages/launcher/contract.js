@@ -1512,11 +1512,11 @@ function mint(stamps, reward2) {
 }
 
 // src/lib/allocate.js
-function allocate(balances2, reward2) {
+function allocate(balances, reward2) {
   var total = reduce_default(
     add_default,
     0,
-    values_default(balances2).filter((v) => v > 0)
+    values_default(balances).filter((v) => v > 0)
   );
   const allocation = mergeAll_default(
     reduce_default(
@@ -1531,7 +1531,7 @@ function allocate(balances2, reward2) {
         return [...a, { [asset]: Number(coins) }];
       },
       [],
-      Object.entries(balances2)
+      Object.entries(balances)
     )
   );
   var remainder = reward2 - sum_default(values_default(allocation));
@@ -1552,7 +1552,7 @@ function reward(env) {
   const readState = fromPromise(env.readState);
   return (state, action) => of({ state, action }).chain(setReward(env.height)).chain(
     ({ state: state2, action: action2, reward: reward2 }) => state2.lastReward + 720 < env.height ? Resolved({ state: state2, action: action2, reward: reward2 }) : Rejected(state2)
-  ).map(mintRewardsForStamps).map(allocateRegisteredAssets).chain(allocateAtomicAssets(readState, env.contractId)).map(updateBalances).map(set_default(lensPath_default(["state", "stamps"]), {})).map(set_default(lensPath_default(["state", "lastReward"]), env.height)).bichain(
+  ).map(mintRewardsForStamps).chain(allocateAtomicAssets(readState, env.contractId)).map(updateBalances).map(set_default(lensPath_default(["state", "stamps"]), {})).map(set_default(lensPath_default(["state", "lastReward"]), env.height)).bichain(
     (_) => Resolved(state),
     ({ state: state2, action: action2 }) => Resolved(state2)
   );
@@ -1587,14 +1587,14 @@ function updateBalances(context) {
   )(context.rewards);
   return over_default(
     lensPath_default(["state", "balances"]),
-    (balances2) => {
+    (balances) => {
       rewardList.forEach(([address, reward2]) => {
-        if (!balances2[address]) {
-          balances2[address] = 0;
+        if (!balances[address]) {
+          balances[address] = 0;
         }
-        balances2[address] += reward2;
+        balances[address] += reward2;
       });
-      return balances2;
+      return balances;
     },
     context
   );
@@ -1607,38 +1607,27 @@ function mintRewardsForStamps({ state, action, reward: reward2 }) {
     prop_default("stamps")
   )(state);
 }
-function allocateRegisteredAssets(context) {
-  return over_default(
-    lensProp_default("rewards"),
-    compose(
-      fromPairs_default,
-      map_default(
-        ([asset, reward2]) => context.state.assets[asset] ? [asset, allocate(context.state.assets[asset].balances, reward2)] : [asset, reward2]
-      ),
-      toPairs_default
-    ),
-    context
-  );
-}
 function allocateAtomicAssets(readState, contractId2) {
   return ({ state, action, rewards }) => all(
     compose(
       map_default(
-        ([asset, reward2]) => is_default(Number, reward2) ? readState(asset).map((assetState) => {
-          return assetState.balances ? allocate(balances, reward2) : allocate({ [assetState.owner || contractId2]: 1 }, reward2);
-        }).map(({ balances: balances2 }) => allocate(balances2, reward2)).map((r) => [asset, r]).bichain(
-          (e) => Resolved([
-            asset,
-            {
-              [contractId2]: reward2
-            }
-          ]),
+        ([asset, reward2]) => is_default(Number, reward2) ? readState(asset).map((x) => (console.log("state: ", x), x)).map((assetState) => {
+          return assetState.balances ? allocate(assetState.balances, reward2) : allocate({ [assetState.owner || contractId2]: 1 }, reward2);
+        }).map((x) => (console.log("rewards: ", x), x)).map((r) => [asset, r]).bichain(
+          (e) => {
+            return Resolved([
+              asset,
+              {
+                [contractId2]: reward2
+              }
+            ]);
+          },
           Resolved
         ) : Resolved([asset, reward2])
       ),
       toPairs_default
     )(rewards)
-  ).map((pairs) => ({ state, action, rewards: fromPairs_default(pairs) }));
+  ).map((x) => (console.log("pairs: ", x), x)).map((pairs) => ({ state, action, rewards: fromPairs_default(pairs) }));
 }
 function getReward(supply, interval, currentHeight, originHeight) {
   const blockHeight = currentHeight - originHeight;
@@ -1720,13 +1709,13 @@ function superStamps(env) {
   };
 }
 function updateCredits(height) {
-  return ({ state, action, balances: balances2, credits }) => {
+  return ({ state, action, balances, credits }) => {
     const fbh = height + ANNUAL_BLOCKS;
     if (!state.credits) {
       state.credits = {};
     }
     if (credits > 0) {
-      const results = allocate(balances2, credits);
+      const results = allocate(balances, credits);
       Object.keys(results).forEach((holder) => {
         if (!state.credits[fbh]) {
           state.credits[fbh] = [];
@@ -1745,13 +1734,13 @@ function updateCredits(height) {
 }
 function transferRewards(contractId2, get, put) {
   const updateBalance = ([address, reward2]) => get(address).chain((balance2 = 0) => put(address, balance2 + reward2));
-  return ({ state, action, balances: balances2, rewards, credits, fee }) => {
-    return of(allocate(balances2, rewards)).chain((results) => all(map_default(updateBalance, toPairs_default(results)))).chain((_) => updateBalance([contractId2, fee])).map((_) => ({ state, action, balances: balances2, credits }));
+  return ({ state, action, balances, rewards, credits, fee }) => {
+    return of(allocate(balances, rewards)).chain((results) => all(map_default(updateBalance, toPairs_default(results)))).chain((_) => updateBalance([contractId2, fee])).map((_) => ({ state, action, balances, credits }));
   };
 }
-function calculateRewards({ state, action, balances: balances2 }) {
+function calculateRewards({ state, action, balances }) {
   const [rewards, credits, fee] = divideQty(action.input.qty);
-  return { state, action, balances: balances2, rewards, credits, fee };
+  return { state, action, balances, rewards, credits, fee };
 }
 function getBalances(readState) {
   return ({ state, action }) => {
@@ -1900,17 +1889,15 @@ function processClaim(get, put) {
 var EVOLVABLE = 1241679;
 export async function handle(state, action) {
   if (action.input.function === "__init") {
-    const balances2 = action.input.args.initialBalances;
+    const balances = action.input.args.initialBalances;
     await Promise.all(
-      Object.keys(balances2).map((k) => SmartWeave.kv.put(k, balances2[k]))
+      Object.keys(balances).map((k) => SmartWeave.kv.put(k, balances[k]))
     );
     return { state: omit_default(["initialBalances"], action.input.args) };
   }
   const env = {
     vouchContract: state.vouchDAO,
-    readState: (contractId2) => SmartWeave.contracts.readContractState.bind(SmartWeave.contracts)(
-      contractId2
-    ),
+    readState: (contractTx) => SmartWeave.contracts.readContractState(contractTx).catch((_) => ({ balances: {} })),
     height: SmartWeave?.block?.height,
     timestamp: SmartWeave?.block?.timestamp,
     id: SmartWeave?.transaction?.id,
@@ -1920,7 +1907,7 @@ export async function handle(state, action) {
     get: (k) => SmartWeave.kv.get.bind(SmartWeave.kv)(k),
     put: (k, v) => SmartWeave.kv.put.bind(SmartWeave.kv)(k, v)
   };
-  if (action.input.function !== "balance") {
+  if (action.input.function === "stamp") {
     state = await reward(env)(state, action).toPromise().catch(handleError);
     state = credit(env)(state, action);
   }

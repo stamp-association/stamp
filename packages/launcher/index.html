@@ -85,15 +85,24 @@
         ).then((res) => res.json());
         const src = await fetch("./contract.js").then((res) => res.text());
         const initState = JSON.stringify({
-          name: "STAMP Protocol",
-          ticker: "$STAMP",
+          name: "test",
+          ticker: "test-stamp",
           creator,
           claimable: [],
           credits: {},
           canEvolve: true,
           evolve: null,
-          stamps: {},
-          version: 'V1',
+          stamps: {
+            'Jtxi0ylRthPKnVld7NWWpun3ffHu3lFc1cTgifxqnT4:vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI': {
+              asset: 'Jtxi0ylRthPKnVld7NWWpun3ffHu3lFc1cTgifxqnT4',
+              address: 'vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI'
+            },
+            'M8wS5AwiXZRRpCdJheKO5fKZM_FhoCEtd_gQDBtAZcA:vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI': {
+              asset: 'M8wS5AwiXZRRpCdJheKO5fKZM_FhoCEtd_gQDBtAZcA',
+              address: 'vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI'
+            }
+          },
+          version: 'test',
           settings: [
             ["isTradeable", true],
             ["organization", "STAMP Protocol Association"],

@@ -23,10 +23,7 @@ export async function handle(state, action) {
 
   const env = {
     vouchContract: state.vouchDAO,
-    readState: (contractId) =>
-      SmartWeave.contracts.readContractState.bind(SmartWeave.contracts)(
-        contractId
-      ),
+    readState: contractTx => SmartWeave.contracts.readContractState(contractTx).catch(_ => ({ balances: {} })),
     height: SmartWeave?.block?.height,
     timestamp: SmartWeave?.block?.timestamp,
     id: SmartWeave?.transaction?.id,
@@ -37,7 +34,7 @@ export async function handle(state, action) {
     put: (k, v) => SmartWeave.kv.put.bind(SmartWeave.kv)(k, v),
   };
 
-  if (action.input.function !== "balance") {
+  if (action.input.function === "stamp") {
     // check for rewards on write interactions
     state = await reward(env)(state, action).toPromise().catch(handleError);
     // check for credits on write interactions

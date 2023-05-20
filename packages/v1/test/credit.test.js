@@ -18,15 +18,15 @@ test("process credits", async () => {
         contractId === CONTRACT
           ? Promise.reject("Not Found")
           : Promise.resolve({
-              vouched: {
-                [TOM]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-                [JUSTIN]: [
-                  { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
-                ],
-              },
-            }),
+            vouched: {
+              [TOM]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+              [JUSTIN]: [
+                { service: "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8" },
+              ],
+            },
+          }),
     },
     transaction: {
       id: createKey("z"),
@@ -74,6 +74,7 @@ test("process credits", async () => {
   };
   const { handle } = await import("../src/index.js");
   const result = await handle(state, action);
+  console.log(result.state)
   // assert
   assert.equal(result.state.balances[TOM], 1 * 1e12);
   assert.equal(result.state.credits, {});
