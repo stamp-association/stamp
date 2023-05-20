@@ -13,20 +13,22 @@ import { omit } from "ramda";
 const EVOLVABLE = 1241679;
 
 export async function handle(state, action) {
-  if (action.input.function === "__init") {
-    const balances = action.input.args.initialBalances;
-    await Promise.all(
-      Object.keys(balances).map((k) => SmartWeave.kv.put(k, balances[k]))
-    );
-    return { state: omit(["initialBalances"], action.input.args) };
-  }
+  // if (action.input.function === "__init") {
+  //   const balances = action.input.args.initialBalances;
+  //   await Promise.all(
+  //     Object.keys(balances).map((k) => SmartWeave.kv.put(k, balances[k]))
+  //   );
+  //   return { state: omit(["initialBalances"], action.input.args) };
+  // }
 
   const env = {
     vouchContract: state.vouchDAO,
-    readState: (contractTx) =>
-      SmartWeave.contracts
-        .readContractState(contractTx)
-        .catch((_) => Promise.reject("Not Found.")),
+    readState: async (contractTx) => {
+      const result = await SmartWeave.contracts.readContractState(contractTx);
+      //.catch((_) => Promise.reject("Not Found."))
+      //console.log(`READ STATE: ${contractTx}`)
+      return result;
+    },
     height: SmartWeave?.block?.height,
     timestamp: SmartWeave?.block?.timestamp,
     id: SmartWeave?.transaction?.id,
@@ -37,7 +39,9 @@ export async function handle(state, action) {
 
   if (action.input.function === "stamp") {
     // check for rewards on write interactions
-    state = await reward(env)(state, action).toPromise().catch(handleError);
+    state = await reward(env)(state, action)
+      .toPromise()
+      .catch((_) => state);
     // check for credits on write interactions
     state = credit(env)(state, action);
   }

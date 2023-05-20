@@ -33,26 +33,33 @@ export function reward(env) {
       .chain(setReward(env.height))
       // check last block height from this current block height
       .chain(({ state, action, reward }) =>
-        state.lastReward + 720 < env.height // + 720
+        state.lastReward + 720 < env.height
           ? Resolved({ state, action, reward })
           : Rejected(state)
       )
       .map(mintRewardsForStamps)
-
       // distributeRegisteredAssets
       .map(allocateRegisteredAssets)
-      .map((x) => (console.log({ x }), x))
       // distributeAtomicAssets
       .chain(allocateAtomicAssets(readState, env.contractId))
       // update balances
       .map(updateBalances)
       // clear stamps queue
-      .map(set(lensPath(["state", "stamps"]), {}))
+      .map(({ state, action }) => {
+        state.stamps = {};
+        return { state, action };
+      })
       // set lastReward Height
-      .map(set(lensPath(["state", "lastReward"]), env.height))
+      .map(({ state, action }) => {
+        state.lastReward = env.height;
+        return { state, action };
+      })
       // return new state
       .bichain(
-        (_) => Resolved(state),
+        (_) => {
+          //console.log('ERROR:', _)
+          return Resolved(state);
+        },
         ({ state, action }) => Resolved(state)
       );
 }
@@ -109,6 +116,9 @@ function mintRewardsForStamps({ state, action, reward }) {
 }
 
 function allocateRegisteredAssets(context) {
+  if (!context.state.assets) {
+    context.state.assets = {};
+  }
   return over(
     lensProp("rewards"),
     compose(
@@ -130,16 +140,13 @@ function allocateAtomicAssets(readState, contractId) {
       compose(
         map(([asset, reward]) =>
           is(Number, reward)
-            ? readState(asset)
-                .map((x) => (console.log("state: ", x), x))
+            ? of(asset)
+                .chain(readState)
                 .map((assetState) => {
-                  console.log({ assetState });
                   return assetState.balances
                     ? allocate(assetState.balances, reward)
                     : allocate({ [assetState.owner || contractId]: 1 }, reward);
                 })
-                .map((x) => (console.log("rewards: ", x), x))
-                //.map(({ balances }) => allocate(balances, reward))
                 .map((r) => [asset, r])
                 .bichain((e) => {
                   return Resolved([
@@ -153,9 +160,7 @@ function allocateAtomicAssets(readState, contractId) {
         ),
         toPairs
       )(rewards)
-    )
-      .map((x) => (console.log("pairs: ", x), x))
-      .map((pairs) => ({ state, action, rewards: fromPairs(pairs) }));
+    ).map((pairs) => ({ state, action, rewards: fromPairs(pairs) }));
 }
 
 function getReward(supply, interval, currentHeight, originHeight) {

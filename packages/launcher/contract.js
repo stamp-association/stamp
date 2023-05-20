@@ -20,7 +20,7 @@ var array = {
 var Async = (fork) => ({
   ["@@type"]: "Async",
   fork,
-  toPromise: () => new Promise((resolve, reject3) => fork(reject3, resolve)),
+  toPromise: () => new Promise((resolve, reject) => fork(reject, resolve)),
   ap: (other) => Async((rej, res) => fork(rej, (f) => other.fork(rej, (x) => res(f(x))))),
   map: (fn) => Async((rej, res) => fork(rej, (x) => res(fn(x)))),
   bimap: (f, g) => Async(
@@ -59,43 +59,36 @@ var fromPromise = (f) => (...args) => Async(
 );
 
 // src/write/transfer.js
-function transfer(env) {
-  const get = fromPromise(env.get);
-  const put = fromPromise(env.put);
-  return (state, action) => {
-    return of({ state, action }).chain(validate(get)).chain(subtractCallerBalance(get, put)).chain(addTargetBalance(get, put)).map(({ state: state2, action: action2 }) => ({ state: state2 }));
-  };
+function transfer(state, action) {
+  return of({ state, action }).chain(validate).map(({ state: state2, action: action2 }) => {
+    state2.balances[action2.caller] -= action2.input.qty;
+    state2.balances[action2.input.target] += action2.input.qty;
+    return { state: state2 };
+  });
 }
-function subtractCallerBalance(get, put) {
-  return ({ state, action }) => {
-    return get(action.caller).chain((balance2 = 0) => put(action.caller, balance2 - action.input.qty)).map((_) => ({ state, action }));
-  };
-}
-function addTargetBalance(get, put) {
-  return ({ state, action }) => {
-    return get(action.input.target).chain(
-      (balance2 = 0) => put(action.input.target, balance2 + action.input.qty)
-    ).map((_) => ({ state, action }));
-  };
-}
-function validate(get) {
-  return ({ state, action }) => {
-    if (!action.caller || action.caller.length !== 43) {
-      return Rejected("Caller is not valid");
-    }
-    if (!action.input.qty || typeof action.input.qty !== "number") {
-      return Rejected("qty is not defined or is not a number");
-    }
-    if (!action.input.target || action.input.target.length !== 43) {
-      return Rejected("target is not valid");
-    }
-    if (action.caller === action.input.target) {
-      return Rejected("target cannot be caller");
-    }
-    return get(action.caller).chain(
-      (v = 0) => v < action.input.qty ? Rejected("not enough balance to transfer") : Resolved({ state, action })
-    );
-  };
+function validate({ state, action }) {
+  if (!action.caller || action.caller.length !== 43) {
+    return Rejected("Caller is not valid");
+  }
+  if (!action.input.qty || typeof action.input.qty !== "number") {
+    return Rejected("qty is not defined or is not a number");
+  }
+  if (!action.input.target || action.input.target.length !== 43) {
+    return Rejected("target is not valid");
+  }
+  if (action.caller === action.input.target) {
+    return Rejected("target cannot be caller");
+  }
+  if (!state.balances[action.input.target]) {
+    state.balances[action.input.target] = 0;
+  }
+  if (!state.balances[action.caller]) {
+    state.balances[action.caller] = 0;
+  }
+  if (state.balances[action.caller] < action.input.qty) {
+    return Rejected("not enough balance to transfer");
+  }
+  return Resolved({ state, action });
 }
 
 // node_modules/ramda/es/internal/_isPlaceholder.js
@@ -561,13 +554,6 @@ var _toISOString = typeof Date.prototype.toISOString === "function" ? function _
   return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + "." + (d.getUTCMilliseconds() / 1e3).toFixed(3).slice(2, 5) + "Z";
 };
 
-// node_modules/ramda/es/internal/_complement.js
-function _complement(f) {
-  return function() {
-    return !f.apply(this, arguments);
-  };
-}
-
 // node_modules/ramda/es/internal/_arrayReduce.js
 function _arrayReduce(reducer, acc, list) {
   var index = 0;
@@ -632,12 +618,6 @@ var filter = /* @__PURE__ */ _curry2(
   })
 );
 var filter_default = filter;
-
-// node_modules/ramda/es/reject.js
-var reject = /* @__PURE__ */ _curry2(function reject2(pred, filterable) {
-  return filter_default(_complement(pred), filterable);
-});
-var reject_default = reject;
 
 // node_modules/ramda/es/internal/_xmap.js
 var XMap = /* @__PURE__ */ function() {
@@ -1360,25 +1340,6 @@ var mergeAll = /* @__PURE__ */ _curry1(function mergeAll2(list) {
 });
 var mergeAll_default = mergeAll;
 
-// node_modules/ramda/es/omit.js
-var omit = /* @__PURE__ */ _curry2(function omit2(names, obj) {
-  var result = {};
-  var index = {};
-  var idx = 0;
-  var len = names.length;
-  while (idx < len) {
-    index[names[idx]] = 1;
-    idx += 1;
-  }
-  for (var prop3 in obj) {
-    if (!index.hasOwnProperty(prop3)) {
-      result[prop3] = obj[prop3];
-    }
-  }
-  return result;
-});
-var omit_default = omit;
-
 // node_modules/ramda/es/over.js
 var Identity = function(x) {
   return {
@@ -1424,16 +1385,13 @@ var hasProtoTrim = typeof String.prototype.trim === "function";
 
 // src/read/balance.js
 function balance(env) {
-  const get = fromPromise(env.get);
   return (state, action) => {
-    return of({ state, action }).chain(validate2).chain(
-      ({ state: state2, action: action2 }) => get(action2.input.target).map((v = 0) => ({
-        result: {
-          target: action2.input.target,
-          balance: v
-        }
-      }))
-    );
+    return of({ state, action }).chain(validate2).map(({ state: state2, action: action2 }) => ({
+      result: {
+        target: action2.input.target,
+        balance: state2.balances[action2.input.target] || 0
+      }
+    }));
   };
 }
 function validate2({ state, action }) {
@@ -1552,8 +1510,16 @@ function reward(env) {
   const readState = fromPromise(env.readState);
   return (state, action) => of({ state, action }).chain(setReward(env.height)).chain(
     ({ state: state2, action: action2, reward: reward2 }) => state2.lastReward + 720 < env.height ? Resolved({ state: state2, action: action2, reward: reward2 }) : Rejected(state2)
-  ).map(mintRewardsForStamps).chain(allocateAtomicAssets(readState, env.contractId)).map(updateBalances).map(set_default(lensPath_default(["state", "stamps"]), {})).map(set_default(lensPath_default(["state", "lastReward"]), env.height)).bichain(
-    (_) => Resolved(state),
+  ).map(mintRewardsForStamps).map(allocateRegisteredAssets).chain(allocateAtomicAssets(readState, env.contractId)).map(updateBalances).map(({ state: state2, action: action2 }) => {
+    state2.stamps = {};
+    return { state: state2, action: action2 };
+  }).map(({ state: state2, action: action2 }) => {
+    state2.lastReward = env.height;
+    return { state: state2, action: action2 };
+  }).bichain(
+    (_) => {
+      return Resolved(state);
+    },
     ({ state: state2, action: action2 }) => Resolved(state2)
   );
 }
@@ -1585,19 +1551,13 @@ function updateBalances(context) {
     reduce_default((a, v) => [...a, ...toPairs_default(v)], []),
     values_default
   )(context.rewards);
-  return over_default(
-    lensPath_default(["state", "balances"]),
-    (balances) => {
-      rewardList.forEach(([address, reward2]) => {
-        if (!balances[address]) {
-          balances[address] = 0;
-        }
-        balances[address] += reward2;
-      });
-      return balances;
-    },
-    context
-  );
+  rewardList.forEach(([address, reward2]) => {
+    if (!context.state.balances[address]) {
+      context.state.balances[address] = 0;
+    }
+    context.state.balances[address] += reward2;
+  });
+  return context;
 }
 function mintRewardsForStamps({ state, action, reward: reward2 }) {
   return compose(
@@ -1607,27 +1567,40 @@ function mintRewardsForStamps({ state, action, reward: reward2 }) {
     prop_default("stamps")
   )(state);
 }
+function allocateRegisteredAssets(context) {
+  if (!context.state.assets) {
+    context.state.assets = {};
+  }
+  return over_default(
+    lensProp_default("rewards"),
+    compose(
+      fromPairs_default,
+      map_default(
+        ([asset, reward2]) => context.state.assets[asset] ? [asset, allocate(context.state.assets[asset].balances, reward2)] : [asset, reward2]
+      ),
+      toPairs_default
+    ),
+    context
+  );
+}
 function allocateAtomicAssets(readState, contractId2) {
   return ({ state, action, rewards }) => all(
     compose(
       map_default(
-        ([asset, reward2]) => is_default(Number, reward2) ? readState(asset).map((x) => (console.log("state: ", x), x)).map((assetState) => {
+        ([asset, reward2]) => is_default(Number, reward2) ? of(asset).chain(readState).map((assetState) => {
           return assetState.balances ? allocate(assetState.balances, reward2) : allocate({ [assetState.owner || contractId2]: 1 }, reward2);
-        }).map((x) => (console.log("rewards: ", x), x)).map((r) => [asset, r]).bichain(
-          (e) => {
-            return Resolved([
-              asset,
-              {
-                [contractId2]: reward2
-              }
-            ]);
-          },
-          Resolved
-        ) : Resolved([asset, reward2])
+        }).map((r) => [asset, r]).bichain((e) => {
+          return Resolved([
+            asset,
+            {
+              [contractId2]: reward2
+            }
+          ]);
+        }, Resolved) : Resolved([asset, reward2])
       ),
       toPairs_default
     )(rewards)
-  ).map((x) => (console.log("pairs: ", x), x)).map((pairs) => ({ state, action, rewards: fromPairs_default(pairs) }));
+  ).map((pairs) => ({ state, action, rewards: fromPairs_default(pairs) }));
 }
 function getReward(supply, interval, currentHeight, originHeight) {
   const blockHeight = currentHeight - originHeight;
@@ -1652,16 +1625,12 @@ function credit({ height }) {
         state.balances[c.holder] += c.qty;
       });
     });
-    return compose(
-      over_default(
-        lensProp_default("credits"),
-        compose(
-          reduce_default((a, v) => assoc_default(v, state.credits[v], a), {}),
-          filter_default(lte_default(height)),
-          keys_default
-        )
-      )
-    )(state);
+    state.credits = compose(
+      reduce_default((a, v) => assoc_default(v, state.credits[v], a), {}),
+      filter_default(lte_default(height)),
+      keys_default
+    )(state.credits);
+    return state;
   };
 }
 
@@ -1702,10 +1671,21 @@ function add3({ state, action }) {
 // src/write/super-stamps.js
 var ANNUAL_BLOCKS = 720 * 365;
 function superStamps(env) {
-  const get = fromPromise(env.get);
-  const put = fromPromise(env.put);
   return ({ state, action }) => {
-    return of({ state, action }).chain(isSuperStamp(get)).chain(getBalances(env.readState)).map(calculateRewards).chain(transferRewards(env.contractId, get, put)).map(updateCredits(env.height)).bichain(noSuperRejection(state), Resolved);
+    return of({ state, action }).chain(isSuperStamp).chain(getBalances(env.readState)).map(calculateRewards).map(({ state: state2, action: action2, balances, rewards, credits, fee }) => {
+      const results = allocate(balances, rewards);
+      Object.keys(results).forEach((k) => {
+        if (!state2.balances[k]) {
+          state2.balances[k] = 0;
+        }
+        state2.balances[k] += results[k];
+      });
+      if (!state2.balances[env.contractId]) {
+        state2.balances[env.contractId] = 0;
+      }
+      state2.balances[env.contractId] += fee;
+      return { state: state2, action: action2, balances, credits };
+    }).map(updateCredits(env.height)).bichain(noSuperRejection(state), Resolved);
   };
 }
 function updateCredits(height) {
@@ -1732,12 +1712,6 @@ function updateCredits(height) {
     return { state, action };
   };
 }
-function transferRewards(contractId2, get, put) {
-  const updateBalance = ([address, reward2]) => get(address).chain((balance2 = 0) => put(address, balance2 + reward2));
-  return ({ state, action, balances, rewards, credits, fee }) => {
-    return of(allocate(balances, rewards)).chain((results) => all(map_default(updateBalance, toPairs_default(results)))).chain((_) => updateBalance([contractId2, fee])).map((_) => ({ state, action, balances, credits }));
-  };
-}
 function calculateRewards({ state, action, balances }) {
   const [rewards, credits, fee] = divideQty(action.input.qty);
   return { state, action, balances, rewards, credits, fee };
@@ -1760,15 +1734,17 @@ function getBalances(readState) {
     return Rejected("NOT_SUPER_STAMP");
   };
 }
-function isSuperStamp(get) {
-  return ({ state, action }) => {
-    if (!action.input.qty) {
-      return Rejected("NOT_SUPER_STAMP");
-    }
-    return get(action.caller).chain(
-      (balance2 = 0) => balance2 < action.input.qty ? Rejected("NOT_SUPER_STAMP") : Resolved({ state, action })
-    );
-  };
+function isSuperStamp({ state, action }) {
+  if (!action.input.qty) {
+    return Rejected("NOT_SUPER_STAMP");
+  }
+  if (!state.balances[action.caller]) {
+    state.balances[action.caller] = 0;
+  }
+  if (state.balances[action.caller] < action.input.qty) {
+    return Rejected("NOT_SUPER_STAMP");
+  }
+  return Resolved({ state, action });
 }
 function noSuperRejection(state) {
   return (msg) => {
@@ -1797,31 +1773,25 @@ function evolve(state, action) {
 
 // src/write/allow.js
 function allow(env) {
-  const get = fromPromise(env.get);
-  const put = fromPromise(env.put);
   const id = env.id;
   const contractId2 = env.contractId;
   return (state, action) => {
-    return of({ state, action }).chain(validate4(contractId2, get)).chain(appendClaimable(id, get, put));
-  };
-}
-function appendClaimable(txId, get, put) {
-  return ({ state, action }) => {
-    return get(action.caller).chain((balance2 = 0) => put(action.caller, balance2 - action.input.qty)).map((_) => {
-      if (!state.claimable) {
-        state.claimable = [];
-        state.claimable.push({
-          from: action.caller,
-          to: action.input.target,
-          qty: action.input.qty,
-          txID: txId
-        });
-        return { state };
+    return of({ state, action }).chain(validate4(contractId2)).map(({ state: state2, action: action2 }) => {
+      state2.balances[action2.caller] -= action2.input.qty;
+      if (!state2.claimable) {
+        state2.claimable = [];
       }
+      state2.claimable.push({
+        from: action2.caller,
+        to: action2.input.target,
+        qty: action2.input.qty,
+        txID: id
+      });
+      return { state: state2 };
     });
   };
 }
-function validate4(contractId2, get) {
+function validate4(contractId2) {
   return ({ state, action }) => {
     if (!Number.isInteger(action.input.qty) || action.input.qty === void 0) {
       return Rejected("Invalid value for quantity. Must be an integer.");
@@ -1838,19 +1808,26 @@ function validate4(contractId2, get) {
     if (action.caller === action.input.target) {
       return Rejected("Invalid balance transfer");
     }
-    return get(action.caller).chain(
-      (balance2 = 0) => balance2 < action.input.qty ? Rejected("Caller balance is not high enough.") : Resolved({ state, action })
-    );
+    if (!state.balances[action.caller]) {
+      return Rejected("Caller does not have a balance");
+    }
+    if (state.balances[action.caller] < action.input.qty) {
+      return Rejected("Caller balance is not high enough.");
+    }
+    return Resolved({ state, action });
   };
 }
 
 // src/write/claim.js
-function claim(env) {
-  const get = fromPromise(env.get);
-  const put = fromPromise(env.put);
-  return (state, action) => {
-    return of({ state, action }).chain(validate5).chain(processClaim(get, put));
-  };
+function claim(state, action) {
+  return of({ state, action }).chain(validate5).map(({ state: state2, action: action2, idx }) => {
+    if (!state2.balances[action2.caller]) {
+      state2.balances[action2.caller] = 0;
+    }
+    state2.balances[action2.caller] += action2.input.qty;
+    state2.claimable.splice(idx, 1);
+    return { state: state2 };
+  });
 }
 function validate5({ state, action }) {
   if (!action.input.txID) {
@@ -1871,44 +1848,25 @@ function validate5({ state, action }) {
   }
   return Resolved({ state, action, idx });
 }
-function processClaim(get, put) {
-  return ({ state, action, idx }) => {
-    return get(action.caller).chain(
-      (balance2 = 0) => put(action.caller, balance2 + state.claimable[idx].qty)
-    ).map((_) => {
-      state.claimable = reject_default(
-        propEq_default(action.input.txID, "txID"),
-        state.claimable
-      );
-      return { state };
-    });
-  };
-}
 
 // src/index.js
 var EVOLVABLE = 1241679;
 export async function handle(state, action) {
-  if (action.input.function === "__init") {
-    const balances = action.input.args.initialBalances;
-    await Promise.all(
-      Object.keys(balances).map((k) => SmartWeave.kv.put(k, balances[k]))
-    );
-    return { state: omit_default(["initialBalances"], action.input.args) };
-  }
   const env = {
     vouchContract: state.vouchDAO,
-    readState: (contractTx) => SmartWeave.contracts.readContractState(contractTx).catch((_) => ({ balances: {} })),
+    readState: async (contractTx) => {
+      const result = await SmartWeave.contracts.readContractState(contractTx);
+      return result;
+    },
     height: SmartWeave?.block?.height,
     timestamp: SmartWeave?.block?.timestamp,
     id: SmartWeave?.transaction?.id,
     owner: SmartWeave?.transaction?.owner,
     tags: SmartWeave?.transaction?.tags,
-    contractId: SmartWeave?.contract?.id,
-    get: (k) => SmartWeave.kv.get.bind(SmartWeave.kv)(k),
-    put: (k, v) => SmartWeave.kv.put.bind(SmartWeave.kv)(k, v)
+    contractId: SmartWeave?.contract?.id
   };
   if (action.input.function === "stamp") {
-    state = await reward(env)(state, action).toPromise().catch(handleError);
+    state = await reward(env)(state, action).toPromise().catch((_) => state);
     state = credit(env)(state, action);
   }
   switch (action?.input?.function) {
@@ -1919,13 +1877,13 @@ export async function handle(state, action) {
     case "balance":
       return balance(env)(state, action).toPromise().catch(handleError);
     case "transfer":
-      return transfer(env)(state, action).toPromise().catch(handleError);
+      return transfer(state, action).toPromise().catch(handleError);
     case "evolve":
       return env.height < EVOLVABLE ? evolve(state, action) : { state };
     case "allow":
       return allow(env)(state, action).toPromise().catch(handleError);
     case "claim":
-      return claim(env)(state, action).toPromise().catch(handleError);
+      return claim(state, action).toPromise().catch(handleError);
     default:
       throw new ContractError("no function defined!");
   }

@@ -13,7 +13,7 @@ async function main() {
   const srcTx = await warp.saveSource(tx)
   console.log(srcTx)
   const result = await warp
-    .contract('6qRxqstF8l6siMN-kIZM3zS5i5bniHSAHjd_Oa6m1v8')
+    .contract('cXvR4YKLQXJecKRr9iTnejNy2dXeMgWiUqrLjTXxTCQ')
     .connect(jwk)
     .evolve(srcTx)
 
