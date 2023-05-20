@@ -111,7 +111,9 @@
           ],
           balances: old.state.balances,
           vouchDAO: '_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk',
-          lastReward: 1179709
+          lastReward: 1179709,
+          stampHistory: {},
+          stampHxClear: 1180000 * 720 * 182 // 6 months
         });
 
         const result = await warp.deploy({

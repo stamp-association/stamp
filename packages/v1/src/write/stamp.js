@@ -22,6 +22,14 @@ function validate({ state, action }) {
   if (!action.input.tx || action.input.tx.length !== 43) {
     return Rejected("Data-Source Tag must be set to a transaction");
   }
+  if (!state.stampHistory) {
+    state.stampHistory = {}
+  }
+
+  if (state.stampHistory && state.stampHistory[`${action.input.tx}:${action.caller}`]) {
+    return Rejected('Caller has already stamped!')
+  }
+
   return Resolved({ state, action });
 }
 

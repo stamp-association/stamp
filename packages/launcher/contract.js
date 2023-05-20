@@ -1421,6 +1421,12 @@ function validate3({ state, action }) {
   if (!action.input.tx || action.input.tx.length !== 43) {
     return Rejected("Data-Source Tag must be set to a transaction");
   }
+  if (!state.stampHistory) {
+    state.stampHistory = {};
+  }
+  if (state.stampHistory && state.stampHistory[`${action.input.tx}:${action.caller}`]) {
+    return Rejected("Caller has already stamped!");
+  }
   return Resolved({ state, action });
 }
 function isVouched(read) {
@@ -1511,6 +1517,12 @@ function reward(env) {
   return (state, action) => of({ state, action }).chain(setReward(env.height)).chain(
     ({ state: state2, action: action2, reward: reward2 }) => state2.lastReward + 720 < env.height ? Resolved({ state: state2, action: action2, reward: reward2 }) : Rejected(state2)
   ).map(mintRewardsForStamps).map(allocateRegisteredAssets).chain(allocateAtomicAssets(readState, env.contractId)).map(updateBalances).map(({ state: state2, action: action2 }) => {
+    if (!state2.stampHistory) {
+      state2.stampHistory = {};
+    }
+    Object.keys(state2.stamps).forEach((k) => {
+      state2.stampHistory[k] = 1;
+    });
     state2.stamps = {};
     return { state: state2, action: action2 };
   }).map(({ state: state2, action: action2 }) => {
@@ -1849,6 +1861,18 @@ function validate5({ state, action }) {
   return Resolved({ state, action, idx });
 }
 
+// src/cron/clear.js
+function clear(env, state) {
+  if (!state.stampHxClear) {
+    state.stampHxClear = env.height - 1;
+  }
+  if (state.stampHxClear < env.height) {
+    state.stampHistory = {};
+    state.stampHxClear = env.height + 720 * 182;
+  }
+  return state;
+}
+
 // src/index.js
 var EVOLVABLE = 1241679;
 export async function handle(state, action) {
@@ -1868,6 +1892,7 @@ export async function handle(state, action) {
   if (action.input.function === "stamp") {
     state = await reward(env)(state, action).toPromise().catch((_) => state);
     state = credit(env)(state, action);
+    state = clear(env, state);
   }
   switch (action?.input?.function) {
     case "register":

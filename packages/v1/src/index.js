@@ -8,19 +8,11 @@ import { superStamps } from "./write/super-stamps.js";
 import { evolve } from "./write/evolve.js";
 import { allow } from "./write/allow.js";
 import { claim } from "./write/claim.js";
-import { omit } from "ramda";
+import { clear } from './cron/clear.js'
 
 const EVOLVABLE = 1241679;
 
 export async function handle(state, action) {
-  // if (action.input.function === "__init") {
-  //   const balances = action.input.args.initialBalances;
-  //   await Promise.all(
-  //     Object.keys(balances).map((k) => SmartWeave.kv.put(k, balances[k]))
-  //   );
-  //   return { state: omit(["initialBalances"], action.input.args) };
-  // }
-
   const env = {
     vouchContract: state.vouchDAO,
     readState: async (contractTx) => {
@@ -44,6 +36,8 @@ export async function handle(state, action) {
       .catch((_) => state);
     // check for credits on write interactions
     state = credit(env)(state, action);
+    // clear stamp history every six months
+    state = clear(env, state)
   }
 
   // handle function

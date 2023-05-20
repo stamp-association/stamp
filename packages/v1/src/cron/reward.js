@@ -46,7 +46,14 @@ export function reward(env) {
       .map(updateBalances)
       // clear stamps queue
       .map(({ state, action }) => {
+        if (!state.stampHistory) {
+          state.stampHistory = {}
+        }
+        Object.keys(state.stamps).forEach(k => {
+          state.stampHistory[k] = 1
+        })
         state.stamps = {};
+
         return { state, action };
       })
       // set lastReward Height
@@ -141,21 +148,21 @@ function allocateAtomicAssets(readState, contractId) {
         map(([asset, reward]) =>
           is(Number, reward)
             ? of(asset)
-                .chain(readState)
-                .map((assetState) => {
-                  return assetState.balances
-                    ? allocate(assetState.balances, reward)
-                    : allocate({ [assetState.owner || contractId]: 1 }, reward);
-                })
-                .map((r) => [asset, r])
-                .bichain((e) => {
-                  return Resolved([
-                    asset,
-                    {
-                      [contractId]: reward,
-                    },
-                  ]);
-                }, Resolved)
+              .chain(readState)
+              .map((assetState) => {
+                return assetState.balances
+                  ? allocate(assetState.balances, reward)
+                  : allocate({ [assetState.owner || contractId]: 1 }, reward);
+              })
+              .map((r) => [asset, r])
+              .bichain((e) => {
+                return Resolved([
+                  asset,
+                  {
+                    [contractId]: reward,
+                  },
+                ]);
+              }, Resolved)
             : Resolved([asset, reward])
         ),
         toPairs
