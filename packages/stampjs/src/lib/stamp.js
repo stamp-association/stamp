@@ -28,7 +28,7 @@ export function stamp(env, tx, qty = 0, tags = {}) {
               })
             )
             .chain((vouched) =>
-              vouched.length > 0 ? Resolved(ctx) : Rejected("Not Vouched")
+              vouched.length > 0 ? Resolved(ctx) : Rejected(ctx)
             )
             .chain(doWrite(writeInteraction))
         )
@@ -58,12 +58,13 @@ function doWrite(writeInteraction) {
 }
 
 function doDispatch(dispatch) {
-  return (ctx) =>
-    dispatch(ctx.tx, [
+  return (ctx) => {
+    return dispatch(ctx.tx, [
       { name: "Data-Source", value: ctx.tx },
       { name: "Protocol-Name", value: "Stamp" },
       //...ctx.tags,
     ]);
+  };
 }
 
 function isAtomicAsset(ctx) {

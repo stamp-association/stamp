@@ -1,0 +1,16 @@
+{
+  "name": "demo",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.17.19"
+  },
+  "dependencies": {
+    "@permaweb/stampjs": "^0.2.0",
+    "arweave": "^1.13.7",
+    "arweave-wallet-connector": "^1.0.2",
+    "warp-contracts": "^1.4.8"
+  }
+}

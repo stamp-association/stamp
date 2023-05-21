@@ -66,7 +66,7 @@ export default {
     warp,
     arweave,
     dre = "https://dre-1.warp.cc/contract",
-    contract = "Hinz6F9gzcVthPUeTn0aef6wy6hLJH5QYQkvMmvCpYk",
+    contract = "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
     jwk = "use_wallet",
   }) {
     const env = {
