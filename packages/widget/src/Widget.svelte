@@ -32,6 +32,10 @@
     }
   });
 
+  function sleep(n) {
+    return new Promise((resolve) => setTimeout(resolve, n));
+  }
+
   async function doStamp() {
     if (window.arweaveWallet) {
       await window.arweaveWallet.connect([
@@ -46,6 +50,7 @@
       stampingDialog = true;
       try {
         await stamp(asset);
+        await sleep(500);
         stampingDialog = false;
         count = await getStampCount(asset);
       } catch (e) {
@@ -67,6 +72,7 @@
       stampingDialog = false;
     }
   }
+
 </script>
 
 <div class="flex justify-center">
