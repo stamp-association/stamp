@@ -1,0 +1,24 @@
+{
+  "name": "passport",
+  "description": "stamp widget",
+  "type": "module",
+  "version": "0.0.24",
+  "main": "dist/widget.js",
+  "license": "MIT",
+  "dependencies": {
+    "@permaweb/stampjs": "^0.2.1",
+    "arweave": "^1.13.7",
+    "arweave-wallet-connector": "^1.0.2",
+    "ramda": "^0.29.0",
+    "warp-contracts": "^1.4.8"
+  },
+  "devDependencies": {
+    "esbuild": "^0.17.19",
+    "esbuild-svelte": "^0.7.3",
+    "svelte": "^3.59.1"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "deploy": "node scripts/deploy.js"
+  }
+}
