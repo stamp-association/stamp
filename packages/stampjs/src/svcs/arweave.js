@@ -1,5 +1,5 @@
 import { arGql } from "ar-gql";
-
+import { getHost } from './get-host.js'
 const argql = arGql(gateway("graphql"));
 
 export async function getAddress() {
@@ -35,5 +35,5 @@ export const vouchServices = () =>
     .then((vouchedVotes) => vouchedVotes.map((v) => v.value));
 
 function gateway(path) {
-  return `https://arweave.net/${path}`;
+  return `https://${getHost()}/${path}`;
 }
