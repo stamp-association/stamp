@@ -76,6 +76,7 @@ export default {
       getState: services.getState(dre),
       dispatch: services.dispatch(arweave),
       getAddress: services.getAddress,
+      viewState: services.viewState(warp, contract),
     };
     return {
       //register: (tx) => register(tx).fold(handleError, handleSuccess),
@@ -83,6 +84,7 @@ export default {
       count: (txID) => count(env, txID).toPromise(),
       counts: (txIDs) => counts(env, txIDs).toPromise(),
       hasStamped: (tx) => hasStamped(env, tx).toPromise(),
+      balance: () => balance(env).toPromise(),
     };
   },
 };

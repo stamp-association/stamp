@@ -200,6 +200,7 @@
   </div>
   <span class="text-sm">{origin}</span> -->
 </div>
+
 <Connect bind:open={showConnect} on:connected={connected} />
 <Modal
   bind:open={stampingDialog}

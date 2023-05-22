@@ -16,3 +16,16 @@ export function getState(dre) {
       .then(prop("state"))
       .catch((_) => {});
 }
+
+export function viewState(warp, contract) {
+  return (input) =>
+    warp
+      .contract(contract)
+      .setEvaluationOptions({
+        allowBigInt: true,
+        unsafeClient: "skip",
+        remoteStateSyncEnabled: true,
+      })
+      .viewState(input)
+      .then((result) => result.result);
+}
