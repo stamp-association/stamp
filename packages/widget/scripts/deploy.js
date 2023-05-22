@@ -11,7 +11,7 @@ assert(walletFile, 'Wallet required!')
 try {
   const jwk = JSON.parse(fs.readFileSync(walletFile).toString());
 
-  const bundlr = new Bundlr.default("http://node2.bundlr.network", "arweave", jwk);
+  const bundlr = new Bundlr("http://node2.bundlr.network", "arweave", jwk);
 
   const data = fs.readFileSync('./dist/widget.js')
 
@@ -32,7 +32,7 @@ try {
 
   console.log('Deployed!')
 
-  console.log('TransactionId: ', result.data.id)
+  console.log('TransactionId: ', result)
 } catch (e) {
   console.log('ERROR: ', e.message)
 }

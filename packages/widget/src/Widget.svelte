@@ -4,6 +4,8 @@
   import { onMount } from "svelte";
   import { getStampCount, hasStamped, stamp } from "./lib/passport.js";
   import StampButton from "./components/stamp-button.svelte";
+  import { ArweaveWebWallet } from "arweave-wallet-connector";
+
   export let asset = null;
 
   let showConnect = false;
@@ -12,7 +14,6 @@
   let count = {
     total: 0,
     vouched: 0,
-    super: 0,
   };
   let origin = 100;
 
@@ -42,24 +43,29 @@
         "ACCESS_ADDRESS",
         "SIGN_TRANSACTION",
       ]);
-      const stamped = await hasStamped(asset);
-      if (stamped) {
-        alreadyStampedDialog = true;
-        return;
-      }
-      stampingDialog = true;
-      try {
-        await stamp(asset);
-        await sleep(500);
-        stampingDialog = false;
-        count = await getStampCount(asset);
-      } catch (e) {
-        stampingDialog = false;
-        alert("ERROR: ", e.message);
-      }
     } else {
-      showConnect = true;
+      const wallet = new ArweaveWebWallet({ name: "STAMPS" });
+      wallet.setUrl("arweave.app");
+      await wallet.connect();
     }
+    const stamped = await hasStamped(asset);
+    if (stamped) {
+      alreadyStampedDialog = true;
+      return;
+    }
+    stampingDialog = true;
+    try {
+      await stamp(asset);
+      await sleep(500);
+      stampingDialog = false;
+      count = await getStampCount(asset);
+    } catch (e) {
+      stampingDialog = false;
+      alert("ERROR: ", e.message);
+    }
+    // } else {
+    //   showConnect = true;
+    // }
   }
   async function connected() {
     showConnect = false;
@@ -72,7 +78,6 @@
       stampingDialog = false;
     }
   }
-
 </script>
 
 <div class="flex justify-center">

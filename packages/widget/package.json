@@ -2,7 +2,7 @@
   "name": "passport",
   "description": "stamp widget",
   "type": "module",
-  "version": "0.0.24",
+  "version": "0.1.0",
   "main": "dist/widget.js",
   "license": "MIT",
   "dependencies": {
@@ -13,6 +13,7 @@
     "warp-contracts": "^1.4.8"
   },
   "devDependencies": {
+    "@bundlr-network/client": "^0.11.2",
     "esbuild": "^0.17.19",
     "esbuild-svelte": "^0.7.3",
     "svelte": "^3.59.1"
