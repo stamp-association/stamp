@@ -26,7 +26,6 @@ import services from "./svcs/index.js";
 
 /**
  * @callback HasStamped
- * @param {string} address - Arweave Wallet Address
  * @param {string} transactionId - Atomic Token Asset
  * @returns {Promise<boolean>}
  */
@@ -50,11 +49,17 @@ import services from "./svcs/index.js";
  */
 
 /**
+ * @callback Balance
+ * @returns {Promise<{target: string, balance: number}>}
+ */
+
+/**
  * @typedef {Object} StampJS
  * @property {Stamp} stamp
  * @property {Count} count
  * @property {Counts} counts
  * @property {HasStamped} hasStamped
+ * @property {Balance} balance
  */
 
 export default {
