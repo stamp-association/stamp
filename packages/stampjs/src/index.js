@@ -50,7 +50,7 @@ import services from "./svcs/index.js";
 
 /**
  * @callback Balance
- * @returns {Promise<{target: string, balance: number}>}
+ * @returns {Promise<number>}
  */
 
 /**
