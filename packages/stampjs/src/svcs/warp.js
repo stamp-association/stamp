@@ -1,10 +1,10 @@
 import { prop } from "ramda";
 
-export function writeInteraction(warp, contract, jwk) {
+export function writeInteraction(warp, contract, wallet) {
   return (input, tags) => {
     return warp
       .contract(contract)
-      .connect(jwk)
+      .connect(wallet)
       .writeInteraction(input, { tags });
   };
 }

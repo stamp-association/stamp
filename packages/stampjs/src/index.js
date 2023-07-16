@@ -11,9 +11,9 @@ import services from "./svcs/index.js";
  * @typedef {Object} Env
  * @property {any} warp
  * @property {any} arweave
+ * @property {any} wallet
  * @property {string} [dre]
  * @property {string} [contract]
- * @property {string} [jwk]
  */
 
 /**
@@ -72,12 +72,12 @@ export default {
     arweave,
     dre = "https://dre-1.warp.cc/contract",
     contract = "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
-    jwk = "use_wallet",
+    wallet = "use_wallet",
   }) {
     const env = {
       query: services.query,
       vouchServices: services.vouchServices,
-      writeInteraction: services.writeInteraction(warp, contract, jwk),
+      writeInteraction: services.writeInteraction(warp, contract, wallet),
       getState: services.getState(dre),
       dispatch: services.dispatch(arweave),
       getAddress: services.getAddress,

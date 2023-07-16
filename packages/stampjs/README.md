@@ -17,12 +17,15 @@ npm install @permaweb/stampjs
 ```js
 import Stamps from '@permaweb/stampjs'
 import { WarpFactory } from 'warp-contracts'
+import { InjectedArweaveSigner } from 'warp-contracts-plugin-signature'
+
 import Arweave from 'arweave'
 
 // initialize - passing a warp and arweave instance
 const stamps = Stamps.init({
   warp: WarpFactory.forMainnet(), 
-  arweave: Arweave.init({}) 
+  arweave: Arweave.init({}),
+  wallet: new InjectedArweaveSigner(globalThis.arweaveWallet) // required if you are using warp v1.4.11 or greator
 })
 
 // stamp an Asset
