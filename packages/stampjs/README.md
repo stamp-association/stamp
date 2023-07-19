@@ -47,7 +47,3 @@ const balance = await stamps.balance();
 ```
 
 For more information, visit the [STAMPS Protocol website](https://stamps.g8way.io).
-
----
-
-This version includes some minor changes to punctuation and wording to improve readability. The function call `hasStamped(TX)` has been changed to `stamps.hasStamped(TX)` to match the pattern used in other function calls in the example.
