@@ -1,12 +1,12 @@
 # STAMPS JS
 
-> Browser only library
+> Note: This library is intended for browser use only.
 
-STAMPS JS is the SDK for the STAMP Protocol 
+STAMPS JS is the Software Development Kit (SDK) for the STAMP Protocol. Developers can use this SDK to integrate the STAMP Protocol into their applications.
 
-The STAMP JS SDK is how developers can integrate the STAMPs protocol in their applications.
+## Installation
 
-## Install
+Install STAMPS JS using npm:
 
 ```sh
 npm install @permaweb/stampjs
@@ -14,36 +14,40 @@ npm install @permaweb/stampjs
 
 ## Usage
 
+Here's an example of how to use STAMPS JS:
+
 ```js
-import Stamps from '@permaweb/stampjs'
-import { WarpFactory } from 'warp-contracts'
-import { InjectedArweaveSigner } from 'warp-contracts-plugin-signature'
+import Stamps from '@permaweb/stampjs';
+import { WarpFactory } from 'warp-contracts';
+import { InjectedArweaveSigner } from 'warp-contracts-plugin-signature';
+import Arweave from 'arweave';
 
-import Arweave from 'arweave'
-
-// initialize - passing a warp and arweave instance
+// Initialize STAMPS JS, passing a Warp and Arweave instance
 const stamps = Stamps.init({
   warp: WarpFactory.forMainnet(), 
   arweave: Arweave.init({}),
-  wallet: new InjectedArweaveSigner(globalThis.arweaveWallet) // required if you are using warp v1.4.11 or greator
-})
+  wallet: new InjectedArweaveSigner(globalThis.arweaveWallet) // Required if you are using Warp v1.4.11 or greater
+});
 
-// stamp an Asset
-// SUPER STAMP: Pass $STAMP Qty [optional]
-await stamps.stamp(TX, [qty], [tags])
+// Stamp an asset
+// SUPER STAMP: Optionally pass $STAMP quantity and tags
+await stamps.stamp(TX, [qty], [tags]);
 
-// get stamp count for an asset
-const { total } = await stamps.count(TX)
+// Get stamp count for an asset
+const { total } = await stamps.count(TX);
 
-// get counts for assets
-const counts = await stamps.counts(TXs)
+// Get counts for multiple assets
+const counts = await stamps.counts(TXs);
 
-// has the user already stamped the asset?
-const stamped = await hasStamped(TX)
+// Check if the user has already stamped the asset
+const stamped = await stamps.hasStamped(TX);
 
-// get user token balance
-const balance = await stamps.balance()
-
+// Get user's token balance
+const balance = await stamps.balance();
 ```
 
-For more information: https://stamps.g8way.io
+For more information, visit the [STAMPS Protocol website](https://stamps.g8way.io).
+
+---
+
+This version includes some minor changes to punctuation and wording to improve readability. The function call `hasStamped(TX)` has been changed to `stamps.hasStamped(TX)` to match the pattern used in other function calls in the example.
