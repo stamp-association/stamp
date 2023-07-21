@@ -70,7 +70,7 @@ export default {
   init: function ({
     warp,
     arweave,
-    dre = "https://dre-1.warp.cc/contract",
+    dre = "https://dre-5.warp.cc/contract",
     contract = "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
     wallet = "use_wallet",
   }) {

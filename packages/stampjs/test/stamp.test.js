@@ -4,6 +4,7 @@ import fs from "fs";
 import { stamp } from "../src/lib/stamp.js";
 import svcs from "../src/svcs/index.js";
 import Arweave from "arweave";
+//import { InjectedArweaveSigner } from 'warp-contracts-plugin-signature'
 import { WarpFactory, LoggerFactory } from "warp-contracts";
 
 const arweave = Arweave.init({
@@ -13,7 +14,7 @@ const arweave = Arweave.init({
 });
 LoggerFactory.INST.logLevel("debug");
 const warp = WarpFactory.forMainnet();
-
+const wallet = JSON.parse(fs.readFileSync('./wallet.json'))
 // global.arweaveWallet = {
 //   sign: async (tx) => {
 //     const jwk = JSON.parse(fs.readFileSync('../../wallet.json'))
@@ -22,13 +23,14 @@ const warp = WarpFactory.forMainnet();
 //   },
 // };
 
-test.skip("ok", async () => {
+test("stamp atomic asset", async () => {
   const env = {
     writeInteraction: svcs.writeInteraction(
       warp,
-      "ojTjHgoDUTzDMtXn-JVn2rIMgvpcvA8QdNfyCEoUanE"
+      "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
+      wallet 
     ),
-    getState: svcs.getState("https://dre-1.warp.cc/contract"),
+    getState: svcs.getState("https://dre-4.warp.cc/contract"),
     vouchServices: svcs.vouchServices,
     query: svcs.query,
     getAddress: () =>
@@ -38,7 +40,7 @@ test.skip("ok", async () => {
 
   const result = await stamp(
     env,
-    "Jtxi0ylRthPKnVld7NWWpun3ffHu3lFc1cTgifxqnT4"
+    "zTzNGkPyOevCRdwiyBiMI35fpQmsdt8N1ckK_iE2aA0"
   ).toPromise();
   console.log(result);
   assert.ok(true);

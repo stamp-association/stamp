@@ -10,16 +10,18 @@
   <script src="https://cdn.twind.style" crossorigin></script>
   <script src="https://unpkg.com/arweave@1.13.7/bundles/web.bundle.min.js"></script>
   <script type="module">
-    import Stamps from 'https://unpkg.com/@permaweb/stampjs@0.2.1/dist/index.js'
-    import { WarpFactory } from 'https://unpkg.com/warp-contracts@1.4.1/bundles/web.bundle.min.js'
+    //import Stamps from 'https://unpkg.com/@permaweb/stampjs@0.3.0/dist/index.js'
+    import Stamps from './stamp.js'
+    import { InjectedArweaveSigner } from 'https://unpkg.com/warp-contracts-plugin-signature@1.0.16/bundles/web.bundle.min.js'
+    import { WarpFactory } from 'https://unpkg.com/warp-contracts@1.4.14/bundles/web.bundle.min.js'
     import { ArweaveWebWallet } from 'https://unpkg.com/arweave-wallet-connector'
 
     const arweave = Arweave.init({ host: 'arweave.net', protocol: 'https', port: 443 })
-    const stamps = Stamps.init({ warp: WarpFactory.forMainnet(), arweave })
     const el = document.getElementById('frame')
     let tx = (new URLSearchParams(window.location.search)).get('tx')
 
     async function main(tx) {
+      const stamps = Stamps.init({ warp: WarpFactory.forMainnet(), arweave, wallet: 'use_wallet' })
       if (!tx) {
         document.getElementById('renderer-prompt').checked = true
         return
@@ -31,8 +33,9 @@
 
     document.getElementById('stamp-btn').addEventListener('click', async () => {
       try {
+    
         if (window.arweaveWallet) {
-          await window.arweaveWallet.connect(['ACCESS_ADDRESS', 'DISPATCH'], { name: 'STAMPS' })
+          await window.arweaveWallet.connect(['ACCESS_ADDRESS', 'DISPATCH', 'SIGNATURE', 'ACCESS_PUBLIC_KEY'], { name: 'STAMPS' })
         } else {
           const wallet = new ArweaveWebWallet({
             name: 'STAMPS'
@@ -42,8 +45,14 @@
           await wallet.connect()
         }
         const addr = await window.arweaveWallet.getActiveAddress()
+        const signer = new InjectedArweaveSigner(globalThis.arweaveWallet);
+        signer.getAddress = arweaveWallet.getActiveAddress;
+        await signer.setPublicKey();
+        const stamps = Stamps.init({ warp: WarpFactory.forMainnet(), arweave, wallet: signer })
+    
         const hasStamped = await stamps.hasStamped(tx)
         if (!hasStamped) {
+          console.log('tx', tx)
           await stamps.stamp(tx)
           const count = await stamps.count(tx)
           document.getElementById('stamp-count').innerHTML = count.total + 1

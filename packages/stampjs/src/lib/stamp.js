@@ -31,6 +31,7 @@ export function stamp(env, tx, qty = 0, tags = {}) {
               vouched.length > 0 ? Resolved(ctx) : Rejected(ctx)
             )
             .chain(doWrite(writeInteraction))
+            .bichain(_ => Rejected(ctx), Resolved)
         )
     )
     .bichain(doDispatch(dispatch), (x) => Resolved(x));

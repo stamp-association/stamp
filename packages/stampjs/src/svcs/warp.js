@@ -5,7 +5,7 @@ export function writeInteraction(warp, contract, wallet) {
     return warp
       .contract(contract)
       .connect(wallet)
-      .writeInteraction(input, { tags });
+      .writeInteraction(input, { tags })
   };
 }
 
@@ -27,6 +27,7 @@ export function viewState(warp, contract) {
   const options = {
     allowBigInt: true,
     unsafeClient: "skip",
+    //internalWrites: true,
     remoteStateSyncEnabled: true,
   }
   return (input) =>
