@@ -22,11 +22,23 @@ import { WarpFactory } from 'warp-contracts';
 import { InjectedArweaveSigner } from 'warp-contracts-plugin-signature';
 import Arweave from 'arweave';
 
+// if using ArConnect you need to make sure the following PERMISSIONS are enabled
+// * SIGNATURE
+// * ACCESS_PUBLIC_KEY
+// the new signer plugin from warp requires these settings
+
+
+const signer = new InjectedArweaveSigner(globalThis.arweaveWallet) // Required if you are using Warp v1.4.11 or greater
+// also you need to make sure you set the address function
+signer.getAddress = globalThis.arweaveWallet.getActiveAddress
+// finally you need to setPublicKey
+await signer.setPublicKey()
+
 // Initialize STAMPS JS, passing a Warp and Arweave instance
 const stamps = Stamps.init({
   warp: WarpFactory.forMainnet(), 
   arweave: Arweave.init({}),
-  wallet: new InjectedArweaveSigner(globalThis.arweaveWallet) // Required if you are using Warp v1.4.11 or greater
+  wallet: signer
 });
 
 // Stamp an asset
