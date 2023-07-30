@@ -53,6 +53,7 @@ function doWrite(writeInteraction) {
       [
         { name: "Data-Source", value: ctx.tx },
         { name: "Protocol-Name", value: "Stamp" },
+        { name: "Render-With", value: "card_stamps"},
         ...ctx.tags,
       ]
     );
@@ -63,6 +64,7 @@ function doDispatch(dispatch) {
     return dispatch(ctx.tx, [
       { name: "Data-Source", value: ctx.tx },
       { name: "Protocol-Name", value: "Stamp" },
+      { name: "Render-With", value: "card_stamps"},
       //...ctx.tags,
     ]);
   };
