@@ -14,7 +14,7 @@
     "warp-contracts-plugin-signature": "^1.0.16"
   },
   "devDependencies": {
-    "@bundlr-network/client": "^0.11.2",
+    "@bundlr-network/client": "0.10.x",
     "esbuild": "^0.17.19",
     "esbuild-svelte": "^0.7.3",
     "svelte": "^3.59.1"
