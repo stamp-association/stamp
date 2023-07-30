@@ -2,15 +2,16 @@
   "name": "passport",
   "description": "stamp widget",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/widget.js",
   "license": "MIT",
   "dependencies": {
-    "@permaweb/stampjs": "^0.2.1",
+    "@permaweb/stampjs": "^0.3.2",
     "arweave": "^1.13.7",
     "arweave-wallet-connector": "^1.0.2",
     "ramda": "^0.29.0",
-    "warp-contracts": "^1.4.8"
+    "warp-contracts": "^1.4.14",
+    "warp-contracts-plugin-signature": "^1.0.16"
   },
   "devDependencies": {
     "@bundlr-network/client": "^0.11.2",

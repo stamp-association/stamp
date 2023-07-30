@@ -42,6 +42,8 @@
       await window.arweaveWallet.connect([
         "ACCESS_ADDRESS",
         "SIGN_TRANSACTION",
+        "SIGNATURE",
+        "ACCESS_PUBLIC_KEY",
       ]);
     } else {
       const wallet = new ArweaveWebWallet({ name: "STAMPS" });
