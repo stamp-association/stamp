@@ -50,6 +50,7 @@ import services from "./svcs/index.js";
 
 /**
  * @callback Balance
+ * @param {string} address - Wallet Address
  * @returns {Promise<number>}
  */
 
@@ -90,7 +91,7 @@ export default {
       count: (txID) => count(env, txID).toPromise(),
       counts: (txIDs) => counts(env, txIDs).toPromise(),
       hasStamped: (tx) => hasStamped(env, tx).toPromise(),
-      balance: () => balance(env).toPromise(),
+      balance: (address) => balance(env, address).toPromise(),
     };
   },
 };
