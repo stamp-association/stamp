@@ -23,7 +23,7 @@ export function dispatch(arweave) {
 }
 
 export const bundlr = ({ query, variables }) => {
-  return fetch('https:/node2.bundlr.network/graphql', {
+  return fetch('https://node2.bundlr.network/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
