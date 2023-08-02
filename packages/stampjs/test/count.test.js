@@ -11,6 +11,9 @@ const query1Result = JSON.parse(
 const query0Result = JSON.parse(
   fs.readFileSync("./test/fixtures/count-test1-query1.json", "utf-8")
 );
+const bundlrResult = JSON.parse(
+  fs.readFileSync("./test/fixtures/bundlr0.json", "utf-8")
+)
 
 test("ok", async () => {
   let x = 0;
@@ -29,12 +32,13 @@ test("ok", async () => {
         "jk0aaivTdKvzeLB_RhpC_ZUoy9CnY2trlEuHQVXulDQ",
       ]);
     },
+    bundlr: () => Promise.resolve(bundlrResult)
   };
   const result = await count(
     env,
     "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs"
   ).toPromise();
-  assert.equal(result.total, 3);
+  assert.equal(result.total, 6);
   assert.equal(result.vouched, 3);
   assert.ok(true);
 });

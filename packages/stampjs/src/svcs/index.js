@@ -1,4 +1,4 @@
-import { query, vouchServices, dispatch, getAddress } from "./arweave.js";
+import { query, vouchServices, dispatch, getAddress, bundlr } from "./arweave.js";
 import { writeInteraction, getState, viewState } from "./warp.js";
 
 export default {
@@ -9,4 +9,5 @@ export default {
   dispatch,
   getAddress,
   viewState,
+  bundlr
 };

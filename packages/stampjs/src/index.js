@@ -82,6 +82,7 @@ export default {
       dispatch: services.dispatch(arweave),
       getAddress: services.getAddress,
       viewState: services.viewState(warp, contract),
+      bundlr: services.bundlr
     };
     return {
       //register: (tx) => register(tx).fold(handleError, handleSuccess),

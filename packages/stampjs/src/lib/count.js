@@ -1,4 +1,4 @@
-import { of, fromPromise } from "../adts/async.js";
+import { of, fromPromise, all } from "../adts/async.js";
 import {
   compose,
   map,
@@ -10,15 +10,21 @@ import {
   propEq,
   find,
   uniqBy,
+  concat,
 } from "ramda";
 
 export function count(env, tx) {
   const query = fromPromise(env.query);
   const services = fromPromise(env.vouchServices);
+  const bundlr = fromPromise(env.bundlr);
 
   return of(tx)
-    .map((tx) => ({ query: buildQuery(), variables: { txs: [tx] } }))
-    .chain(query)
+    .chain(tx => all([
+      query({ query: buildQuery(), variables: { txs: [tx] } }),
+      bundlr({ query: bundlrQuery(), variables: { txs: [tx] } })
+    ]))
+    .map(([arweave, bundlr]) => concat(arweave, bundlr))
+    .map(uniqBy(prop('id')))
     .map(map(transform))
     .map(uniqBy(prop("owner")))
     .chain((stamps) =>
@@ -56,12 +62,13 @@ function transformVouched(nodes) {
 }
 
 function transform(node) {
+  const address = node.address || node.owner?.address
   const tags = node.tags.reduce(
     (acc, { name, value }) => assoc(name, value, acc),
     {}
   );
   return {
-    owner: tags["Sequencer-Owner"] || node.owner.address,
+    owner: tags["Sequencer-Owner"] || address,
     height: tags["Sequencer-Block-Height"],
     source: tags["Data-Source"],
   };
@@ -109,6 +116,30 @@ function buildQuery() {
         node {
           id
           owner { address }
+          tags {
+            name
+            value
+          }
+        }
+      }
+    }
+  }`;
+}
+
+function bundlrQuery() {
+  return `query ($txs: [String!]!) {
+    transactions(
+      tags:[
+        {name: "Protocol-Name", values: ["Stamp"]},
+        {name: "Data-Source", values: $txs}
+      ]
+      limit: 100
+    ) {
+      edges {
+        cursor
+        node {
+          id
+          address
           tags {
             name
             value
