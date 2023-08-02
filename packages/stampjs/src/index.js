@@ -4,6 +4,7 @@ import { stamp } from "./lib/stamp.js";
 import { count } from "./lib/count.js";
 import { counts } from "./lib/counts.js";
 import { hasStamped } from "./lib/has-stamped.js";
+import { balance } from './lib/balance.js';
 
 import services from "./svcs/index.js";
 

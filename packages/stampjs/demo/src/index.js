@@ -9,6 +9,8 @@ const warp = WarpFactory.forMainnet()
 
 const stamps = Stamps.init({ warp, arweave })
 
+console.log(stamps)
+
 document.getElementById('form').addEventListener('submit', async e => {
   e.preventDefault()
   const wallet = new ArweaveWebWallet({
