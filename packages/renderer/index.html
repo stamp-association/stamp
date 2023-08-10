@@ -10,7 +10,7 @@
   <script src="https://cdn.twind.style" crossorigin></script>
   <script src="https://unpkg.com/arweave@1.13.7/bundles/web.bundle.min.js"></script>
   <script type="module">
-    import Stamps from 'https://unpkg.com/@permaweb/stampjs@0.4.4/dist/index.js'
+    import Stamps from 'https://unpkg.com/@permaweb/stampjs@0.4.12/dist/index.js'
     //import Stamps from './stamp.js'
     import { InjectedArweaveSigner } from 'https://unpkg.com/warp-contracts-plugin-signature@1.0.16/bundles/web.bundle.min.js'
     import { WarpFactory } from 'https://unpkg.com/warp-contracts@1.4.14/bundles/web.bundle.min.js'
@@ -21,7 +21,7 @@
     let tx = (new URLSearchParams(window.location.search)).get('tx')
 
     async function main(tx) {
-      const stamps = Stamps.init({ warp: WarpFactory.forMainnet(), arweave, wallet: 'use_wallet' })
+      const stamps = Stamps.init({ warp: WarpFactory.forMainnet(), arweave, wallet: 'use_wallet', dre: 'https://dre-1.warp.cc/contract' })
       if (!tx) {
         document.getElementById('renderer-prompt').checked = true
         return
@@ -48,7 +48,7 @@
         const signer = new InjectedArweaveSigner(globalThis.arweaveWallet);
         signer.getAddress = arweaveWallet.getActiveAddress;
         await signer.setPublicKey();
-        const stamps = Stamps.init({ warp: WarpFactory.forMainnet(), arweave, wallet: signer })
+        const stamps = Stamps.init({ warp: WarpFactory.forMainnet(), arweave, wallet: signer, dre: 'https://dre-1.warp.cc/contract' })
 
         const hasStamped = await stamps.hasStamped(tx)
         if (!hasStamped) {

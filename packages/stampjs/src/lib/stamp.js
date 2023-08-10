@@ -11,11 +11,13 @@ export function stamp(env, tx, qty = 0, tags = {}) {
 
   return of({ tx, qty, tags })
     .map(formatTags)
+
     .chain((ctx) =>
       getState(tx)
         .chain(isAtomicAsset(ctx))
         // is vouched
         .chain(getCaller(getAddress))
+
         .chain((ctx) =>
           services()
             .chain((vs) =>
@@ -53,7 +55,7 @@ function doWrite(writeInteraction) {
       [
         { name: "Data-Source", value: ctx.tx },
         { name: "Protocol-Name", value: "Stamp" },
-        { name: "Render-With", value: "card_stamps"},
+        { name: "Render-With", value: "card_stamps" },
         ...ctx.tags,
       ]
     );
@@ -64,7 +66,7 @@ function doDispatch(dispatch) {
     return dispatch(ctx.tx, [
       { name: "Data-Source", value: ctx.tx },
       { name: "Protocol-Name", value: "Stamp" },
-      { name: "Render-With", value: "card_stamps"},
+      { name: "Render-With", value: "card_stamps" },
       //...ctx.tags,
     ]);
   };

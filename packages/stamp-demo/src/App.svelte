@@ -12,13 +12,13 @@
     stamps.count("oHB-hYNKHOSqWrxJjroXZatSEmmFYpdKpoGTXNqvSo8").then((c) => {
       count = c.total;
     });
-    const result = await stamps.filter([
-      "compose",
-      ["filter", ["propEq", "flagged", false]],
-      ["values"],
-      ["prop", "stamps"],
-    ]);
-    console.log(result);
+    // const result = await stamps.filter([
+    //   "compose",
+    //   ["filter", ["propEq", "flagged", false]],
+    //   ["values"],
+    //   ["prop", "stamps"],
+    // ]);
+    //console.log(result);
   });
 
   async function doStamp() {
