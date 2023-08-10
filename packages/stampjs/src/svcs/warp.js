@@ -18,13 +18,13 @@ export function getState(dre) {
       .catch((_) => ({}));
 }
 
-export function viewState(warp, contract) {
+export function viewState(warp, contract, dre) {
   const options = {
     allowBigInt: true,
     unsafeClient: "skip",
     //internalWrites: true,
     remoteStateSyncEnabled: true,
-    remoteStateSyncSource: 'https://dre-u.warp.cc/contract'
+    remoteStateSyncSource: dre || 'https://dre-u.warp.cc/contract'
   }
   return (input) =>
     warp

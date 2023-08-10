@@ -83,7 +83,7 @@ export default {
       getState: services.getState(dre),
       dispatch: services.dispatch(arweave),
       getAddress: services.getAddress,
-      viewState: services.viewState(warp, contract),
+      viewState: services.viewState(warp, contract, dre),
       bundlr: services.bundlr
     };
     return {
