@@ -1,8 +1,5 @@
 import { arGql } from "ar-gql";
-import { getHost } from './get-host.js'
 import { path, pluck } from 'ramda'
-
-const argql = arGql(gateway("graphql"));
 
 export async function getAddress() {
   if (!window.arweaveWallet) {
@@ -34,20 +31,18 @@ export const bundlr = ({ query, variables }) => {
     .then(pluck('node'))
 }
 
-export const query = ({ query, variables }) => {
+export const query = (graphql) => ({ query, variables }) => {
+  const argql = arGql(graphql);
   return argql.all
     .bind(argql)(query, variables)
     .then((edges) => edges.map((e) => e.node));
 };
 
-export const vouchServices = () =>
+export const vouchServices = (dre) => () =>
   fetch(
-    "https://dre-u.warp.cc/contract/?id=_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk&query=$.votes"
+    `${dre}/?id=_z0ch80z_daDUFqC9jHjfOL8nekJcok4ZRkE_UesYsk&query=$.votes`
   )
     .then((r) => r.json())
     .then(({ result }) => result[0].filter((v) => v.key === "Voucher"))
     .then((vouchedVotes) => vouchedVotes.map((v) => v.value));
 
-function gateway(path) {
-  return `https://${getHost()}/${path}`;
-}

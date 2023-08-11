@@ -6,6 +6,7 @@ import { counts } from "./lib/counts.js";
 import { hasStamped } from "./lib/has-stamped.js";
 import { balance } from './lib/balance.js';
 
+import { getHost } from './svcs/get-host.js'
 import services from "./svcs/index.js";
 
 /**
@@ -15,6 +16,7 @@ import services from "./svcs/index.js";
  * @property {any} wallet
  * @property {string} [dre]
  * @property {string} [contract]
+ * @property {string} [graphql]
  */
 
 /**
@@ -72,13 +74,14 @@ export default {
   init: function ({
     warp,
     arweave,
-    dre = "https://dre-u.warp.cc/contract",
+    dre = "https://dre-2.warp.cc/contract",
     contract = "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
     wallet = "use_wallet",
+    graphql = `https://${getHost()}/graphql`
   }) {
     const env = {
-      query: services.query,
-      vouchServices: services.vouchServices,
+      query: services.query(graphql),
+      vouchServices: services.vouchServices(dre),
       writeInteraction: services.writeInteraction(warp, contract, wallet),
       getState: services.getState(dre),
       dispatch: services.dispatch(arweave),
