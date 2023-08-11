@@ -38,7 +38,9 @@ await signer.setPublicKey()
 const stamps = Stamps.init({
   warp: WarpFactory.forMainnet(), 
   arweave: Arweave.init({}),
-  wallet: signer
+  wallet: signer,
+  dre: 'https://dre-u.warp.cc/contract', //optional
+  graphql: 'https://arweave.net/graphql' //optional
 });
 
 // Stamp an asset
