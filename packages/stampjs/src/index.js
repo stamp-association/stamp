@@ -74,7 +74,7 @@ export default {
   init: function ({
     warp,
     arweave,
-    dre = "https://dre-2.warp.cc/contract",
+    dre = "https://dre-u.warp.cc/contract",
     contract = "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
     wallet = "use_wallet",
     graphql = `https://${getHost()}/graphql`
