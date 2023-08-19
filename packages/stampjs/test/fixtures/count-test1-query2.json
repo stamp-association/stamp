@@ -1,10 +1,22 @@
 [
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "mKwDzpvCyhfHrkNmY7bBllvGWRtDyKcOqL_b7ic34Oo"
@@ -13,10 +25,22 @@
   },
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"
@@ -25,10 +49,22 @@
   },
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"
@@ -37,10 +73,22 @@
   },
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"
@@ -49,10 +97,22 @@
   },
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"
@@ -61,10 +121,22 @@
   },
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"
@@ -73,10 +145,22 @@
   },
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "h7wP8NjoGkJTdLXC6kwS6fLTNgfeYbZr9YoED5NFQX0"
@@ -85,10 +169,22 @@
   },
   {
     "tags": [
-      { "name": "Content-Type", "value": "application/json" },
-      { "name": "App-Name", "value": "Vouch" },
-      { "name": "App-Version", "value": "0.1" },
-      { "name": "Verification-Method", "value": "Twitter" },
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "App-Name",
+        "value": "Vouch"
+      },
+      {
+        "name": "App-Version",
+        "value": "0.1"
+      },
+      {
+        "name": "Verification-Method",
+        "value": "Twitter"
+      },
       {
         "name": "Vouch-For",
         "value": "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"

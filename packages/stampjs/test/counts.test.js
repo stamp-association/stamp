@@ -23,6 +23,9 @@ test("ok", async () => {
         return Promise.resolve(query1Result);
       }
     },
+    bundlr: () => {
+      return Promise.resolve(query0Result);
+    },
     vouchServices: () => {
       return Promise.resolve([
         "Ax_uXyLQBPZSQ15movzv9-O1mDo30khslqN64qD27Z8",

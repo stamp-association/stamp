@@ -1,4 +1,4 @@
-import { of, fromPromise } from "../adts/async.js";
+import { of, fromPromise, all } from "../adts/async.js";
 
 import {
   map,
@@ -12,15 +12,22 @@ import {
   compose,
   find,
   propEq,
+  concat
 } from "ramda";
 
 export function counts(env, txIDs) {
   const query = fromPromise(env.query);
   const services = fromPromise(env.vouchServices);
+  const bundlr = fromPromise(env.bundlr);
 
   return of(txIDs)
-    .map((txs) => ({ query: buildQuery(), variables: { txs } }))
-    .chain(query)
+    .chain(txs => all([
+      query({ query: buildQuery(), variables: { txs } }),
+      bundlr({ query: bundlrQuery(), variables: { txs } })
+    ]))
+
+    .map(([arweave, bundlr]) => concat(arweave, bundlr))
+    .map(uniqBy(prop('id')))
     .map(map(transform))
     .map(uniqBy((o) => `${o.source}:${o.owner}`))
     .chain((stamps) =>
@@ -71,6 +78,34 @@ function transform(node) {
     height: tags["Sequencer-Block-Height"],
     source: tags["Data-Source"],
   };
+}
+
+function bundlrQuery() {
+  return `query ($cursor: String, $txs: [String!]!) {
+    transactions(
+      tags:[
+        {name: "Protocol-Name", values: ["Stamp"]},
+        {name: "Data-Source", values: $txs}
+      ]
+      limit: 100
+      after: $cursor
+    ) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          address
+          tags {
+            name
+            value
+          }
+        }
+      }
+    }
+  }`;
 }
 
 function buildQuery() {
