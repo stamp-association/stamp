@@ -74,7 +74,7 @@ function transform(node) {
     {}
   );
   return {
-    owner: tags["Sequencer-Owner"] || node.owner.address,
+    owner: tags["Sequencer-Owner"] || node?.address || node?.owner?.address,
     height: tags["Sequencer-Block-Height"],
     source: tags["Data-Source"],
   };
