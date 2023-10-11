@@ -29,7 +29,7 @@ import services from "./svcs/index.js";
 
 /**
  * @callback HasStamped
- * @param {string} transactionId - Atomic Token Asset
+ * @param {string | string[]} transactionId - Atomic Token Asset
  * @returns {Promise<boolean>}
  */
 
