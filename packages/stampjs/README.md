@@ -55,6 +55,8 @@ const counts = await stamps.counts(TXs);
 
 // Check if the user has already stamped the asset
 const stamped = await stamps.hasStamped(TX);
+// or check if several Assets have been stamped
+const results = await stamps.hasStamped([tx1, tx2, tx3])
 
 // Get user's token balance
 const balance = await stamps.balance();

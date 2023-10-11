@@ -1,4 +1,5 @@
 import { of, fromPromise, all } from "../adts/async.js";
+import { map, uniq, reduce, assoc, keys } from 'ramda'
 
 export function hasStamped(env, tx) {
   const query = fromPromise(env.query);
@@ -7,7 +8,18 @@ export function hasStamped(env, tx) {
     .chain((tx) => getAddress().map((address) => ({ tx, address })))
     .chain((ctx) => all([query(buildQuery(ctx)), query(buildQuery2(ctx))]))
     .map(([a, b]) => a.concat(b))
-    .map((items) => items.length > 0);
+    .map(map(o => o.tags.find(x => x.name === 'Data-Source').value))
+    .map(uniq)
+    .map(matches => reduce((acc, id) => matches.find(m => m === id) ? assoc(id, true, acc) : assoc(id, false, acc), {}, tx))
+    .map((items) => {
+      if (keys(items).length === 0) {
+        return false
+      } else if (keys(items).length === 1) {
+        return true
+      } else {
+        return items
+      }
+    });
 }
 
 function buildQuery({ tx, address }) {
@@ -28,13 +40,17 @@ function buildQuery({ tx, address }) {
         cursor
         node {
           id
+          tags {
+            name
+            value
+          }
         }
       }
     }
   }`;
 
   const variables = {
-    txs: [tx],
+    txs: typeof tx === "string" ? [tx] : tx,
     owners: [address],
   };
 
@@ -59,13 +75,17 @@ function buildQuery2({ tx, address }) {
         cursor
         node {
           id
+          tags {
+            name
+            value
+          }
         }
       }
     }
   }`;
 
   const variables = {
-    txs: [tx],
+    txs: typeof tx === "string" ? [tx] : tx,
     owners: [address],
   };
 
