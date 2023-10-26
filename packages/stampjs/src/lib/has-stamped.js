@@ -4,6 +4,7 @@ import { map, uniq, reduce, assoc, keys } from 'ramda'
 export function hasStamped(env, tx) {
   const query = fromPromise(env.query);
   const getAddress = fromPromise(env.getAddress);
+  tx = typeof tx === "string" ? [tx] : tx
   return of(tx)
     .chain((tx) => getAddress().map((address) => ({ tx, address })))
     .chain((ctx) => all([query(buildQuery(ctx)), query(buildQuery2(ctx))]))

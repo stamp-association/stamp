@@ -53,8 +53,15 @@ const { total } = await stamps.count(TX);
 // Get counts for multiple assets
 const counts = await stamps.counts(TXs);
 
+> NOTE: hasStamped can take a single TX or a set of TXs
+
 // Check if the user has already stamped the asset
 const stamped = await stamps.hasStamped(TX);
+
+or
+
+const stampedResults = await stamps.hasStamped([TX1, TX2, TX3])
+
 // or check if several Assets have been stamped
 const results = await stamps.hasStamped([tx1, tx2, tx3])
 

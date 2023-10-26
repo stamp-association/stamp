@@ -17,6 +17,7 @@ test("has-stamped only one tx", async () => {
     env,
     "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs"
   ).toPromise();
+
   assert.ok(result);
 });
 
@@ -34,6 +35,7 @@ test("has-stamped multiple txs", async () => {
     env,
     ["DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTb", "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs", "ABC"]
   ).toPromise();
+
   assert.equal(result, {
     'DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTb': true,
     'DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs': true,
