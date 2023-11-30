@@ -12,7 +12,9 @@ import {
   compose,
   find,
   propEq,
-  concat
+  concat,
+  keys,
+  reduce
 } from "ramda";
 
 export function counts(env, txIDs) {
@@ -56,7 +58,19 @@ export function counts(env, txIDs) {
         total: stamps.length,
         vouched: filter(propEq(true, "vouched"), stamps).length,
       }))
-    );
+    )
+    .map(result => {
+      if (keys(result).length === 0) {
+        return reduce(
+          (a, tx) => {
+            a[tx] = { total: 0, vouched: 0 }
+            return a
+          }
+          , {}, txIDs
+        )
+      }
+      return result
+    });
 }
 
 function transformVouched(nodes) {

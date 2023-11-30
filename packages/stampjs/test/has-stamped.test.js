@@ -21,6 +21,22 @@ test("has-stamped only one tx", async () => {
   assert.ok(result);
 });
 
+test("has-stamped should be false", async () => {
+  const env = {
+    query: () =>
+      Promise.resolve([
+      ]),
+    getAddress: () =>
+      Promise.resolve("vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"),
+  };
+  const result = await hasStamped(
+    env,
+    "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs"
+  ).toPromise();
+
+  assert.ok(result === false);
+});
+
 test("has-stamped multiple txs", async () => {
   const env = {
     query: () =>

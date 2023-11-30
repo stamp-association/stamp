@@ -16,7 +16,7 @@ export function hasStamped(env, tx) {
       if (keys(items).length === 0) {
         return false
       } else if (keys(items).length === 1) {
-        return true
+        return items[keys(items)[0]]
       } else {
         return items
       }
