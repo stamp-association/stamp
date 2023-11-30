@@ -28,7 +28,7 @@ test("stamp atomic asset", async () => {
     writeInteraction: svcs.writeInteraction(
       warp,
       "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
-      wallet 
+      wallet
     ),
     getState: svcs.getState("https://dre-4.warp.cc/contract"),
     vouchServices: svcs.vouchServices,
@@ -42,7 +42,7 @@ test("stamp atomic asset", async () => {
     env,
     "zTzNGkPyOevCRdwiyBiMI35fpQmsdt8N1ckK_iE2aA0"
   ).toPromise();
-  console.log(result);
+  //console.log(result);
   assert.ok(true);
 
   /*

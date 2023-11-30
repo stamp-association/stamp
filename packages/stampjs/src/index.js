@@ -22,8 +22,8 @@ import services from "./svcs/index.js";
 /**
  * @callback Stamp
  * @param {string} transactionId
- * @param {number} qty? - integer representing the number of tokens to transfer
- * @param {{name: string, value: string}[]} tags? - tx tags to be added to the transaction
+ * @param {number} [qty] - integer representing the number of tokens to transfer
+ * @param {{name: string, value: string}[]} [tags] - tx tags to be added to the transaction
  * @returns {Promise<any>}
  */
 
