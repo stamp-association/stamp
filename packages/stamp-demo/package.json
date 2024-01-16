@@ -20,6 +20,7 @@
     "vite": "^4.1.0"
   },
   "dependencies": {
+    "@permaweb/stampjs": "^0.7.1",
     "arweave": "^1.14.4",
     "warp-contracts": "1.4.26",
     "warp-contracts-plugin-signature": "^1.0.19"

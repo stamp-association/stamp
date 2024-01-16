@@ -451,6 +451,14 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@permaweb/stampjs@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@permaweb/stampjs/-/stampjs-0.7.1.tgz#d086efe0b770403246cce18d8bcc90343ff45c95"
+  integrity sha512-8YRIveUmGjOn/j0KLVZ0vtW+xJ5rudsjxk0PLLwp7gQzGOhIJefV5puD5FV8HQS/9Cm9sXSPhYORFVDN/p48qw==
+  dependencies:
+    ar-gql "^1.2.1"
+    ramda "^0.29.0"
+
 "@randlabs/communication-bridge@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@randlabs/communication-bridge/-/communication-bridge-1.0.1.tgz#d1ecfc29157afcbb0ca2d73122d67905eecb5bf3"
@@ -543,6 +551,11 @@ anymatch@~3.1.2:
   dependencies:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
+
+ar-gql@^1.2.1:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/ar-gql/-/ar-gql-1.2.4.tgz#1c4f38a862358c1b2996c283fd0a4f0ebd1dfbb4"
+  integrity sha512-ououP34tR8UFjfYDEooojxZhlvwsrr54/pRKTD1K9dq2REeuYgxpcwSlLEIsqkVESDobRm7DtzmrMQSrLiGuFw==
 
 arbundles@^0.9.8:
   version "0.9.11"
@@ -1604,6 +1617,11 @@ queue-microtask@^1.2.2, queue-microtask@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
+
+ramda@^0.29.0:
+  version "0.29.1"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.29.1.tgz#408a6165b9555b7ba2fc62555804b6c5a2eca196"
+  integrity sha512-OfxIeWzd4xdUNxlWhgFazxsA/nl3mS4/jGZI5n00uWOoSSFRhC1b6gl6xvmzUamgmqELraWp0J/qqVlXYPDPyA==
 
 readable-stream@^2.0.0, readable-stream@^2.0.5:
   version "2.3.8"
