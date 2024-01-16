@@ -11,31 +11,33 @@ export function stamp(env, tx, qty = 0, tags = {}) {
 
   return of({ tx, qty, tags })
     .map(formatTags)
+    .chain(getCaller(getAddress))
+    .chain(doWrite(writeInteraction))
 
-    .chain((ctx) =>
-      getState(tx)
-        .chain(isAtomicAsset(ctx))
-        // is vouched
-        .chain(getCaller(getAddress))
-        .chain(doWrite(writeInteraction))
-      // .chain((ctx) =>
-      //   services()
-      //     .chain((vs) =>
-      //       query({
-      //         query: vouchQuery(),
-      //         variables: {
-      //           services: vs,
-      //           stampers: [ctx.caller],
-      //         },
-      //       })
-      //     )
-      //     .chain((vouched) =>
-      //       vouched.length > 0 ? Resolved(ctx) : Rejected(ctx)
-      //     )
-      //     .chain(doWrite(writeInteraction))
-      //     .bichain(_ => Rejected(ctx), Resolved)
-      // )
-    )
+  //.chain((ctx) =>
+  //  getState(tx)
+  //    .chain(isAtomicAsset(ctx))
+  // is vouched
+  //    .chain(getCaller(getAddress))
+  //     .chain(doWrite(writeInteraction))
+  // .chain((ctx) =>
+  //   services()
+  //     .chain((vs) =>
+  //       query({
+  //         query: vouchQuery(),
+  //         variables: {
+  //           services: vs,
+  //           stampers: [ctx.caller],
+  //         },
+  //       })
+  //     )
+  //     .chain((vouched) =>
+  //       vouched.length > 0 ? Resolved(ctx) : Rejected(ctx)
+  //     )
+  //     .chain(doWrite(writeInteraction))
+  //     .bichain(_ => Rejected(ctx), Resolved)
+  // )
+  // )
   //.bichain(doDispatch(dispatch), (x) => Resolved(x));
 }
 
@@ -84,7 +86,6 @@ function formatTags(ctx) {
     name: k,
     value: ctx.tags[k],
   }));
-
   return { ...ctx, tags };
 }
 
