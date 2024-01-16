@@ -17,26 +17,26 @@ export function stamp(env, tx, qty = 0, tags = {}) {
         .chain(isAtomicAsset(ctx))
         // is vouched
         .chain(getCaller(getAddress))
-
-        .chain((ctx) =>
-          services()
-            .chain((vs) =>
-              query({
-                query: vouchQuery(),
-                variables: {
-                  services: vs,
-                  stampers: [ctx.caller],
-                },
-              })
-            )
-            .chain((vouched) =>
-              vouched.length > 0 ? Resolved(ctx) : Rejected(ctx)
-            )
-            .chain(doWrite(writeInteraction))
-            .bichain(_ => Rejected(ctx), Resolved)
-        )
+        .chain(doWrite(writeInteraction))
+      // .chain((ctx) =>
+      //   services()
+      //     .chain((vs) =>
+      //       query({
+      //         query: vouchQuery(),
+      //         variables: {
+      //           services: vs,
+      //           stampers: [ctx.caller],
+      //         },
+      //       })
+      //     )
+      //     .chain((vouched) =>
+      //       vouched.length > 0 ? Resolved(ctx) : Rejected(ctx)
+      //     )
+      //     .chain(doWrite(writeInteraction))
+      //     .bichain(_ => Rejected(ctx), Resolved)
+      // )
     )
-    .bichain(doDispatch(dispatch), (x) => Resolved(x));
+  //.bichain(doDispatch(dispatch), (x) => Resolved(x));
 }
 
 function getCaller(getAddress) {

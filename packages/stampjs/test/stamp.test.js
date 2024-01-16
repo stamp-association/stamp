@@ -30,7 +30,7 @@ test("stamp atomic asset", async () => {
       "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
       wallet
     ),
-    getState: svcs.getState("https://dre-4.warp.cc/contract"),
+    getState: svcs.getState("https://dre-u.warp.cc/contract"),
     vouchServices: svcs.vouchServices,
     query: svcs.query,
     getAddress: () =>
