@@ -26,6 +26,7 @@
     "MIT"
   ],
   "dependencies": {
+    "@permaweb/aoconnect": "^0.0.59",
     "ar-gql": "^1.2.1",
     "ramda": "^0.29.0"
   }

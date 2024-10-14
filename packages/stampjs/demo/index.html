@@ -18,8 +18,78 @@
         <button class="btn">STAMP</button>
       </div>
     </form>
+    <br/>
+    <form id="superStampForm">
+      <div class="form-control">
+        <label class="label">TX</label>
+        <input name="tx" />
+      </div>
+      <div class="form-control">
+        <label class="label">Quantity</label>
+        <input name="quantity" />
+      </div>
+      <div>
+        <button class="btn">SUPER STAMP</button>
+      </div>
+    </form>
+    <br/>
+    <form id="getStampsByAssetForm">
+      <div>
+        <div class="form-control">
+          <label class="label">Asset</label>
+          <input name="tx" />
+        </div>
+        <div>
+          <button class="btn">Get stamps by asset</button>
+        </div>
+      </div>
+    </form>
+    <br/>
+    <form id="getStampsByAssetsForm">
+      <div>
+        <div class="form-control">
+          <label class="label">Assets (comma-separated)</label>
+          <input name="assets" />
+        </div>
+        <div>
+          <button class="btn">Get stamps by assets</button>
+        </div>
+      </div>
+    </form>
+    <br />
+    <form id="hasStampedMultipleForm">
+      <div>
+        <div class="form-control">
+          <label class="label">Assets (comma-seperated)</label>
+          <input name="assets" />
+        </div>
+        <div>
+          <button class="btn">Has stamped?</button>
+        </div>
+      </div>
+    </form>
+    <br />
+    <form id="hasStampedForm">
+      <div>
+        <div class="form-control">
+          <label class="label">Asset</label>
+          <input name="asset" />
+        </div>
+        <div>
+          <button class="btn">Has stamped?</button>
+        </div>
+      </div>
+    </form>
+    <br />
+    <form id="balanceForm">
+      <div>
+        <div>
+          <button class="btn">Balance</button>
+        </div>
+      </div>
+    </form>
   </div>
-  <script type="module" src="./index.js"></script>
+  <script type="module" src="./src/index.js"></script>
 </body>
 
 </html>

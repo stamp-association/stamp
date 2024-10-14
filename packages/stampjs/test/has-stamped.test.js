@@ -5,11 +5,17 @@ import { hasStamped } from "../src/lib/has-stamped.js";
 
 test("has-stamped only one tx", async () => {
   const env = {
-    query: () =>
-      Promise.resolve([
-        { id: "kNprZ6kYnqiw9blunfmKO9KHRNM2IQJSASaKZ1Gd6dc", tags: [{ name: "Data-Source", value: "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs" }] },
-        { id: "rhG-N8LV6mYovVdThfDJgZC_a-zH46q55wgHCI6HKuM", tags: [{ name: "Data-Source", value: "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs" }] },
-      ]),
+    aoDryRun: (tags) => {
+      assert.equal(tags.find((tag) => tag.name == 'Data-Source').value, "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI")
+      return Promise.resolve({
+        Messages: [{ 
+          Tags: [{ name: 'Result', value: 'Success'}],
+          Data: JSON.stringify({ 
+            stampsByAddress: [{ Asset: "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs"}, { Asset: 'foo'}, { Asset: 'bar' }]
+          })
+        }]
+      })
+    },
     getAddress: () =>
       Promise.resolve("vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"),
   };
@@ -23,9 +29,17 @@ test("has-stamped only one tx", async () => {
 
 test("has-stamped should be false", async () => {
   const env = {
-    query: () =>
-      Promise.resolve([
-      ]),
+    aoDryRun: (tags) => {
+      assert.equal(tags.find((tag) => tag.name == 'Data-Source').value, "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI")
+      return Promise.resolve({
+        Messages: [{ 
+          Tags: [{ name: 'Result', value: 'Success'}],
+          Data: JSON.stringify({ 
+            stampsByAddress: [{ Asset: 'foo'}, { Asset: 'bar' }]
+          })
+        }]
+      })
+    },
     getAddress: () =>
       Promise.resolve("vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"),
   };
@@ -39,25 +53,31 @@ test("has-stamped should be false", async () => {
 
 test("has-stamped multiple txs", async () => {
   const env = {
-    query: () =>
-      Promise.resolve([
-        { id: "kNprZ6kYnqiw9blunfmKO9KHRNM2IQJSASaKZ1Gd6dc", tags: [{ name: "Data-Source", value: "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTb" }] },
-        { id: "rhG-N8LV6mYovVdThfDJgZC_a-zH46q55wgHCI6HKuM", tags: [{ name: "Data-Source", value: "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs" }] },
-      ]),
+    aoDryRun: (tags) => {
+      assert.equal(tags.find((tag) => tag.name == 'Data-Source').value, "vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI")
+      return Promise.resolve({
+        Messages: [{ 
+          Tags: [{ name: 'Result', value: 'Success'}],
+          Data: JSON.stringify({ 
+            stampsByAddress: [{ Asset: "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs"}, { Asset: 'foo'}, { Asset: 'bar' }]
+          })
+        }]
+      })
+    },
     getAddress: () =>
       Promise.resolve("vh-NTHVvlKZqRxc8LyyTNok65yQ55a_PJ1zWLb9G2JI"),
   };
   const result = await hasStamped(
     env,
-    ["DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTb", "DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs", "ABC"]
+    ["DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs", "foo", "ABC"]
   ).toPromise();
 
+  assert.ok(Object.keys(result).length === 3);
   assert.equal(result, {
-    'DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTb': true,
     'DU9OfvVtCiu-NFniKuGULgCWBQJdDIpVhcF8hnULFTs': true,
+    'foo': true,
     "ABC": false
   })
-  //assert.ok(result.length === 2);
 })
 
 
