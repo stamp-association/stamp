@@ -1,4 +1,4 @@
-# AO Stamp Protocol
+# AO Stamp Protocol v2
 
 Process ID: `DrHOLaZ9E23h6vQuMDl09TciS07yr-qcVHllFICYgAo`
 
