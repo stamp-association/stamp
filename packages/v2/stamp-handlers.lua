@@ -32,14 +32,16 @@ Handlers.add(
   function (message)
 
     local stampResult = Stamp(message, Stamps, StampsByAddress, StampsByAsset, StampHistory, IsVouched)
-    if stampResult == 'Stamped.' then
+    if not stampResult then
+      message.reply({ Result = 'Error', Data = 'Unknown error' })
+    elseif stampResult == 'Stamped.' then
       message.reply({ Result = 'Success', Action = 'Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'] } })
       local superStampResult = SuperStamp(message, Balances, Credits, IsAtomicAsset)
       if superStampResult == 'Super Stamped.' then
         message.reply({ Result = 'Success', Action = 'Super-Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Super-Stamp-Quantity'] = message.Tags['Super-Stamp-Quantity']  }})
       end
     else
-      message.reply({ Result = 'Error', Data = 'Unknown Error' })
+      message.reply({ Result = 'Error', Data = stampResult })
     end
   end
 )

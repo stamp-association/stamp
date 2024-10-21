@@ -64,7 +64,7 @@ export default {
    * @returns {StampJS}
    */
   init: function ({
-    process = "DrHOLaZ9E23h6vQuMDl09TciS07yr-qcVHllFICYgAo",
+    process = "bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg",
   }) {
     const env = {
       writeInteraction: services.writeInteraction(process),

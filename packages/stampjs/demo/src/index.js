@@ -23,6 +23,7 @@ document.getElementById('form').addEventListener('submit', async (e) => {
   }
   const stampTx = e.target?.[0]?.value 
   const res = await stamps.stamp(stampTx || 'M8wS5AwiXZRRpCdJheKO5fKZM_FhoCEtd_gQDBtAZcA')
+  console.log({ res })
 })
 
 document.getElementById('superStampForm').addEventListener('submit', async (e) => {
@@ -55,6 +56,7 @@ document.getElementById('getStampsByAssetForm').addEventListener('submit', async
   }
   const assetTx = e.target?.[0]?.value
   const res = await stamps.count(assetTx || 'M8wS5AwiXZRRpCdJheKO5fKZM_FhoCEtd_gQDBtAZcA')
+  console.log({ res })
 })
 
 const assets = ['M8wS5AwiXZRRpCdJheKO5fKZM_FhoCEtd_gQDBtAZcA', 'SepAjMSk5IOD8LPQRsc5KO275uM_m8D6SM6pMqvzAyI']
