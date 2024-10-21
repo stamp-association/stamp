@@ -20,7 +20,6 @@ function getCaller(getAddress) {
 
 function doWrite(writeInteraction) {
   return (ctx) => {
-    // TODO: super stamp with quantity
     return writeInteraction(
       [
         { name: 'Action', value: 'Write-Stamp' }, 

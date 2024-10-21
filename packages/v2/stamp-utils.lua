@@ -46,10 +46,10 @@ end
 
 function IsVouched(tx)
   Send({ Target = VouchProcessId, Action = "Get-Vouches", ID = tx, Data = "Vouch"})
-  local res = Receive({ From = VouchProcessId })
+  local res = Receive({ From = VouchProcessId, ID = tx })
   local parsedData = json.decode(res.Data)
-  local totalValue = parsedData['Total-Value']
-  local isVouched = totalValue ~= '0-USD'
+  local status = parsedData['Status']
+  local isVouched = status ~= 'NOT_VOUCHED'
   return isVouched
 end
 

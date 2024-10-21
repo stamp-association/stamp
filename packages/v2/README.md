@@ -14,25 +14,22 @@ aos <<PROCESS_NAME>> --tag-name Extension --tag-value WeaveDrive --tag-name Vari
 
 ```sh
 .load-blueprint apm
-APM.install('@rakis/WeaveDrive')
+APM.install('@rakis/WeaveDrive@0.0.2')
 APM.install('@rakis/test-unit')
 APM.install('@tilla/graphql')
 APM.install('@tilla/graphql_server')
 ```
 
-### Load Lua code
+### Create Lua bundle using bundler.js
 
 ```sh
-.load current-balances.lua
-.load current-stamp-history.lua
-.load current-stamps-by-address.lua
-.load current-stamps-by-asset.lua
-.load stamps-v2.lua
-.load stamp-utils.lua
-.load stamp-fns.lua
-.load stamp-tests.lua
-.load stamp-handlers.lua
-.load stamp-graphql-server.lua
+node bundler.js v2 .
+```
+
+### Load Lua bundle
+
+```sh
+.load bundle.lua
 ```
 
 ## Handlers
