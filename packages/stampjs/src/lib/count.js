@@ -1,151 +1,45 @@
-import { of, fromPromise, all } from "../adts/async.js";
+import { of, fromPromise, Resolved, Rejected } from "../adts/async.js";
 import {
   compose,
-  map,
-  assoc,
-  uniq,
-  filter,
-  includes,
-  prop,
+  propOr,
   propEq,
-  find,
-  uniqBy,
-  concat,
+  includes,
+  length,
+  filter
 } from "ramda";
 
+// returns { total: number, vouched: number }
 export function count(env, tx) {
-  const query = fromPromise(env.query);
-  const services = fromPromise(env.vouchServices);
-  const bundlr = fromPromise(env.bundlr);
+  const aoDryRun = fromPromise(env.aoDryRun);
 
   return of(tx)
-    .chain(tx => all([
-      query({ query: buildQuery(), variables: { txs: [tx] } }),
-      bundlr({ query: bundlrQuery(), variables: { txs: [tx] } })
-    ]))
-    .map(([arweave, bundlr]) => concat(arweave, bundlr))
-    .map(uniqBy(prop('id')))
-    .map(map(transform))
-    .map(uniqBy(prop("owner")))
-    .chain((stamps) =>
-      services()
-        .chain((vouchServices) =>
-          query({
-            query: vouchQuery(),
-            variables: {
-              services: vouchServices,
-              stampers: uniq(stamps.map((s) => s.owner)),
-            },
-          })
-        )
-        .map(transformVouched)
-        .map((vouched) =>
-          map(
-            (s) => (includes(s.owner, vouched) ? assoc("vouched", true, s) : s),
-            stamps
-          )
-        )
-    )
-    .map((stamps) => ({
-      total: stamps.length,
-      vouched: filter(propEq(true, "vouched"), stamps).length,
-    }));
+    .chain(doRead(aoDryRun))
+    .chain(handleCount)
 }
 
-function transformVouched(nodes) {
-  return compose(
-    uniq,
-    map((r) =>
-      compose(prop("value"), find(propEq("Vouch-For", "name")))(r.tags)
-    )
-  )(nodes);
+function handleCount(ctx) {
+  const message = ctx.Messages[0]
+  if (includes({ name: 'Result', value: 'Success' })(message.Tags)) {
+    const stampCount = compose(
+      (stamps) => ({ total: length(stamps), vouched: length(filter(propEq('true', 'Vouched'), stamps)) }),
+      propOr([], 'stampsByAsset'),
+      JSON.parse,
+      propOr('{}', 'Data')
+    )(message)
+    return Resolved(stampCount)
+  }
+  return Rejected(message.Data)
 }
 
-function transform(node) {
-  const address = node.address || node.owner?.address
-  const tags = node.tags.reduce(
-    (acc, { name, value }) => assoc(name, value, acc),
-    {}
-  );
-  return {
-    owner: tags["Sequencer-Owner"] || address,
-    height: tags["Sequencer-Block-Height"],
-    source: tags["Data-Source"],
-  };
-}
-
-function vouchQuery() {
-  return `query ($cursor: String, $services: [String!]!, $stampers: [String!]!) {
-    transactions(
-      owners: $services
-      tags:{name: "Vouch-For", values: $stampers}
-      after: $cursor
-      first: 100
-    ) {
-      pageInfo {
-        hasNextPage
-      }
-      edges {
-        cursor
-        node {
-          tags {
-            name
-            value
-          }
-        }
-      }
-    }
-  }`;
-}
-
-function buildQuery() {
-  return `query ($cursor: String, $txs: [String!]!) {
-    transactions(
-      tags:[
-        {name: "Protocol-Name", values: ["Stamp"]},
-        {name: "Data-Source", values: $txs}
+function doRead(aoDryRun) {
+  return (tx) => {
+    return aoDryRun(
+      [
+        { name: 'Action', value: 'Read-Stamps-By-Asset' }, 
+        { name: "Data-Source", value: tx },
+        { name: "Protocol-Name", value: "Stamp" },
+        { name: "Render-With", value: "card_stamps" },
       ]
-      after: $cursor
-      first: 100
-    ) {
-      pageInfo {
-        hasNextPage
-      }
-      edges {
-        cursor
-        node {
-          id
-          owner { address }
-          tags {
-            name
-            value
-          }
-        }
-      }
-    }
-  }`;
-}
-
-function bundlrQuery() {
-  return `query ($txs: [String!]!) {
-    transactions(
-      tags:[
-        {name: "Protocol-Name", values: ["Stamp"]},
-        {name: "Data-Source", values: $txs}
-      ]
-      limit: 100
-    ) {
-      edges {
-        cursor
-        node {
-          id
-          address
-          tags {
-            name
-            value
-          }
-        }
-      }
-    }
-  }`;
+    );
+  }
 }

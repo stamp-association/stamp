@@ -1,22 +1,14 @@
-import svcs from "./svcs/index.js";
-//import { register } from "./lib/register.js";
 import { stamp } from "./lib/stamp.js";
 import { count } from "./lib/count.js";
 import { counts } from "./lib/counts.js";
 import { hasStamped } from "./lib/has-stamped.js";
 import { balance } from './lib/balance.js';
 
-import { getHost } from './svcs/get-host.js'
 import services from "./svcs/index.js";
 
 /**
  * @typedef {Object} Env
- * @property {any} warp
- * @property {any} arweave
- * @property {any} wallet
- * @property {string} [dre]
- * @property {string} [contract]
- * @property {string} [graphql]
+ * @property {string} [process]
  */
 
 /**
@@ -72,22 +64,13 @@ export default {
    * @returns {StampJS}
    */
   init: function ({
-    warp,
-    arweave,
-    dre = "https://dre-u.warp.cc/contract",
-    contract = "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
-    wallet = "use_wallet",
-    graphql = `https://${getHost()}/graphql`
+    process = "bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg",
   }) {
     const env = {
-      query: services.query(graphql),
-      vouchServices: services.vouchServices(dre),
-      writeInteraction: services.writeInteraction(warp, contract, wallet),
-      getState: services.getState(dre),
-      dispatch: services.dispatch(arweave),
+      writeInteraction: services.writeInteraction(process),
+      readInteraction: services.readInteraction(process),
+      aoDryRun: services.aoDryRun(process),
       getAddress: services.getAddress,
-      viewState: services.viewState(warp, contract, dre),
-      bundlr: services.bundlr
     };
     return {
       //register: (tx) => register(tx).fold(handleError, handleSuccess),
@@ -95,7 +78,7 @@ export default {
       count: (txID) => count(env, txID).toPromise(),
       counts: (txIDs) => counts(env, txIDs).toPromise(),
       hasStamped: (tx) => hasStamped(env, tx).toPromise(),
-      balance: (address) => balance(env, address).toPromise(),
+      balance: (address) => balance(env, address).toPromise()
     };
   },
 };
