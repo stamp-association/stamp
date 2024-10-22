@@ -9,9 +9,10 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "dist",
-    "declarationMap": true
+    "declarationMap": true,
+    "target": "ES2015"
   },
   "exclude": [
-    "node_modules/async-hyper/dist/index.d.ts"
+    "node_modules"
   ]
 }
