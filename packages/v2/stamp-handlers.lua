@@ -33,15 +33,15 @@ Handlers.add(
 
     local stampResult = Stamp(message, Stamps, StampsByAddress, StampsByAsset, StampHistory, IsVouched)
     if not stampResult then
-      message.reply({ Result = 'Error', Data = 'Unknown error' })
+      message.reply({ Result = 'Error', Data = 'Unknown error',  Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' } })
     elseif stampResult == 'Stamped.' then
-      message.reply({ Result = 'Success', Action = 'Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'] } })
+      message.reply({ Result = 'Success', Action = 'Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' } })
       local superStampResult = SuperStamp(message, Balances, Credits, IsAtomicAsset)
       if superStampResult == 'Super Stamped.' then
-        message.reply({ Result = 'Success', Action = 'Super-Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Super-Stamp-Quantity'] = message.Tags['Super-Stamp-Quantity']  }})
+        message.reply({ Result = 'Success', Action = 'Super-Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Super-Stamp-Quantity'] = message.Tags['Super-Stamp-Quantity'], ['Action'] = 'Write-Stamp-Result'  }})
       end
     else
-      message.reply({ Result = 'Error', Data = stampResult })
+      message.reply({ Result = 'Error', Data = stampResult,  Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' }})
     end
   end
 )
