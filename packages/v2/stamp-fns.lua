@@ -66,6 +66,9 @@ function Stamp(message, stamps, stampsByAddress, stampsByAsset, stampHistory, is
   AddStampIndex(stampsByAddress, caller, stamp)
   AddStampIndex(stampsByAsset, txID, stamp)
 
+  if not callerIsVouched then
+    return 'Not Vouched.'
+  end
   return 'Stamped.'
 end
 

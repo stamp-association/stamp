@@ -32,19 +32,39 @@ Handlers.add(
   function (message)
 
     local stampResult = Stamp(message, Stamps, StampsByAddress, StampsByAsset, StampHistory, IsVouched)
+
+    -- If stampResult is nil, then there was an unknown error
     if not stampResult then
-      message.reply({ Result = 'Error', Data = 'Unknown error',  Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' } })
-    elseif stampResult == 'Stamped.' then
-      message.reply({ Result = 'Success', Action = 'Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' } })
-      local superStampResult = SuperStamp(message, Balances, Credits, IsAtomicAsset)
-      if superStampResult == 'Super Stamped.' then
-        message.reply({ Result = 'Success', Action = 'Super-Stamp-Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Super-Stamp-Quantity'] = message.Tags['Super-Stamp-Quantity'], ['Action'] = 'Write-Stamp-Result'  }})
-      end
-    else
-      message.reply({ Result = 'Error', Data = stampResult,  Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' }})
+      message.reply({ Result = 'Failure', Data = 'Unknown error',  Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' } })
+      return
+    end
+
+    -- If stampResult is 'Stamped.' or 'Not Vouched.', then the stamp was successful. Stamped means the writer is vouched, Not_Vouched means the writer is not vouched.
+    -- Otherwise, there was an error during stamping.
+    if stampResult ~= 'Stamped.' and stampResult ~= 'Not Vouched.' then
+      message.reply({ Result = 'Failure', Data = stampResult,  Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' }})
+      return
+    end
+
+    -- If there was not an error during stamping, return success.
+    -- Parse the stamp result
+    local Result = 'Success'
+    if stampResult == 'Not Vouched.' then
+      Result = 'Not_Vouched'
+    end
+
+    message.reply({ Result = Result, Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Action'] = 'Write-Stamp-Result' } })
+
+    -- After a stamp, perform a super stamp if possible.
+    local superStampResult = SuperStamp(message, Balances, Credits, IsAtomicAsset)
+
+    -- If super stamping was successful, return success.
+    if superStampResult == 'Super Stamped.' then
+      message.reply({ Result = 'Success', Tags = { ['Data-Source'] = message.Tags['Data-Source'], ['Stamp-Writer'] = message.From, ['Super-Stamp-Quantity'] = message.Tags['Super-Stamp-Quantity'], ['Action'] = 'Write-Super-Stamp-Result' }})
     end
   end
 )
+
 
 -- Handler: balance
 -- Returns balance of an address

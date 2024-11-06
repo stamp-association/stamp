@@ -10,23 +10,38 @@ export function writeInteraction(process) {
   };
 }
 
+function backoffResults(results, dataSource, delay, retries = 3) {
+  return async (...args) => {
+    if (retries === 0) {
+      throw new Error('Max retries reached')
+    }
+    const res = await results(...args)
+      .then((res) => {
+        const stampResult = res.edges.map((edge) => edge.node).filter((node) => node.Messages.some((msg) => msg.Tags.some((tag) => tag.name === 'Data-Source' && tag.value === dataSource) && msg.Tags.some((tag) => tag.name === 'Action' && tag.value === 'Write-Stamp-Result')))[0]
+        if (!stampResult) {
+          throw new Error('No stamp result found')
+        }
+        return stampResult
+      })
+      .catch(async (_) => {
+        await new Promise((resolve) => setTimeout(resolve, delay))
+        return backoff(results, dataSource, delay, retries - 1)(...args)
+    })
+    return res
+  }
+}
+
 export function readInteraction(process, delay) {
   return async (messageTx, dataSource) => {
-    await new Promise((resolve) => setTimeout(resolve, delay))
-    const res = await results({
+    const backedoffResults = backoffResults(results, dataSource, delay)
+    const stampResult = await backedoffResults({
       message: messageTx,
       process,
       limit: 5,
       sort: 'DESC'
     })
 
-    const stampResult = res.edges.map((edge) => edge.node).filter((node) => node.Messages.some((msg) => msg.Tags.some((tag) => tag.name === 'Data-Source' && tag.value === dataSource) && msg.Tags.some((tag) => tag.name === 'Action' && tag.value === 'Write-Stamp-Result')))[0]
-
-    if (!stampResult) {
-      throw new Error('No stamp result found')
-    }
-
-    return { data: stampResult.Messages[0].Data ?? "No Data", result: stampResult.Messages[0].Tags.find((tag) => tag.name === 'Result').value }
+    return stampResult
   }
 }
 
