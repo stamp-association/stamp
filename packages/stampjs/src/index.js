@@ -8,7 +8,8 @@ import services from "./svcs/index.js";
 
 /**
  * @typedef {Object} Env
- * @property {string} [process]
+ * @property {string} [process] - The stamp process id. Defaults to "bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg".
+ * @property {number} [delay] - delay in milliseconds from stamping to reading. Defaults to 1000.
  */
 
 /**
@@ -16,7 +17,7 @@ import services from "./svcs/index.js";
  * @param {string} transactionId
  * @param {number} [qty] - integer representing the number of tokens to transfer
  * @param {{name: string, value: string}[]} [tags] - tx tags to be added to the transaction
- * @returns {Promise<any>}
+ * @returns {Promise<{ data: string, result: string }>} - data and result of the stamp. Data will usually contain an error message if exists, and result will be either "Success" or "Error".
  */
 
 /**
@@ -65,10 +66,11 @@ export default {
    */
   init: function ({
     process = "bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg",
+    delay = 1000
   }) {
     const env = {
       writeInteraction: services.writeInteraction(process),
-      readInteraction: services.readInteraction(process),
+      readInteraction: services.readInteraction(process, delay),
       aoDryRun: services.aoDryRun(process),
       getAddress: services.getAddress,
     };

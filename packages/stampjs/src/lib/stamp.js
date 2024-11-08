@@ -5,6 +5,12 @@ export function stamp(env, tx, qty = 0, tags = {}) {
   const readInteraction = fromPromise(env.readInteraction)
   const getAddress = fromPromise(env.getAddress);
 
+  function doRead(readInteraction) {
+    return (messageTx) => {
+      return readInteraction(messageTx, tx);
+    }
+  }
+  
   return of({ tx, qty, tags })
     .map(formatTags) // format optional parameter tags
     .chain(getCaller(getAddress)) // getAddress = web wallet address, getCaller = maps it
@@ -30,11 +36,6 @@ function doWrite(writeInteraction) {
         ...ctx.tags,
       ]
     );
-  }
-}
-function doRead(readInteraction) {
-  return (tx) => {
-    return readInteraction(tx);
   }
 }
 
