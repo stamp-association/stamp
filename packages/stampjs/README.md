@@ -18,29 +18,17 @@ Here's an example of how to use STAMPS JS:
 
 ```js
 import Stamps from '@permaweb/stampjs';
-import { WarpFactory } from 'warp-contracts';
-import { InjectedArweaveSigner } from 'warp-contracts-plugin-signature';
-import Arweave from 'arweave';
 
 // if using ArConnect you need to make sure the following PERMISSIONS are enabled
-// * SIGNATURE
-// * ACCESS_PUBLIC_KEY
-// the new signer plugin from warp requires these settings
+// * ACCESS_ADDRESS
+// * DISPATCH
+// * SIGN_TRANSACTION
 
 
-const signer = new InjectedArweaveSigner(globalThis.arweaveWallet) // Required if you are using Warp v1.4.11 or greater
-// also you need to make sure you set the address function
-signer.getAddress = globalThis.arweaveWallet.getActiveAddress
-// finally you need to setPublicKey
-await signer.setPublicKey()
-
-// Initialize STAMPS JS, passing a Warp and Arweave instance
+// Initialize STAMPS JS, passing a process ID and delay
 const stamps = Stamps.init({
-  warp: WarpFactory.forMainnet(), 
-  arweave: Arweave.init({}),
-  wallet: signer,
-  dre: 'https://dre-u.warp.cc/contract', //optional
-  graphql: 'https://arweave.net/graphql' //optional
+  process: 'bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg', // Optional
+  delay: 1000 // Optional - the length of time to wait between retries
 });
 
 // Stamp an asset
