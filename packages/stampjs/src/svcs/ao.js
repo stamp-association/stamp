@@ -25,7 +25,7 @@ function backoffResults(results, dataSource, delay, retries = 3) {
       })
       .catch(async (_) => {
         await new Promise((resolve) => setTimeout(resolve, delay))
-        return backoff(results, dataSource, delay, retries - 1)(...args)
+        return backoffResults(results, dataSource, delay, retries - 1)(...args)
     })
     return res
   }
