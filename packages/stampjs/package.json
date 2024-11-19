@@ -6,7 +6,6 @@
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "devDependencies": {
-    "@bundlr-network/client": "^0.10.1",
     "@types/node": "^18.11.19",
     "arweave": "^1.13.7",
     "esbuild": "^0.17.5",
