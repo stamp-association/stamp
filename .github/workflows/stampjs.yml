@@ -51,6 +51,8 @@ jobs:
 
   release:
     # Releases are performed via a workflow dispatch
+    permissions:
+      contents: write
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     concurrency:
