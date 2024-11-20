@@ -8,7 +8,7 @@ import services from "./svcs/index.js";
 
 /**
  * @typedef {Object} Env
- * @property {string} [process] - The stamp process id. Defaults to "bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg".
+ * @property {string} [process] - The stamp process id. Defaults to "LaC2VtxqGekpRPuJh-TkI_ByAqCS2_KB3YuhMJ5yBtc"
  * @property {number} [delay] - delay in milliseconds from stamping to reading. Defaults to 1000.
  */
 
@@ -65,7 +65,7 @@ export default {
    * @returns {StampJS}
    */
   init: function ({
-    process = "bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg",
+    process = "LaC2VtxqGekpRPuJh-TkI_ByAqCS2_KB3YuhMJ5yBtc",
     delay = 1000
   }) {
     const env = {
