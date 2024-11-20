@@ -179,3 +179,40 @@ Handlers.add(
     Bound(StampHistory, MAXIMUM_STAMPS)
   end
 )
+
+----------------------------
+------- Info Handler -------
+----------------------------
+Handlers.add(
+  'info',
+  Handlers.utils.hasMatchingTag("Action", "Info"),
+  function(msg)
+    if msg.reply then
+      msg.reply({
+        Name = Name,
+        Ticker = Ticker,
+        Logo = Logo,
+        Denomination = tostring(Denomination),
+        Data = json.encode({
+          Name = Name,
+          Ticker = Ticker,
+          Denomination = tostring(Denomination),
+          Balances = Balances
+        })
+      })
+    else
+      Send({
+        Target = msg.From, 
+        Name = Name,
+        Ticker = Ticker,
+        Logo = Logo,
+        Denomination = tostring(Denomination),
+        Data = json.encode({
+          Name = Name,
+          Ticker = Ticker,
+          Denomination = tostring(Denomination),
+          Balances = Balances
+        })
+      })
+  end
+end)

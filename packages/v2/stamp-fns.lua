@@ -607,8 +607,6 @@ function IsAtomicAsset(asset)
         return true, owner
       end
     end
-
-
   end
   return false, ProcessId
 end
@@ -624,7 +622,11 @@ function GetAtomicBalances(asset, owner, blockHeight)
   local infoResponse = Receive({ From = asset })
   local decodedInfo = json.decode(infoResponse.Data)
   local assetBalances = decodedInfo['Balances']
-  return assetBalances
+  if assetBalances then
+    return assetBalances
+  else
+    return { [ProcessId] = 1 }
+  end
 end
 
 function UpdateRewardBalances(atomicAllocations, balances)

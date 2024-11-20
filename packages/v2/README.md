@@ -14,10 +14,10 @@ aos <<PROCESS_NAME>> --tag-name Extension --tag-value WeaveDrive --tag-name Vari
 
 ```sh
 .load-blueprint apm
-APM.install('@rakis/WeaveDrive@0.0.2')
-APM.install('@rakis/test-unit')
-APM.install('@tilla/graphql')
-APM.install('@tilla/graphql_server')
+apm.install('@rakis/WeaveDrive')
+apm.install('@rakis/test-unit')
+apm.install('@tilla/graphql')
+apm.install('@tilla/graphql_server')
 ```
 
 ### Create Lua bundle using bundler.js
