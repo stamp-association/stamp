@@ -27,7 +27,7 @@ import Stamps from '@permaweb/stampjs';
 
 // Initialize STAMPS JS, passing a process ID and delay
 const stamps = Stamps.init({
-  process: 'bLK9hMjx3jsJ4Ldjn-tvuTB1_PHzYV6ivPkv7_D8zKg', // Optional
+  process: 'LaC2VtxqGekpRPuJh-TkI_ByAqCS2_KB3YuhMJ5yBtc', // Optional
   delay: 1000 // Optional - the length of time to wait between retries
 });
 
