@@ -480,30 +480,93 @@ function Credit(BlockHeight, credits, balances)
 end
 
 --- Reward
-function Reward(BlockHeight, lastReward, balances, stamps, stampHistory, allocateAtomicAssets)
+function Reward(BlockHeight, lastReward, balances, stamps, stampHistory, cycleAllocations, handlePreviousRewardCycle, handleNextRewardCycle)
+  handlePreviousRewardCycle(BlockHeight, balances, cycleAllocations)
   if not utils.positive(TableLength(stamps)) then
     return 'No Stamps'
   end
 
   local reward = GetReward(BlockHeight, balances)
+
   if reward == 'Error: Not Enough Reward' then
     return 'Error: Not Enough Reward'
   end
-
   if lastReward + 720 > BlockHeight then
     return 'Error: Not Time to reward'
   end
 
-  local assetRewards = Mint(stamps, reward)
-  local atomicAllocations = allocateAtomicAssets(assetRewards, BlockHeight)
-
-  UpdateRewardBalances(atomicAllocations, balances)
-  ClearStampHistory(stamps, stampHistory)
-
-  lastReward = BlockHeight
+  handleNextRewardCycle(BlockHeight, stamps, stampHistory, reward, cycleAllocations)
   return "Rewarded."
 end
 
+function HandlePreviousRewardCycle(BlockHeight, balances, cycleAllocations)
+  local blockHeightsToRemove = {}
+  for blockHeight, _ in pairs(cycleAllocations) do
+    if blockHeight < BlockHeight then
+      UpdateRewardBalances(cycleAllocations[blockHeight], balances)
+      table.insert(blockHeightsToRemove, blockHeight)
+    end
+  end
+  for _, blockHeight in ipairs(blockHeightsToRemove) do
+    cycleAllocations[blockHeight] = nil
+  end
+  -- remove old _once_ handlers
+  RemoveOldHandlers()
+end
+
+function RemoveOldHandlers()
+  local handlersToRemove = {}
+  for _, handler in ipairs(Handlers.list) do
+    if handler.name:match('_once_') then
+      table.insert(handlersToRemove, handler.name)
+    end
+  end
+  for _, handlerName in ipairs(handlersToRemove) do
+    Handlers.remove(handlerName)
+  end
+end
+
+function HandleNextRewardCycle(BlockHeight, stamps, stampHistory, reward, cycleAllocations)
+  local assetRewards = Mint(stamps, reward)
+  if not cycleAllocations[BlockHeight] then
+    cycleAllocations[BlockHeight] = {}
+  end
+  for asset, _ in pairs(assetRewards) do
+    cycleAllocations[BlockHeight][asset] = false
+  end
+  local atomicAssets = {}
+  for asset, assetReward in pairs(assetRewards) do
+    local isAtomicAsset, owner = IsAtomicAsset(asset)
+    if isAtomicAsset then
+      atomicAssets[asset] = owner
+    end
+    cycleAllocations[BlockHeight][asset] = { [owner] = assetReward }
+  end
+  for asset, owner in pairs(atomicAssets) do
+    Handlers.once({ From = asset }, function (message)
+      local data = message.Data
+      if not data or type(data) ~= 'string' then
+        cycleAllocations[BlockHeight][asset] = { [owner] = reward }
+        return
+      end
+      local status, decodedInfo = pcall(json.decode, data)
+      if not status then
+        cycleAllocations[BlockHeight][asset] = { [owner] = reward }
+        return
+      end
+      local assetBalances = decodedInfo['Balances']
+      if not assetBalances then
+        cycleAllocations[BlockHeight][asset] = { [owner] = reward }
+        return
+      end
+      cycleAllocations[BlockHeight][asset] = Allocate(assetBalances, reward)
+    end)
+  end
+  for asset, _ in pairs(atomicAssets) do
+    Send({ Target = asset, Action = 'Info'})
+  end
+  ClearStampHistory(stamps, stampHistory)
+end
 
 function GetReward(BlockHeight, balances)
   TOTAL_SUPPLY = 435000 * 1e12
@@ -578,21 +641,6 @@ function Mint(stamps, reward)
 
 end
 
-function AllocateAtomicAssets(assetRewards, blockHeight)
-  local atomicAllocations = {}
-  for asset, reward in pairs(assetRewards) do
-    local isAtomicAsset, owner = IsAtomicAsset(asset)
-    if isAtomicAsset then
-      local atomicBalances = GetAtomicBalances(asset, owner, blockHeight)
-      local assetAllocations = Allocate(atomicBalances, reward)
-      atomicAllocations[asset] = assetAllocations
-    else
-      atomicAllocations[asset] = { [owner] = reward }
-    end
-  end
-  return atomicAllocations
-end
-
 function IsAtomicAsset(asset)
   local assetHeaders = drive.getDataItem(asset)
   if type(assetHeaders) == "string" then
@@ -612,14 +660,18 @@ function IsAtomicAsset(asset)
 end
 
 function GetAtomicBalances(asset, owner, blockHeight)
-  Send({ Target = asset, Action = "Info"})
-
+  local onceNonce = Handlers.onceNonce
   local nextBlockHeight = blockHeight + 5
   if not HangingReceives[nextBlockHeight] then
     HangingReceives[nextBlockHeight] = {}
   end
-  HangingReceives[nextBlockHeight][Handlers.onceNonce] = owner
+  HangingReceives[nextBlockHeight][onceNonce] = owner
+  Send({ Target = asset, Action = "Info"})
   local infoResponse = Receive({ From = asset })
+  if HangingReceives[nextBlockHeight] then
+    HangingReceives[nextBlockHeight][onceNonce] = nil
+  end
+  local data = infoResponse.Data
   local decodedInfo = json.decode(infoResponse.Data)
   local assetBalances = decodedInfo['Balances']
   if assetBalances then

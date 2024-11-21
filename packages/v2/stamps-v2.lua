@@ -43,7 +43,7 @@ Claimables = Claimables or {}
 Credits = Credits or {}
 
 Stamps = Stamps or {}
-
+CycleAllocations = CycleAllocations or {}
 HangingReceives = HangingReceives or {}
 
 -- GQL Indexes

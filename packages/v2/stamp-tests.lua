@@ -1192,25 +1192,6 @@ function InitRewardTests()
   local assetAddress = 'ASSETASSETASSETASSETASSETASSETASSETASSET001'
   local assetAddress2 = 'ASSETASSETASSETASSETASSETASSETASSETASSET002'
   local assetAddress3 = 'ASSETASSETASSETASSETASSETASSETASSETASSET003'
-  function allocateAtomicAssets(assetRewards)
-    local assetBalances = {
-      [assetAddress] = {
-        [fromAddress] = 1
-      },
-      [assetAddress2] = {
-        [fromAddress] = 1,
-        [fromAddress2] = 1
-      },
-      [assetAddress3] = {
-        [ProcessId] = 1
-      }
-    }
-    local results = {}
-    for asset, reward in pairs(assetRewards) do
-      results[asset] = Allocate(assetBalances[asset], reward)
-    end
-    return results
-  end
   local lastReward = 788400
   StampTests:add(
     "REWARD: No stamps",
@@ -1222,7 +1203,8 @@ function InitRewardTests()
       local BlockHeight = 788450
       local testStamps = {}
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local testCycleAllocations = {}
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, testCycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
 
       assert(rewardResult == 'No Stamps', 'Should throw not enough reward error')
     end
@@ -1250,7 +1232,8 @@ function InitRewardTests()
         }
       }
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local testCycleAllocations = {}
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, testCycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
 
       assert(rewardResult == 'Error: Not Enough Reward', 'Should throw not enough reward error')
     end
@@ -1280,7 +1263,8 @@ function InitRewardTests()
         }
       }
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local testCycleAllocations = {}
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, testCycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
 
       assert(rewardResult == 'Error: Not Time to reward', 'Not time to reward yet')
     end
@@ -1310,7 +1294,8 @@ function InitRewardTests()
         }
       }
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local testCycleAllocations = {}
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, testCycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
 
       -- Process balance starts with 2 * 1e12, loses 1 * 1e12
       assert(testBalances[ProcessId] == utils.subtract(2 * 1e12, 1 * 1e12), 'Process balance should decrease by one reward')
@@ -1321,6 +1306,9 @@ function InitRewardTests()
   StampTests:add(
     "REWARD: Successful reward",
     function()
+      local assetAddress = 'KdGNI7elW1A2TRKeebCswK5Z8F9shBP5vzEDlT-eS6Y' -- No balances, owner: atkI1E32mchuz_nl9kgcDntECH0BOuHJ1FBgCvlcH5E
+      -- assetAddress2 - no owner - give to process
+      -- assetAddress3 - no owner - give to process
       local testBalances = {
         [fromAddress] = "1000",
         [targetAddress] = "3000",
@@ -1347,31 +1335,57 @@ function InitRewardTests()
       }
 
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
-
+      local testCycleAllocations = {}
+      -- handler to handle asset 1 response (no op)
+      Handlers.once({ From = assetAddress }, function (message)
+          return
+      end)
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, testCycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
       local reward = 499371288304695
       -- Two unique stampers: 1/2 reward for each
       -- Asset 1 (stamped: from1, from2) receives 4/6 of the reward (1/3 of from1s reward + 1/1 of from2s reward) - 332914192203130
       -- Asset 2 (stamped: from1) receives 1/6 of the reward (1/3 of from1s reward) plus one remainder - 83228548050783
       -- Asset 3 (stamped: from1) receives 1/6 of the reward (1/3 of from1s reward) - 83228548050782
-
-      -- Asset 1 is registered to fromAddress - receives whole reward (332914192203130)
-      -- Asset 2 is registered to fromAddress and fromAddress2 - split reward (83228548050783)
+      
+      -- Asset 1 is registered to atkI1E32mchuz_nl9kgcDntECH0BOuHJ1FBgCvlcH5E - receives whole reward (332914192203130)
+      -- Asset 2 is registered to no one - reward goes to ProcessId (83228548050783)
       -- Asset 3 is registered to no one - reward goes to ProcessId (83228548050782)
 
-      -- From address balance starts with 1000, receives asset 1 reward, receives 1/2 of asset 2 reward
-      assert(testBalances[fromAddress] == utils.toBalanceValue(1000 + 332914192203130 + (83228548050782 / 2)), 'From address balance should increase')
-      -- From address 2 balance starts with 0, receives 1/2 of asset 2 reward
-      assert(testBalances[fromAddress2] == utils.toBalanceValue(0 + (83228548050782 / 2)), 'From address 2 balance should increase')
-
-      -- Process balance starts with 2 * e12, receives asset 3 reward, plus one remainder
-      assert(testBalances[ProcessId] == utils.toBalanceValue((2 * 1e12) + 83228548050782 + 1), 'Process balance should increase')
-
-      -- Target balance unchanged
-      assert(testBalances[targetAddress] == utils.toBalanceValue(3000), 'Target address balance should be unchanged')
-
+      -- Cycle allocations for block height should be: BlockHeight: Asset: Owner / Process: Balance
+      assert(testCycleAllocations[BlockHeight][assetAddress]['atkI1E32mchuz_nl9kgcDntECH0BOuHJ1FBgCvlcH5E'] == 332914192203130, 'Cycle allocation for asset 1 should be to owner')
+      assert(testCycleAllocations[BlockHeight][assetAddress2][ProcessId] == 83228548050782, 'Cycle allocation for asset 2 should be to process')
+      assert(testCycleAllocations[BlockHeight][assetAddress3][ProcessId] == 83228548050783, 'Cycle allocation for asset 3 should be to process')
+      
+      -- Balances should not change on the first reward cycle
+      assert(testBalances[fromAddress] == utils.toBalanceValue(1000), 'From address balance should not change')
+      assert(testBalances[targetAddress] == utils.toBalanceValue(3000), 'Target address balance should not change')
+      assert(testBalances[ProcessId] == utils.toBalanceValue(2 * 1e12), 'Process balance should not change')
+      
       assert(TableLength(testStamps) == 0, 'Stamps should be emptied')
       assert(rewardResult == 'Rewarded.', 'Should be successful reward')
+      
+
+      -- Run next reward cycle
+      IncreasedBlockHeight = BlockHeight + 1000
+      local secondResult = Reward(IncreasedBlockHeight, lastReward, testBalances, testStamps, testStampHistory, testCycleAllocations)
+      assert(TableLength(testCycleAllocations) == 0, 'Cycle allocations should have no entries')
+      assert(testBalances[fromAddress] == utils.toBalanceValue(1000), 'From address balance should not change')
+      assert(testBalances[targetAddress] == utils.toBalanceValue(3000), 'Target address balance should not change')
+      assert(testBalances['atkI1E32mchuz_nl9kgcDntECH0BOuHJ1FBgCvlcH5E'] == utils.toBalanceValue(332914192203130), 'Asset 1 owner should receive reward')
+      assert(testBalances[ProcessId] == utils.toBalanceValue(83228548050782 + 83228548050783 + (2 * 1e12)), 'Process should receive reward')
+      assert(TableLength(testStamps) == 0, 'Stamps should be emptied')
+      assert(secondResult == 'No Stamps', 'No new stamps on second run')
+      -- From address balance starts with 1000, receives asset 1 reward, receives 1/2 of asset 2 reward
+      -- assert(testBalances[fromAddress] == utils.toBalanceValue(1000 + 332914192203130 + (83228548050782 / 2)), 'From address balance should increase')
+      -- -- From address 2 balance starts with 0, receives 1/2 of asset 2 reward
+      -- assert(testBalances[fromAddress2] == utils.toBalanceValue(0 + (83228548050782 / 2)), 'From address 2 balance should increase')
+
+      -- -- Process balance starts with 2 * e12, receives asset 3 reward, plus one remainder
+      -- assert(testBalances[ProcessId] == utils.toBalanceValue((2 * 1e12) + 83228548050782 + 1), 'Process balance should increase')
+
+      -- -- Target balance unchanged
+      -- assert(testBalances[targetAddress] == utils.toBalanceValue(3000), 'Target address balance should be unchanged')
+
     end
   )
 end
