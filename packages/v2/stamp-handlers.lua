@@ -174,10 +174,12 @@ Handlers.add(
   function (message)
     local BlockHeight = message["Block-Height"]
     HandleHangingReceives(BlockHeight, HangingReceives)
-    Reward(BlockHeight, LastReward, Balances, Stamps, StampHistory, CycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
+    local rewardResult = Reward(BlockHeight, LastReward, Balances, Stamps, StampHistory, CycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
+    if rewardResult == 'Rewarded.' then
+      LastReward = BlockHeight
+    end
     Credit(BlockHeight, Credits, Balances)
     Bound(StampHistory, MAXIMUM_STAMPS)
-    LastReward = BlockHeight
   end
 )
 
