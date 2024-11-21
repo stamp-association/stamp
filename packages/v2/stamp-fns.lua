@@ -480,8 +480,8 @@ function Credit(BlockHeight, credits, balances)
 end
 
 --- Reward
-function Reward(BlockHeight, lastReward, balances, stamps, stampHistory, cycleAllocations)
-  HandlePreviousRewardCycle(BlockHeight, balances, cycleAllocations)
+function Reward(BlockHeight, lastReward, balances, stamps, stampHistory, cycleAllocations, handlePreviousRewardCycle, handleNextRewardCycle)
+  handlePreviousRewardCycle(BlockHeight, balances, cycleAllocations)
   if not utils.positive(TableLength(stamps)) then
     return 'No Stamps'
   end
@@ -495,8 +495,7 @@ function Reward(BlockHeight, lastReward, balances, stamps, stampHistory, cycleAl
     return 'Error: Not Time to reward'
   end
 
-
-  HandleNextRewardCycle(BlockHeight, stamps, stampHistory, reward, cycleAllocations)
+  handleNextRewardCycle(BlockHeight, stamps, stampHistory, reward, cycleAllocations)
   return "Rewarded."
 end
 
