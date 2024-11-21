@@ -1192,25 +1192,6 @@ function InitRewardTests()
   local assetAddress = 'ASSETASSETASSETASSETASSETASSETASSETASSET001'
   local assetAddress2 = 'ASSETASSETASSETASSETASSETASSETASSETASSET002'
   local assetAddress3 = 'ASSETASSETASSETASSETASSETASSETASSETASSET003'
-  function allocateAtomicAssets(assetRewards)
-    local assetBalances = {
-      [assetAddress] = {
-        [fromAddress] = 1
-      },
-      [assetAddress2] = {
-        [fromAddress] = 1,
-        [fromAddress2] = 1
-      },
-      [assetAddress3] = {
-        [ProcessId] = 1
-      }
-    }
-    local results = {}
-    for asset, reward in pairs(assetRewards) do
-      results[asset] = Allocate(assetBalances[asset], reward)
-    end
-    return results
-  end
   local lastReward = 788400
   StampTests:add(
     "REWARD: No stamps",
@@ -1222,7 +1203,7 @@ function InitRewardTests()
       local BlockHeight = 788450
       local testStamps = {}
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory)
 
       assert(rewardResult == 'No Stamps', 'Should throw not enough reward error')
     end
@@ -1250,7 +1231,7 @@ function InitRewardTests()
         }
       }
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory)
 
       assert(rewardResult == 'Error: Not Enough Reward', 'Should throw not enough reward error')
     end
@@ -1280,7 +1261,7 @@ function InitRewardTests()
         }
       }
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory)
 
       assert(rewardResult == 'Error: Not Time to reward', 'Not time to reward yet')
     end
@@ -1310,7 +1291,7 @@ function InitRewardTests()
         }
       }
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory)
 
       -- Process balance starts with 2 * 1e12, loses 1 * 1e12
       assert(testBalances[ProcessId] == utils.subtract(2 * 1e12, 1 * 1e12), 'Process balance should decrease by one reward')
@@ -1347,7 +1328,7 @@ function InitRewardTests()
       }
 
       local testStampHistory = {}
-      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory, allocateAtomicAssets)
+      local rewardResult = Reward(BlockHeight, lastReward, testBalances, testStamps, testStampHistory)
 
       local reward = 499371288304695
       -- Two unique stampers: 1/2 reward for each
@@ -1359,6 +1340,7 @@ function InitRewardTests()
       -- Asset 2 is registered to fromAddress and fromAddress2 - split reward (83228548050783)
       -- Asset 3 is registered to no one - reward goes to ProcessId (83228548050782)
 
+      print(testBalances)
       -- From address balance starts with 1000, receives asset 1 reward, receives 1/2 of asset 2 reward
       assert(testBalances[fromAddress] == utils.toBalanceValue(1000 + 332914192203130 + (83228548050782 / 2)), 'From address balance should increase')
       -- From address 2 balance starts with 0, receives 1/2 of asset 2 reward
