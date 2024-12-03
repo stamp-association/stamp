@@ -173,8 +173,7 @@ Handlers.add(
   Handlers.utils.hasMatchingTag('Action', 'Cron'),
   function (message)
     local BlockHeight = message["Block-Height"]
-    HandleHangingReceives(BlockHeight, HangingReceives)
-    local rewardResult = Reward(BlockHeight, LastReward, Balances, Stamps, StampHistory, CycleAllocations, HandlePreviousRewardCycle, HandleNextRewardCycle)
+    local rewardResult = Reward(BlockHeight, LastReward, Balances, Stamps, StampHistory)
     if rewardResult == 'Rewarded.' then
       LastReward = BlockHeight
     end

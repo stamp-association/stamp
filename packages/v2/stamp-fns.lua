@@ -480,8 +480,7 @@ function Credit(BlockHeight, credits, balances)
 end
 
 --- Reward
-function Reward(BlockHeight, lastReward, balances, stamps, stampHistory, cycleAllocations, handlePreviousRewardCycle, handleNextRewardCycle)
-  handlePreviousRewardCycle(BlockHeight, balances, cycleAllocations)
+function Reward(BlockHeight, lastReward, balances, stamps, stampHistory)
   if not utils.positive(TableLength(stamps)) then
     return 'No Stamps'
   end
@@ -495,77 +494,13 @@ function Reward(BlockHeight, lastReward, balances, stamps, stampHistory, cycleAl
     return 'Error: Not Time to reward'
   end
 
-  handleNextRewardCycle(BlockHeight, stamps, stampHistory, reward, cycleAllocations)
-  return "Rewarded."
-end
-
-function HandlePreviousRewardCycle(BlockHeight, balances, cycleAllocations)
-  local blockHeightsToRemove = {}
-  for blockHeight, _ in pairs(cycleAllocations) do
-    if blockHeight < BlockHeight then
-      UpdateRewardBalances(cycleAllocations[blockHeight], balances)
-      table.insert(blockHeightsToRemove, blockHeight)
-    end
-  end
-  for _, blockHeight in ipairs(blockHeightsToRemove) do
-    cycleAllocations[blockHeight] = nil
-  end
-  -- remove old _once_ handlers
-  RemoveOldHandlers()
-end
-
-function RemoveOldHandlers()
-  local handlersToRemove = {}
-  for _, handler in ipairs(Handlers.list) do
-    if handler.name:match('_once_') then
-      table.insert(handlersToRemove, handler.name)
-    end
-  end
-  for _, handlerName in ipairs(handlersToRemove) do
-    Handlers.remove(handlerName)
-  end
-end
-
-function HandleNextRewardCycle(BlockHeight, stamps, stampHistory, reward, cycleAllocations)
   local assetRewards = Mint(stamps, reward)
-  if not cycleAllocations[BlockHeight] then
-    cycleAllocations[BlockHeight] = {}
-  end
-  for asset, _ in pairs(assetRewards) do
-    cycleAllocations[BlockHeight][asset] = false
-  end
-  local atomicAssets = {}
   for asset, assetReward in pairs(assetRewards) do
-    local isAtomicAsset, owner = IsAtomicAsset(asset)
-    if isAtomicAsset then
-      atomicAssets[asset] = owner
-    end
-    cycleAllocations[BlockHeight][asset] = { [owner] = assetReward }
-  end
-  for asset, owner in pairs(atomicAssets) do
-    Handlers.once({ From = asset }, function (message)
-      local data = message.Data
-      if not data or type(data) ~= 'string' then
-        cycleAllocations[BlockHeight][asset] = { [owner] = reward }
-        return
-      end
-      local status, decodedInfo = pcall(json.decode, data)
-      if not status then
-        cycleAllocations[BlockHeight][asset] = { [owner] = reward }
-        return
-      end
-      local assetBalances = decodedInfo['Balances']
-      if not assetBalances then
-        cycleAllocations[BlockHeight][asset] = { [owner] = reward }
-        return
-      end
-      cycleAllocations[BlockHeight][asset] = Allocate(assetBalances, reward)
-    end)
-  end
-  for asset, _ in pairs(atomicAssets) do
-    Send({ Target = asset, Action = 'Info'})
+    InitializeBalance(balances, asset)
+    balances[asset] = utils.add(balances[asset], assetReward)
   end
   ClearStampHistory(stamps, stampHistory)
+  return "Rewarded."
 end
 
 function GetReward(BlockHeight, balances)
@@ -639,55 +574,6 @@ function Mint(stamps, reward)
 
   return assetRewards
 
-end
-
-function IsAtomicAsset(asset)
-  local assetHeaders = drive.getDataItem(asset)
-  if type(assetHeaders) == "string" then
-    local parsedHeaders = json.decode(assetHeaders)
-    local tags = parsedHeaders['tags']
-    local owner = ProcessId
-    if parsedHeaders['owner']['address'] then
-      owner = parsedHeaders['owner']['address']
-    end
-    for _, tag in ipairs(tags) do
-      if tag['name'] == 'Type' and tag['value'] == 'Process' then
-        return true, owner
-      end
-    end
-  end
-  return false, ProcessId
-end
-
-function GetAtomicBalances(asset, owner, blockHeight)
-  local onceNonce = Handlers.onceNonce
-  local nextBlockHeight = blockHeight + 5
-  if not HangingReceives[nextBlockHeight] then
-    HangingReceives[nextBlockHeight] = {}
-  end
-  HangingReceives[nextBlockHeight][onceNonce] = owner
-  Send({ Target = asset, Action = "Info"})
-  local infoResponse = Receive({ From = asset })
-  if HangingReceives[nextBlockHeight] then
-    HangingReceives[nextBlockHeight][onceNonce] = nil
-  end
-  local data = infoResponse.Data
-  local decodedInfo = json.decode(infoResponse.Data)
-  local assetBalances = decodedInfo['Balances']
-  if assetBalances then
-    return assetBalances
-  else
-    return { [ProcessId] = 1 }
-  end
-end
-
-function UpdateRewardBalances(atomicAllocations, balances)
-  for _, allocations in pairs(atomicAllocations) do
-    for address, reward in pairs(allocations) do
-      InitializeBalance(balances, address)
-      balances[address] = utils.add(balances[address], reward)
-    end
-  end
 end
 
 function ClearStampHistory(stamps, stampHistory)

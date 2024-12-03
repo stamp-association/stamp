@@ -128,27 +128,3 @@ function UpdateCredits(BlockHeight, txId, creditsTable, credits, balances)
 
   return creditsTable
 end
-
-function HandleHangingReceives(BlockHeight, hangingReceives)
-  local handlersToRemove = {}
-  local handlersToRun = {}
-  for bh, nonces in pairs(hangingReceives) do
-    if (bh <= BlockHeight) then
-      for nonce, owner in pairs(nonces) do
-        for _, handler in ipairs(Handlers.list) do
-          if (handler.name == '_once_' .. nonce) then
-            table.insert(handlersToRun, { handle = handler.handle, args = { Data = json.encode({ Balances = { [owner] = '1' } }) } })
-          end
-        end
-        table.insert(handlersToRemove, "_once_" .. nonce)
-      end
-      HangingReceives[bh] = nil
-    end
-  end
-  for _, handler in ipairs(handlersToRemove) do
-    Handlers.remove(handler)
-  end
-  for _, handler in ipairs(handlersToRun) do
-    handler.handle(handler.args, ao.env)
-  end
-end
