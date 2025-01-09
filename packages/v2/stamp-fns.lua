@@ -165,10 +165,10 @@ end
 function Balance(message, balances)
   local validated, from = ValidateBalance(message)
   if not validated or from == nil then
-    return "Not Validated."
+    return "Not Validated.", nil
   end
   
-  return GetBalance(balances, from)
+  return GetBalance(balances, from), from
 end
 
 --------------------
@@ -176,8 +176,8 @@ end
 --------------------
 function ValidateTransfer(message, balances)
   local caller = message.From
-  local target = message.Tags['Transfer-Recipient']
-  local quantity = message.Tags['Transfer-Quantity']
+  local recipient = message.Tags['Recipient']
+  local quantity = message.Tags['Quantity']
 
   if not quantity or not utils.toNumber(quantity) or not utils.positive(quantity) then
     return false, 'Invalid quantity'
@@ -187,16 +187,16 @@ function ValidateTransfer(message, balances)
     return false, 'Invalid caller'
   end
 
-  if not target or string.len(target) ~= 43 then
-    return false, 'Invalid target'
+  if not recipient or string.len(recipient) ~= 43 then
+    return false, 'Invalid recipient'
   end
 
-  if caller == target then
-    return false, 'Target can not be caller'
+  if caller == recipient then
+    return false, 'Recipient can not be caller'
   end
 
   InitializeBalance(balances, caller)
-  InitializeBalance(balances, target)
+  InitializeBalance(balances, recipient)
   if bint(balances[caller]) < bint(quantity) then
     return false, 'Not enough balance to transfer'
   end
@@ -211,12 +211,47 @@ function Transfer(message, balances)
   end
 
   local caller = message.From
-  local target = message.Tags['Transfer-Recipient']
-  local quantity = bint(message.Tags['Transfer-Quantity'])
+  local recipient = message.Tags['Recipient']
+  local quantity = bint(message.Tags['Quantity'])
+  local cast = message.Cast
 
   balances[caller] = utils.subtract(balances[caller], quantity)
-  balances[target] = utils.add(balances[target], quantity)
+  balances[recipient] = utils.add(balances[recipient], quantity)
 
+  if not cast then
+    local debitNotice = {
+      Target = caller,
+      Action = 'Debit-Notice',
+      Recipient = recipient,
+      Quantity = quantity,
+      Data = Colors.gray ..
+          "You transferred " ..
+          Colors.blue .. utils.toBalanceValue(quantity) .. Colors.gray .. " to " .. Colors.green .. recipient .. Colors.reset
+    }
+    -- Credit-Notice message template, that is sent to the Recipient of the transfer
+    local creditNotice = {
+      Target = recipient,
+      Action = 'Credit-Notice',
+      Sender = caller,
+      Quantity = quantity,
+      Data = Colors.gray ..
+          "You received " ..
+          Colors.blue .. utils.toBalanceValue(quantity) .. Colors.gray .. " from " .. Colors.green .. caller .. Colors.reset
+    }
+
+    -- Add forwarded tags to the credit and debit notice messages
+    for tagName, tagValue in pairs(message.Tags) do
+      -- Tags beginning with "X-" are forwarded
+      if string.sub(tagName, 1, 2) == "X-" then
+        debitNotice[tagName] = tagValue
+        creditNotice[tagName] = tagValue
+      end
+    end
+
+    -- Send Debit-Notice and Credit-Notice
+    Send(debitNotice)
+    Send(creditNotice)
+  end
   return 'Transferred.'
 end
 

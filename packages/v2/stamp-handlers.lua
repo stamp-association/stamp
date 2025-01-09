@@ -68,32 +68,47 @@ Handlers.add(
 
 -- Handler: balance
 -- Returns balance of an address
--- Tags: None
+-- Tags: 
+--    ['Recipient'] | ['Target'] = The address to get the balance of
 Handlers.add(
   'Stamp-Read-Balance',
-  Handlers.utils.hasMatchingTag('Action', 'Read-Balance'),
+  Handlers.utils.hasMatchingTag('Action', 'Balance'),
   function (message)
-    local balanceResult = Balance(message, Balances)
+    local balanceResult, from = Balance(message, Balances)
     if not balanceResult then
-      message.reply({ Result = 'Error', Data = 'Unknown error' })
-    elseif balanceResult == 'Not Validated.' then
-      message.reply({ Result = 'Error', Data = 'Invalid Recipient' })
+      message.reply({ Result = 'Error', Tags = { ['Error'] = 'Unknown error' } })
+    elseif balanceResult == 'Not Validated.' or not from then
+      message.reply({ Result = 'Error', Tags = { ['Error'] = 'Invalid Target' } })
     else
-      message.reply({ Result = 'Success', Data = balanceResult })
+      message.reply({ Result = 'Success', Tags = { ['Balance'] = balanceResult, ['Target'] = from, ['Ticker'] = Ticker } })
     end
+  end
+)
+
+-- Handler: balances
+-- Returns all balances
+-- Tags: NONE
+Handlers.add(
+  'Stamp-Read-Balances',
+  Handlers.utils.hasMatchingTag('Action', 'Balances'),
+  function (message)
+    message.reply({ Result = 'Success', Data = json.encode(Balances) })
   end
 )
 
 -- Handler: transfer
 -- Transfer balance between addresses
 -- Tags:
---    ['Transfer-Recipient'] = The address to transfer balance to
---    ['Transfer-Quantity'] = The quantity of balance to transfer
+--    ['Recipient'] = The address to transfer balance to
+--    ['Quantity'] = The quantity of balance to transfer
 Handlers.add(
   'Stamp-Write-Transfer',
-  Handlers.utils.hasMatchingTag('Action', 'Write-Transfer'),
+  Handlers.utils.hasMatchingTag('Action', 'Transfer'),
   function (message)
-    Transfer(message, Balances)
+    local transferResult = Transfer(message, Balances)
+    if transferResult ~= 'Transferred.' then
+      message.reply({ Action = 'Transfer-Error', ['Message-Id'] = message.Id, Error = 'Insufficient Balance!' })
+    end
   end
 )
 
@@ -187,7 +202,7 @@ Handlers.add(
 ----------------------------
 Handlers.add(
   'info',
-  Handlers.utils.hasMatchingTag("Action", "Info"),
+  Handlers.utils.hasMatchingTag('Action', 'Info'),
   function(msg)
     if msg.reply then
       msg.reply({

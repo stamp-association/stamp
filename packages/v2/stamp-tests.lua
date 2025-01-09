@@ -560,7 +560,7 @@ function InitTransferTests()
       local transferResult = Transfer(
         {
           From = fromAddress, 
-          Tags = { ['Transfer-Recipient'] = targetAddress }
+          Tags = { ['Recipient'] = targetAddress }
         },
         
         testBalances
@@ -576,7 +576,7 @@ function InitTransferTests()
       local transferResult = Transfer(
         {
           From = fromAddress,
-          Tags = { ['Transfer-Recipient'] = targetAddress, ['Transfer-Quantity'] = 'Ten' }
+          Tags = { ['Recipient'] = targetAddress, ['Quantity'] = 'Ten' }
         },
         
         testBalances
@@ -591,7 +591,7 @@ function InitTransferTests()
       local testBalances = {}
       local transferResult = Transfer(
         {
-          Tags = { ['Transfer-Recipient'] = targetAddress, ['Transfer-Quantity'] = '10' }
+          Tags = { ['Recipient'] = targetAddress, ['Quantity'] = '10' }
         },
         
         testBalances
@@ -607,7 +607,7 @@ function InitTransferTests()
       local transferResult = Transfer(
         {
           From = "Jack",
-          Tags = { ['Transfer-Recipient'] = targetAddress, ['Transfer-Quantity'] = '10' }
+          Tags = { ['Recipient'] = targetAddress, ['Quantity'] = '10' }
         },
         
         testBalances
@@ -623,12 +623,12 @@ function InitTransferTests()
       local transferResult = Transfer(
         {
           From = fromAddress,
-          Tags = { ['Transfer-Quantity'] = '10' }
+          Tags = { ['Quantity'] = '10' }
         },
         
         testBalances
       )
-      assert(transferResult == "Invalid target", "Validation should fail!")
+      assert(transferResult == "Invalid recipient", "Validation should fail!")
     end
   )
 
@@ -639,7 +639,7 @@ function InitTransferTests()
       local transferResult = Transfer(
         {
           From = "Jack",
-          Tags = { ['Transfer-Recipient'] = 'Jack', ['Transfer-Quantity'] = '10' }
+          Tags = { ['Recipient'] = 'Jack', ['Quantity'] = '10' }
         },
         
         testBalances
@@ -654,13 +654,13 @@ function InitTransferTests()
       local transferResult = Transfer(
         {
           From = fromAddress,
-          Tags = { ['Transfer-Recipient'] = fromAddress, ['Transfer-Quantity'] = '10' }
+          Tags = { ['Recipient'] = fromAddress, ['Quantity'] = '10' }
         },
         
         testBalances
       )
 
-      assert(transferResult == "Target can not be caller", "Validation should fail!")
+      assert(transferResult == "Recipient can not be caller", "Validation should fail!")
     end
   )
   StampTests:add(
@@ -672,7 +672,7 @@ function InitTransferTests()
       Transfer(
         {
           From = fromAddress,
-          Tags = { ['Transfer-Recipient'] = targetAddress, ['Transfer-Quantity'] = '10' }
+          Tags = { ['Recipient'] = targetAddress, ['Quantity'] = '10' }
         },
         
         testBalances
@@ -691,9 +691,8 @@ function InitTransferTests()
       Transfer(
         {
           From = fromAddress,
-          Tags = { ['Transfer-Recipient'] = targetAddress, ['Transfer-Quantity'] = '10' }
+          Tags = { ['Recipient'] = targetAddress, ['Quantity'] = '10' }
         },
-        
         testBalances
       )
       assert(testBalances[targetAddress] == '10', "Should initialize from address balance to zero and add ten!")
@@ -709,7 +708,7 @@ function InitTransferTests()
       local result = Transfer(
         {
           From = fromAddress,
-          Tags = { ['Transfer-Recipient'] = targetAddress, ['Transfer-Quantity'] = '10' }
+          Tags = { ['Recipient'] = targetAddress, ['Quantity'] = '10' }
         },
         
         testBalances
@@ -730,7 +729,7 @@ function InitTransferTests()
       local result = Transfer(
         {
           From = fromAddress,
-          Tags = { ['Transfer-Recipient'] = targetAddress, ['Transfer-Quantity'] = '50' }
+          Tags = { ['Recipient'] = targetAddress, ['Quantity'] = '50' }
         },
         
         testBalances
